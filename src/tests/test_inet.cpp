@@ -1,0 +1,39 @@
+/*
+ *  Created on: 8 Aug 2011
+ *      Author: @benjamg
+ */
+
+#include <boost/test/unit_test.hpp>
+
+#include "zmq/inet.hpp"
+
+BOOST_AUTO_TEST_SUITE( inet )
+
+BOOST_AUTO_TEST_CASE( swaping_64bit_byteorder )
+{
+	uint64_t host = 0x1122334455667788;
+
+	uint64_t network = zmq::swap_if_needed(host);
+
+	uint8_t* bytes = reinterpret_cast<uint8_t*>(&network);
+
+	BOOST_CHECK_EQUAL(0x11, bytes[0]);
+	BOOST_CHECK_EQUAL(0x22, bytes[1]);
+	BOOST_CHECK_EQUAL(0x33, bytes[2]);
+	BOOST_CHECK_EQUAL(0x44, bytes[3]);
+	BOOST_CHECK_EQUAL(0x55, bytes[4]);
+	BOOST_CHECK_EQUAL(0x66, bytes[5]);
+	BOOST_CHECK_EQUAL(0x77, bytes[6]);
+	BOOST_CHECK_EQUAL(0x88, bytes[7]);
+}
+
+BOOST_AUTO_TEST_CASE( swaping_64bit_reversable )
+{
+	uint64_t host = 0x1122334455667788;
+
+	uint64_t network = zmq::swap_if_needed(host);
+
+	BOOST_CHECK_EQUAL(host, zmq::swap_if_needed(network));
+}
+
+BOOST_AUTO_TEST_SUITE_END()
