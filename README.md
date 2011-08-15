@@ -6,14 +6,15 @@ core 0mq provides. It consists of a number of header and source files all
 residing in the zmq directory, these files are provided under the MIT license
 (see zmq/zmq.hpp for details).
 
-They can either be included directly into any 0mq using project or used as a shared
-library. A really basic Makefile is provided for this purpose.
+They can either be included directly into any 0mq using project or used as a library.
+A really basic Makefile is provided for this purpose and will generate both shared
+and static libraries.
 
 There is a number of unittests covering the code but in no way should the tests
 be considered complete.
 
 
-libcppzmq
+libzmqpp
 ==============================
 
 There is a Makefile provided which will build, test and install the second
