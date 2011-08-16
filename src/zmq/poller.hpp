@@ -17,64 +17,42 @@
 namespace zmq
 {
 
-enum poll_event : short
-{
-	none = 0,
-	input = ZMQ_POLLIN,
-	output = ZMQ_POLLOUT,
-	error = ZMQ_POLLERR,
-};
-
 class poller
 {
 public:
 	static const long WAIT_FOREVER = -1;
 
-	poller()
-		: _items()
-		, _index()
-	{
+	static const int POLL_NONE = 0;
+	static const int POLL_IN = ZMQ_POLLIN;
+	static const int POLL_OUT = ZMQ_POLLOUT;
+	static const int POLL_ERROR = ZMQ_POLLERR;
 
-	}
+	poller();
 
-	void add(socket& socket, poll_event const& event = poll_event::input)
-	{
-		zmq_pollitem_t item { socket, 0, event, 0 };
+	void add(socket& socket, short const& event = POLL_IN);
+	void add(int const& descriptor, short const& event = POLL_IN);
 
-		size_t index = _items.size();
-		_items.push_back(item);
-		_index[socket] = index;
-	}
+	void check_for(socket const& socket, short const& event);
+	void check_for(int const& descriptor, short const& event);
 
-	bool poll(long timeout = WAIT_FOREVER)
-	{
-		int result = zmq_poll(_items.data(), _items.size(), timeout);
-		if (result < 0)
-		{
-			throw zmq_internal_exception();
-		}
+	bool poll(long timeout = WAIT_FOREVER);
 
-		return (result > 0);
-	}
+	short events(socket const& socket);
+	short events(int const& descriptor);
 
-	short events(socket& socket)
-	{
-		auto found = _index.find(socket);
-		if (_index.end() == found)
-		{
-			throw exception("this socket is not represented within this poller");
-		}
+	template<typename Watched>
+	bool has_input(Watched const& watchable) { return events(watchable) & POLL_IN; }
 
-		return _items[(*found).second].revents;
-	}
+	template<typename Watched>
+	bool has_output(Watched const& watchable) { return events(watchable) & POLL_OUT; }
 
-	bool has_input(socket& socket) { return events(socket) & poll_event::input; }
-	bool has_output(socket& socket) { return events(socket) & poll_event::output; }
-	bool has_error(socket& socket) { return events(socket) & poll_event::error; }
+	template<typename Watched>
+	bool has_error(Watched const& watchable) { return events(watchable) & POLL_ERROR; }
 
 private:
 	std::vector<zmq_pollitem_t> _items;
 	std::unordered_map<void *, size_t> _index;
+	std::unordered_map<int, size_t> _fdindex;
 };
 
 }

@@ -32,12 +32,14 @@ VERSION_AGE      = 0
 # Paths
 #
 
-TESTS_DIR    = tests
 LIBRARY_DIR  = zmq
+CLIENT_DIR   = client
+TESTS_DIR    = tests
 
 SRC_PATH     = ./src
-TESTS_PATH   = $(SRC_PATH)/$(TESTS_DIR)
 LIBRARY_PATH = $(SRC_PATH)/$(LIBRARY_DIR)
+CLIENT_PATH  = $(SRC_PATH)/$(CLIENT_DIR)
+TESTS_PATH   = $(SRC_PATH)/$(TESTS_DIR)
 
 BUILD_PATH   = ./build/$(CONFIG)
 OBJECT_PATH  = $(BUILD_PATH)/obj
@@ -49,9 +51,10 @@ OBJECT_PATH  = $(BUILD_PATH)/obj
 APP_VERSION    = $(VERSION_API).$(VERSION_REVISION).$(VERSION_AGE)
 APP_DATESTAMP  = $(shell date '+"%Y-%m-%d %H:%M"')
 
-LIBRARY_SHARED = lib$(LIBRARY_NAME).so
+LIBRARY_SHARED  = lib$(LIBRARY_NAME).so
 LIBRARY_ARCHIVE = lib$(LIBRARY_NAME).a
-TESTS_TARGET   = $(LIBRARY_NAME)-tests
+CLIENT_TARGET   = $(LIBRARY_NAME) 
+TESTS_TARGET    = $(LIBRARY_NAME)-tests
 
 CONFIG_FLAGS =
 ifeq ($(CONFIG),debug)
@@ -80,6 +83,10 @@ COMMON_LIBS = -lzmq
 
 LIBRARY_LIBS =  
 
+CLIENT_LIBS = -L$(BUILD_PATH) \
+	-l$(LIBRARY_NAME) \
+	-lboost_program_options
+
 TEST_LIBS = -L$(BUILD_PATH) \
 	-l$(LIBRARY_NAME) \
 	-lboost_unit_test_framework 
@@ -93,6 +100,8 @@ ALL_LIBRARY_OBJECTS := $(patsubst $(SRC_PATH)/%.cpp, $(OBJECT_PATH)/%.o, $(shell
 
 ALL_LIBRARY_INCLUDES := $(shell find $(LIBRARY_PATH) -iname '*.hpp')
 
+ALL_CLIENT_OBJECTS := $(patsubst $(SRC_PATH)/%.cpp, $(OBJECT_PATH)/%.o, $(shell find $(CLIENT_PATH) -iname '*.cpp'))
+
 ALL_TEST_OBJECTS := $(patsubst $(SRC_PATH)/%.cpp, $(OBJECT_PATH)/%.o, $(shell find $(TESTS_PATH) -iname '*.cpp'))
 
 TEST_SUITES := ${addprefix test-,${sort ${shell find ${TESTS_PATH} -iname *.cpp | xargs grep BOOST_AUTO_TEST_SUITE\( | sed 's/.*BOOST_AUTO_TEST_SUITE( \(.*\) )/\1/' }}}
@@ -101,7 +110,7 @@ TEST_SUITES := ${addprefix test-,${sort ${shell find ${TESTS_PATH} -iname *.cpp 
 # BUILD Targets - StandardisBOOST_AUTO_TEST_SUITE( sanity )
 #
 
-.PHONY: check clean install installcheck uninstall test $(TEST_SUITES)
+.PHONY: check clean install installcheck uninstall client library test $(TEST_SUITES)
 
 all: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE)
 	@echo "use make check to test the build"
@@ -133,6 +142,10 @@ uninstall:
 clean:
 	rm -r $(BUILD_PATH)
 
+client: $(CLIENT_TARGET)
+
+library: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE)
+
 #
 # BUILD Targets
 #
@@ -145,13 +158,15 @@ $(LIBRARY_ARCHIVE): $(ALL_LIBRARY_OBJECTS)
 	$(AR) crf $(BUILD_PATH)/$@ $^
 
 
+$(CLIENT_TARGET): $(ALL_CLIENT_OBJECTS) $(LIBRARY_SHARED)
+	$(LD) $(LDFLAGS) -o $(BUILD_PATH)/$@ $(ALL_CLIENT_OBJECTS) $(CLIENT_LIBS) $(COMMON_LIBS)
+
 $(TESTS_TARGET): $(ALL_TEST_OBJECTS) $(LIBRARY_SHARED)
-	$(LD) $(LDFLAGS) -o $(BUILD_PATH)/$(TESTS_TARGET) $(ALL_TEST_OBJECTS) $(TEST_LIBS) $(COMMON_LIBS) 
+	$(LD) $(LDFLAGS) -o $(BUILD_PATH)/$@ $(ALL_TEST_OBJECTS) $(TEST_LIBS) $(COMMON_LIBS) 
 
 
 $(TEST_SUITES): $(TESTS_TARGET)
-	$(BUILD_PATH)/$(TESTS_TARGET) --log_level=message --run_test=$(patsubst test-%,%,$@)
-
+	LD_LIBRARY_PATH=$(BUILD_PATH):$(LD_LIBRARY_PATH) $(BUILD_PATH)/$(TESTS_TARGET) --log_level=message --run_test=$(patsubst test-%,%,$@)
 
 test: $(TESTS_TARGET)
 	@echo "running all test targets ($(TEST_SUITES))"

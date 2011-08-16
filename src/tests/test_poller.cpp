@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE( initialise )
 	zmq::poller poller;
 	poller.add(socket);
 
-	BOOST_CHECK_EQUAL(zmq::poll_event::none, poller.events(socket));
+	BOOST_CHECK_EQUAL(zmq::poller::POLL_NONE, poller.events(socket));
 	BOOST_CHECK(!poller.has_input(socket));
 	BOOST_CHECK(!poller.has_output(socket));
 	BOOST_CHECK(!poller.has_error(socket));
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE( simple_pull_push )
 	poller.add(puller);
 	BOOST_CHECK(poller.poll(max_poll_timeout));
 
-	BOOST_CHECK_EQUAL(zmq::poll_event::input, poller.events(puller));
+	BOOST_CHECK_EQUAL(zmq::poller::POLL_IN, poller.events(puller));
 	BOOST_CHECK(poller.has_input(puller));
 
 	std::string message;
@@ -81,17 +81,17 @@ BOOST_AUTO_TEST_CASE( multi_socket_poll )
 
 	BOOST_CHECK(poller.poll(max_poll_timeout));
 
-	BOOST_CHECK_EQUAL(zmq::poll_event::input, poller.events(puller1));
+	BOOST_CHECK_EQUAL(zmq::poller::POLL_IN, poller.events(puller1));
 	BOOST_CHECK(poller.has_input(puller1));
 	BOOST_CHECK(!poller.has_output(puller1));
 	BOOST_CHECK(!poller.has_error(puller1));
 
-	BOOST_CHECK_EQUAL(zmq::poll_event::none, poller.events(puller2));
+	BOOST_CHECK_EQUAL(zmq::poller::POLL_NONE, poller.events(puller2));
 	BOOST_CHECK(!poller.has_input(puller2));
 	BOOST_CHECK(!poller.has_output(puller2));
 	BOOST_CHECK(!poller.has_error(puller2));
 
-	BOOST_CHECK_EQUAL(zmq::poll_event::none, poller.events(puller3));
+	BOOST_CHECK_EQUAL(zmq::poller::POLL_NONE, poller.events(puller3));
 	BOOST_CHECK(!poller.has_input(puller3));
 	BOOST_CHECK(!poller.has_output(puller3));
 	BOOST_CHECK(!poller.has_error(puller3));

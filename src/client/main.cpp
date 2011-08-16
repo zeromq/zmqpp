@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
@@ -18,7 +19,8 @@ boost::program_options::options_description connection_options()
 {
 	boost::program_options::options_description options("Connection Options");
 	options.add_options()
-		("bind", "bind to specified endpoint instead of connecting")
+		("bind,b", boost::program_options::value<std::vector<std::string>>(), "bind to specified endpoint")
+		("connect,c", boost::program_options::value<std::vector<std::string>>(), "connect to specified endpoint")
 		;
 
 	return options;
@@ -37,7 +39,7 @@ boost::program_options::options_description miscellaneous_options()
 
 void usage(std::string const& executable_name)
 {
-	std::cout << "Usage: " << executable_name << " [options] SOCKETTYPE ENDPOINT" << std::endl;
+	std::cout << "Usage: " << executable_name << " [options] SOCKETTYPE [--bind|--connect] ENDPOINT" << std::endl;
 	std::cout << "0mq command line client tool." << std::endl;
 	std::cout << "SOCKETTYPE is one of the supported 0mq socket types." << std::endl;
 	std::cout << "ENDPOINT is any valid 0mq endpoint." << std::endl;
@@ -49,12 +51,11 @@ int main(int argc, char const* argv[])
 {
 	boost::program_options::positional_options_description arguments;
 	arguments.add("type", 1);
-	arguments.add("endpoint", 1);
+	arguments.add("connect", 1);
 
 	boost::program_options::options_description all;
 	all.add_options()
 		("type", "0mq socket type")
-		("endpoint", "0mq endpoint")
 		;
 	all.add(miscellaneous_options());
 	all.add(connection_options());
@@ -97,7 +98,8 @@ int main(int argc, char const* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	if (usage || 0 == vm.count("type") || 0 == vm.count("endpoint") || vm.count("help"))
+	if (usage || (0 == vm.count("type")) || vm.count("help") ||
+			((0 == vm.count("connect")) && (0 == vm.count("bind"))))
 	{
 		std::cout << "Usage: " << (strrchr(argv[0], '/') + 1) << " [options] SOCKETTYPE ENDPOINT" << std::endl;
 		std::cout << "0mq command line client tool." << std::endl;
@@ -135,17 +137,43 @@ int main(int argc, char const* argv[])
 	zmq::socket_type type = std::get<0>(data);
 	bool can_send = std::get<1>(data);
 	bool can_recv = std::get<2>(data);
-	std::string endpoint = vm["endpoint"].as<std::string>();
 
 	zmq::context context;
 	zmq::socket socket(context, type);
 	if (vm.count("bind"))
 	{
-		socket.bind(endpoint);
+		std::vector<std::string> endpoints = vm["bind"].as<std::vector<std::string>>();
+		for(size_t i = 0; i < endpoints.size(); ++i)
+		{
+			std::cout << "binding to " << endpoints[i] << std::endl;
+			try
+			{
+				socket.bind(endpoints[i]);
+			}
+			catch(zmq::zmq_internal_exception& e)
+			{
+				std::cout << "invalid 0mq endpoint." << std::endl;
+				return EXIT_FAILURE;
+			}
+		}
 	}
-	else
+
+	if (vm.count("connect"))
 	{
-		socket.connect(endpoint);
+		std::vector<std::string> endpoints = vm["connect"].as<std::vector<std::string>>();
+		for(size_t i = 0; i < endpoints.size(); ++i)
+		{
+			std::cout << "connecting to " << endpoints[i] << std::endl;
+			try
+			{
+				socket.connect(endpoints[i]);
+			}
+			catch(zmq::zmq_internal_exception& e)
+			{
+				std::cout << "invalid 0mq endpoint." << std::endl;
+				return EXIT_FAILURE;
+			}
+		}
 	}
 
 	zmq::poller poller;
