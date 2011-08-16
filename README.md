@@ -1,21 +1,20 @@
 Introduction
 ============
 
-There are two separate bindings for c++ under this code base.
-
-The first is a branch of the original 0mq 2.x bindings updated for 0mq 3.0 and
-with a simplistic zmq_device header. This binding is two files 'zmq.hpp' and
-'zmq_device.hpp' and provides a header only binding. These files are provided
-under the original branch's lgpl license (see zmq.hpp for details)
-
-The second is a 'high-level' library that hides most of the c-style interface
+This C++ binding is a 'high-level' library that hides most of the c-style interface
 core 0mq provides. It consists of a number of header and source files all
-residing in the zmq directory, these files are not derived from or
-use the original branch in any form and are provided under the MIT license
-(see zmq/zmq.hpp for details)   
+residing in the zmq directory, these files are provided under the MIT license
+(see zmq/zmq.hpp for details).
+
+They can either be included directly into any 0mq using project or used as a library.
+A really basic Makefile is provided for this purpose and will generate both shared
+and static libraries.
+
+There is a number of unittests covering the code but in no way should the tests
+be considered complete.
 
 
-High-level binding (libcppzmq)
+libzmqpp
 ==============================
 
 There is a Makefile provided which will build, test and install the second
@@ -54,7 +53,7 @@ not using the installed library the same effect is governed by the defining
 NDEBUG
 
 Zero-copy
----------
+=========
 
 The zmq::socket and zmq::message classes both have a number of zero-copy
 methods.
