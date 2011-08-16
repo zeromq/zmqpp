@@ -45,7 +45,7 @@ void usage(std::string const& executable_name)
 	std::cout << "ENDPOINT is any valid 0mq endpoint." << std::endl;
 }
 
-typedef std::tuple<zmq::socket_type, bool, bool> socket_type_data;
+typedef std::tuple<zmq::socket_type, bool, bool, bool> socket_type_data;
 
 int main(int argc, char const* argv[])
 {
@@ -64,13 +64,16 @@ int main(int argc, char const* argv[])
 	bool usage = false;
 
 	std::map<std::string, socket_type_data> socket_types;
-	socket_types["push"] = socket_type_data(zmq::socket_type::push, true, false);
-	socket_types["pull"] = socket_type_data(zmq::socket_type::pull, false, true);
+	socket_types["push"] = socket_type_data(zmq::socket_type::push, true, false, true);
+	socket_types["pull"] = socket_type_data(zmq::socket_type::pull, false, true, true);
 
-	socket_types["pub"] = socket_type_data(zmq::socket_type::publish, true, false);
-	socket_types["publish"] = socket_type_data(zmq::socket_type::publish, true, false);
-	socket_types["sub"] = socket_type_data(zmq::socket_type::subcribe, false, true);
-	socket_types["subscribe"] = socket_type_data(zmq::socket_type::subcribe, false, true);
+	socket_types["pub"] = socket_type_data(zmq::socket_type::publish, true, false, true);
+	socket_types["publish"] = socket_type_data(zmq::socket_type::publish, true, false, true);
+	socket_types["sub"] = socket_type_data(zmq::socket_type::subcribe, false, true, true);
+	socket_types["subscribe"] = socket_type_data(zmq::socket_type::subcribe, false, true, true);
+
+	socket_types["req"] = socket_type_data(zmq::socket_type::request, true, false, true);
+	socket_types["rep"] = socket_type_data(zmq::socket_type::reply, false, true, true);
 
 	try {
 		boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(all).positional(arguments).run(), vm);
@@ -137,6 +140,7 @@ int main(int argc, char const* argv[])
 	zmq::socket_type type = std::get<0>(data);
 	bool can_send = std::get<1>(data);
 	bool can_recv = std::get<2>(data);
+	bool toggles = std::get<3>(data);
 
 	zmq::context context;
 	zmq::socket socket(context, type);
@@ -180,11 +184,17 @@ int main(int argc, char const* argv[])
 	poller.add(socket);
 	poller.add(standardin);
 
-	if (can_send)
+	if (can_send || toggles)
 	{
 		std::cout << "While sending packets is allowed data entered on standard in will be sent to the 0mq socket." << std::endl;
 		std::cout << "messages will be considered terminated by newline." << std::endl;
 		std::cout << std::endl;
+
+		if (toggles && !can_send)
+		{
+			std::cout << "Sending starts as disabled for this socket type." << std::endl;
+			std::cout << std::endl;
+		}
 	}
 
 	while(true)
@@ -201,6 +211,13 @@ int main(int argc, char const* argv[])
 				std::string message;
 				socket.receive(message);
 				std::cout << "inbound: " << message << std::endl;
+
+				if (toggles)
+				{
+					can_recv = false;
+					can_send = true;
+					std::cout << "Sending now enabled" << std::endl;
+				}
 			}
 
 			if (poller.has_input(standardin))
@@ -220,6 +237,13 @@ int main(int argc, char const* argv[])
 				if (!socket.send_raw(buffer.data(), strlen(buffer.data()), zmq::socket::DONT_WAIT))
 				{
 					std::cout << "send failed, socket would have blocked" << std::endl;
+				}
+
+				if (toggles)
+				{
+					can_recv = true;
+					can_send = false;
+					std::cout << "Sending now disabled" << std::endl;
 				}
 			}
 		}
