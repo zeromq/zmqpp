@@ -5,7 +5,7 @@
 
 // Module definition should only be in one of the tests
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE cppzmq
+#define BOOST_TEST_MODULE zmqpp
 
 #include <boost/test/unit_test.hpp>
 #include <zmq.h>

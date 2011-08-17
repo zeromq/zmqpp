@@ -159,8 +159,8 @@ BOOST_AUTO_TEST_CASE( sending_messages )
 	zmq::message message;
 	std::string part("another world");
 
-	message.copy_part("hello world!");
-	message.move_part(part);
+	message.add("hello world!");
+	message.add(part);
 
 	pusher.send(message);
 	BOOST_CHECK_EQUAL(0, message.parts());
@@ -188,8 +188,8 @@ BOOST_AUTO_TEST_CASE( receiving_messages )
 	zmq::message message;
 	std::string part("another world");
 
-	message.copy_part("hello world!");
-	message.move_part(part);
+	message.add("hello world!");
+	message.add(part);
 
 	pusher.send(message);
 	BOOST_CHECK_EQUAL(0, message.parts());
@@ -216,8 +216,8 @@ BOOST_AUTO_TEST_CASE( cleanup_safe_with_pending_data )
 	zmq::message message;
 	std::string part("another world");
 
-	message.copy_part("hello world!");
-	message.move_part(part);
+	message.add("hello world!");
+	message.add(part);
 
 	pusher.send(message);
 	BOOST_CHECK_EQUAL(0, message.parts());

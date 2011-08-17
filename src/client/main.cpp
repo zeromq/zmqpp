@@ -68,9 +68,7 @@ int main(int argc, char const* argv[])
 	socket_types["pull"] = socket_type_data(zmq::socket_type::pull, false, true, true);
 
 	socket_types["pub"] = socket_type_data(zmq::socket_type::publish, true, false, true);
-	socket_types["publish"] = socket_type_data(zmq::socket_type::publish, true, false, true);
 	socket_types["sub"] = socket_type_data(zmq::socket_type::subcribe, false, true, true);
-	socket_types["subscribe"] = socket_type_data(zmq::socket_type::subcribe, false, true, true);
 
 	socket_types["req"] = socket_type_data(zmq::socket_type::request, true, false, true);
 	socket_types["rep"] = socket_type_data(zmq::socket_type::reply, false, true, true);

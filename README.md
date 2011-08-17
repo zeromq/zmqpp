@@ -51,19 +51,3 @@ be build by passing CONFIG=debug to the make command. In debug mode there is
 less optimisations and a number of sanity check assert statements. If you are
 not using the installed library the same effect is governed by the defining
 NDEBUG
-
-Zero-copy
-=========
-
-The zmq::socket and zmq::message classes both have a number of zero-copy
-methods.
-
-For the message these are prefixed 'move_' and were possible will use
-stl::swap to steal your data. Do not manually free raw data passed to a move
-method. STL containers, including std::string, passed to the move methods
-will result in you being left with a new blank version.
-
-For the socket using send or receive with a message object will trigger
-move semantics automatically. If you need to retain a copy of the message
-after sending call the copy functions on it. Note that message is no-copy 
-so copying can only be achieved if you ask for it directly.

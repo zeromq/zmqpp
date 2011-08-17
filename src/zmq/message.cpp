@@ -95,21 +95,7 @@ std::string message::get(size_t const& part /* = 0 */)
 
 
 // Move operators will take ownership of message parts without copying
-void message::move_part(std::string& part)
-{
-	size_t part_count = _parts.size();
-	_parts.resize(part_count + 1);
-
-	string_releaser* hint = new string_releaser();
-	std::swap(hint->data, part);
-
-	// Note we use our moved string in the _strings store for the data values here, these strings must not be touched so the memory pointers stay valid
-	// I know const removing casts are horrible, but we as long as the string isn't touched we will be okay
-	zmq_msg_t& msg = _parts[part_count].msg;
-	zmq_msg_init_data(&msg, const_cast<char*>(hint->data.data()), hint->data.size(), &message::release_string, hint);
-}
-
-void message::move_part(void* part, size_t& size, release_function const& release)
+void message::move(void* part, size_t& size, release_function const& release)
 {
 	size_t part_count = _parts.size();
 	_parts.resize(part_count + 1);
@@ -121,7 +107,7 @@ void message::move_part(void* part, size_t& size, release_function const& releas
 	zmq_msg_init_data(&msg, part, size, &message::release_callback, hint);
 }
 
-void message::copy_part(void const* part, size_t const& size)
+void message::add(void const* part, size_t const& size)
 {
 	size_t part_count = _parts.size();
 	_parts.resize(part_count + 1);
@@ -265,14 +251,14 @@ message& message::operator>>(std::string& string)
 // Stream writer style - these all use copy styles
 message& message::operator<<(int8_t const& integer)
 {
-	copy_part(&integer, sizeof(int8_t));
+	add(&integer, sizeof(int8_t));
 	return *this;
 }
 
 message& message::operator<<(int16_t const& integer)
 {
 	uint16_t network_order = htons(static_cast<uint16_t>(integer));
-	copy_part(&network_order, sizeof(uint16_t));
+	add(&network_order, sizeof(uint16_t));
 
 	return *this;
 }
@@ -280,7 +266,7 @@ message& message::operator<<(int16_t const& integer)
 message& message::operator<<(int32_t const& integer)
 {
 	uint32_t network_order = htonl(static_cast<uint32_t>(integer));
-	copy_part(&network_order, sizeof(uint32_t));
+	add(&network_order, sizeof(uint32_t));
 
 	return *this;
 }
@@ -288,7 +274,7 @@ message& message::operator<<(int32_t const& integer)
 message& message::operator<<(int64_t const& integer)
 {
 	uint64_t network_order = htonll(static_cast<uint64_t>(integer));
-	copy_part(&network_order, sizeof(uint64_t));
+	add(&network_order, sizeof(uint64_t));
 
 	return *this;
 }
@@ -296,14 +282,14 @@ message& message::operator<<(int64_t const& integer)
 
 message& message::operator<<(uint8_t const& unsigned_integer)
 {
-	copy_part(&unsigned_integer, sizeof(uint8_t));
+	add(&unsigned_integer, sizeof(uint8_t));
 	return *this;
 }
 
 message& message::operator<<(uint16_t const& unsigned_integer)
 {
 	uint16_t network_order = htons(unsigned_integer);
-	copy_part(&network_order, sizeof(uint16_t));
+	add(&network_order, sizeof(uint16_t));
 
 	return *this;
 }
@@ -311,7 +297,7 @@ message& message::operator<<(uint16_t const& unsigned_integer)
 message& message::operator<<(uint32_t const& unsigned_integer)
 {
 	uint32_t network_order = htonl(unsigned_integer);
-	copy_part(&network_order, sizeof(uint32_t));
+	add(&network_order, sizeof(uint32_t));
 
 	return *this;
 }
@@ -319,7 +305,7 @@ message& message::operator<<(uint32_t const& unsigned_integer)
 message& message::operator<<(uint64_t const& unsigned_integer)
 {
 	uint64_t network_order = htonll(unsigned_integer);
-	copy_part(&network_order, sizeof(uint64_t));
+	add(&network_order, sizeof(uint64_t));
 
 	return *this;
 }
@@ -330,7 +316,7 @@ message& message::operator<<(float const& floating_point)
 
 	uint32_t const host_order = *reinterpret_cast<uint32_t const*>(&floating_point);
 	uint32_t network_order = htonl(host_order);
-	copy_part(&network_order, sizeof(uint32_t));
+	add(&network_order, sizeof(uint32_t));
 
 	return *this;
 }
@@ -341,7 +327,7 @@ message& message::operator<<(double const& double_precision)
 
 	uint64_t const host_order = *reinterpret_cast<uint64_t const*>(&double_precision);
 	uint64_t network_order = htonll(host_order);
-	copy_part(&network_order, sizeof(uint64_t));
+	add(&network_order, sizeof(uint64_t));
 
 	return *this;
 }
@@ -349,30 +335,22 @@ message& message::operator<<(double const& double_precision)
 message& message::operator<<(bool const& boolean)
 {
 	uint8_t byte = (boolean) ? 1 : 0;
-	copy_part(&byte, sizeof(uint8_t));
+	add(&byte, sizeof(uint8_t));
 
 	return *this;
 }
 
 message& message::operator<<(char const* c_string)
 {
-	copy_part(c_string, strlen(c_string));
+	add(c_string, strlen(c_string));
 	return *this;
 }
 
 message& message::operator<<(std::string const& string)
 {
-	copy_part(string.data(), string.size());
+	add(string.data(), string.size());
 	return *this;
 }
-
-#ifdef ZMQ_NON_CONST_STREAM_OPERATORS_MOVE
-message& message::operator<<(std::string& string)
-{
-	move_part(string);
-	return *this;
-}
-#endif
 
 message::message(message&& source)
 {
@@ -424,16 +402,6 @@ void message::release_callback(void* data, void* hint)
 {
 	callback_releaser* releaser = static_cast<callback_releaser*>(hint);
 	releaser->func(data);
-
-	delete releaser;
-}
-
-void message::release_string(void* data, void* hint)
-{
-	string_releaser* releaser = static_cast<string_releaser*>(hint);
-
-	// sanity check
-	assert(data == releaser->data.data());
 
 	delete releaser;
 }

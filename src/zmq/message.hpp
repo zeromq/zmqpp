@@ -50,14 +50,13 @@ public:
 	}
 
 	// Move operators will take ownership of message parts without copying
-	void move_part(void* part, size_t& size, release_function const& release);
-	void move_part(std::string& part);
+	void move(void* part, size_t& size, release_function const& release);
 
 	// Copy operators will take copies of any data
-	void copy_part(void const* part, size_t const& size);
+	void add(void const* part, size_t const& size);
 
 	template<typename Type>
-	void copy_part(Type const& part)
+	void add(Type const& part)
 	{
 		*this << part;
 	}
@@ -99,11 +98,6 @@ public:
 	message& operator<<(char const* c_string);
 	message& operator<<(std::string const& string);
 
-#ifdef ZMQ_NON_CONST_STREAM_OPERATORS_MOVE
-	// Stream writer style - these all use move styles (WARNING: The only distinction is compile time const, be careful)
-	message& operator<<(std::string& string);
-#endif // ZMQ_NON_CONST_STREAM_OPERATORS_MOVE
-
 	// Move supporting
 	message(message&& source);
 	void operator=(message&& source);
@@ -132,11 +126,6 @@ private:
 		release_function func;
 	};
 
-	struct string_releaser
-	{
-		std::string data;
-	};
-
 	std::vector<zmq_msg_wrapper> _parts;
 	size_t _read_cursor;
 
@@ -145,7 +134,6 @@ private:
 	void operator=(message const&);
 
 	static void release_callback(void* data, void* hint);
-	static void release_string(void* data, void* hint);
 };
 
 }

@@ -66,7 +66,7 @@ endif
 ifeq ($(CONFIG),max)
 	CONFIG_FLAGS = -O3 -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNDEBUG
 endif
-ifeq ($(CONFIG),release)
+ifneq (,$(findstring $(CONFIG),release loadtest))
 	CONFIG_FLAGS = -O3 -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNO_DEBUG_LOG -DNO_TRACE_LOG -DNDEBUG
 endif
 
@@ -91,7 +91,7 @@ TEST_LIBS = -L$(BUILD_PATH) \
 	-l$(LIBRARY_NAME) \
 	-lboost_unit_test_framework 
 
-ifeq ($(LOADTEST),true)
+ifeq ($(CONFIG),loadtest)
 	CONFIG_FLAGS := $(CONFIG_FLAGS) -DLOADTEST
 	TEST_LIBS := $(TEST_LIBS) -lboost_thread
 endif
