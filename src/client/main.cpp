@@ -64,11 +64,11 @@ int main(int argc, char const* argv[])
 	bool usage = false;
 
 	std::map<std::string, socket_type_data> socket_types;
-	socket_types["push"] = socket_type_data(zmq::socket_type::push, true, false, true);
-	socket_types["pull"] = socket_type_data(zmq::socket_type::pull, false, true, true);
+	socket_types["push"] = socket_type_data(zmq::socket_type::push, true, false, false);
+	socket_types["pull"] = socket_type_data(zmq::socket_type::pull, false, true, false);
 
-	socket_types["pub"] = socket_type_data(zmq::socket_type::publish, true, false, true);
-	socket_types["sub"] = socket_type_data(zmq::socket_type::subcribe, false, true, true);
+	socket_types["pub"] = socket_type_data(zmq::socket_type::publish, true, false, false);
+	socket_types["sub"] = socket_type_data(zmq::socket_type::subcribe, false, true, false);
 
 	socket_types["req"] = socket_type_data(zmq::socket_type::request, true, false, true);
 	socket_types["rep"] = socket_type_data(zmq::socket_type::reply, false, true, true);
