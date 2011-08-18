@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_SUITE( socket_options )
 BOOST_AUTO_TEST_CASE( check_allowed_set_socket_options_int )
 {
 	zmq::context context;
-	zmq::socket socket(context, zmq::socket_type::subcribe);
+	zmq::socket socket(context, zmq::socket_type::sub);
 
 	// int only
 	socket.set(zmq::socket_option::send_high_water_mark, 0);
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( check_allowed_set_socket_options_int )
 BOOST_AUTO_TEST_CASE( check_allowed_set_socket_options_uint64 )
 {
 	zmq::context context;
-	zmq::socket socket(context, zmq::socket_type::subcribe);
+	zmq::socket socket(context, zmq::socket_type::sub);
 
 	uint64_t value = 0;
 	// int only
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( check_allowed_set_socket_options_uint64 )
 BOOST_AUTO_TEST_CASE( check_allowed_set_socket_options_string )
 {
 	zmq::context context;
-	zmq::socket socket(context, zmq::socket_type::subcribe);
+	zmq::socket socket(context, zmq::socket_type::sub);
 
 	std::string value("test");
 
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( check_allowed_set_socket_options_string )
 BOOST_AUTO_TEST_CASE( check_allowed_get_socket_options_int )
 {
 	zmq::context context;
-	zmq::socket socket(context, zmq::socket_type::subcribe);
+	zmq::socket socket(context, zmq::socket_type::sub);
 
 	int value;
 
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( check_allowed_get_socket_options_int )
 BOOST_AUTO_TEST_CASE( check_allowed_get_socket_options_boolean )
 {
 	zmq::context context;
-	zmq::socket socket(context, zmq::socket_type::subcribe);
+	zmq::socket socket(context, zmq::socket_type::sub);
 
 	bool value;
 
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE( check_allowed_get_socket_options_boolean )
 BOOST_AUTO_TEST_CASE( check_allowed_get_socket_options_uint64 )
 {
 	zmq::context context;
-	zmq::socket socket(context, zmq::socket_type::subcribe);
+	zmq::socket socket(context, zmq::socket_type::sub);
 
 	uint64_t value;
 
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( check_allowed_get_socket_options_uint64 )
 BOOST_AUTO_TEST_CASE( check_allowed_get_socket_options_string )
 {
 	zmq::context context;
-	zmq::socket socket(context, zmq::socket_type::subcribe);
+	zmq::socket socket(context, zmq::socket_type::sub);
 
 	std::string value;
 

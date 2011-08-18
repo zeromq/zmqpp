@@ -3,8 +3,8 @@
  *      Author: Ben Gray (@benjamg)
  */
 
-#ifndef CPPZMQ_MESSAGE_HPP_
-#define CPPZMQ_MESSAGE_HPP_
+#ifndef ZMQPP_MESSAGE_HPP_
+#define ZMQPP_MESSAGE_HPP_
 
 #include <functional>
 #include <memory>
@@ -138,4 +138,4 @@ private:
 
 }
 
-#endif /* CPPZMQ_MESSAGE_HPP_ */
+#endif /* ZMQPP_MESSAGE_HPP_ */

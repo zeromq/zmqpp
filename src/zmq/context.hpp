@@ -3,8 +3,8 @@
  *      Author: Ben Gray (@benjamg)
  */
 
-#ifndef CPPZMQ_CONTEXT_HPP_
-#define CPPZMQ_CONTEXT_HPP_
+#ifndef ZMQPP_CONTEXT_HPP_
+#define ZMQPP_CONTEXT_HPP_
 
 #include <cassert>
 
@@ -135,4 +135,4 @@ private:
 
 }
 
-#endif /* CPPZMQ_CONTEXT_HPP_ */
+#endif /* ZMQPP_CONTEXT_HPP_ */

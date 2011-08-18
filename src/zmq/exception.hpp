@@ -3,8 +3,8 @@
  *      Author: Ben Gray (@benjamg)
  */
 
-#ifndef CPPZMQ_EXCEPTION_HPP_
-#define CPPZMQ_EXCEPTION_HPP_
+#ifndef ZMQPP_EXCEPTION_HPP_
+#define ZMQPP_EXCEPTION_HPP_
 
 #include <stdexcept>
 
@@ -44,4 +44,4 @@ private:
 
 }
 
-#endif /* CPPZMQ_EXCEPTION_HPP_ */
+#endif /* ZMQPP_EXCEPTION_HPP_ */

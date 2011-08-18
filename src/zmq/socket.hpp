@@ -3,8 +3,8 @@
  *      Author: Ben Gray (@benjamg)
  */
 
-#ifndef CPPZMQ_SOCKET_HPP_
-#define CPPZMQ_SOCKET_HPP_
+#ifndef ZMQPP_SOCKET_HPP_
+#define ZMQPP_SOCKET_HPP_
 
 #include <string>
 #include <list>
@@ -19,16 +19,16 @@ class message;
 
 enum socket_type {
 	pair       = ZMQ_PAIR,
-	publish    = ZMQ_PUB,
-	subcribe   = ZMQ_SUB,
-	request    = ZMQ_REQ,
-	reply      = ZMQ_REP,
+	pub        = ZMQ_PUB,
+	sub        = ZMQ_SUB,
+	req        = ZMQ_REQ,
+	rep        = ZMQ_REP,
 	pull       = ZMQ_PULL,
 	push       = ZMQ_PUSH,
-	xpublish   = ZMQ_XPUB,
-	xsubscribe = ZMQ_XSUB,
-	xrequest   = ZMQ_XREQ,
-	xreply     = ZMQ_XREP,
+	xpub       = ZMQ_XPUB,
+	xsub       = ZMQ_XSUB,
+	xreq       = ZMQ_XREQ,
+	xrep       = ZMQ_XREP,
 	router     = ZMQ_ROUTER,
 	dealer     = ZMQ_DEALER
 };
@@ -138,4 +138,4 @@ private:
 
 }
 
-#endif /* CPPZMQ_SOCKET_HPP_ */
+#endif /* ZMQPP_SOCKET_HPP_ */

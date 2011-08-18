@@ -3,8 +3,8 @@
  *      Author: Ben Gray (@benjamg)
  */
 
-#ifndef CPPZMQ_INET_HPP_
-#define CPPZMQ_INET_HPP_
+#ifndef ZMQPP_INET_HPP_
+#define ZMQPP_INET_HPP_
 
 // We get htons and htonl from here
 //TODO: cross-platform

@@ -3,8 +3,8 @@
  *      Author: Ben Gray (@benjamg)
  */
 
-#ifndef CPPZMQ_POLLER_HPP_
-#define CPPZMQ_POLLER_HPP_
+#ifndef ZMQPP_POLLER_HPP_
+#define ZMQPP_POLLER_HPP_
 
 #include <unordered_map>
 #include <vector>
@@ -57,4 +57,4 @@ private:
 
 }
 
-#endif /* CPPZMQ_POLLER_HPP_ */
+#endif /* ZMQPP_POLLER_HPP_ */
