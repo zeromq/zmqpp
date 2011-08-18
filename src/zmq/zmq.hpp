@@ -43,17 +43,8 @@
 namespace zmq
 {
 
-std::string version()
-{
-	return BUILD_VERSION;
-}
-
-void version(uint8_t& api, uint8_t& revision, uint8_t& age)
-{
-	api = BUILD_VERSION_API;
-	revision = BUILD_VERSION_REVISION;
-	age = BUILD_VERSION_AGE;
-}
+std::string version();
+void version(uint8_t& api, uint8_t& revision, uint8_t& age);
 
 }
 
