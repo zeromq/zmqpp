@@ -7,8 +7,8 @@
 
 #include <cstdlib>
 
-#include "zmq/exception.hpp"
-#include "zmq/message.hpp"
+#include "zmqpp/exception.hpp"
+#include "zmqpp/message.hpp"
 
 BOOST_AUTO_TEST_SUITE( message )
 

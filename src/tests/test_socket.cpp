@@ -5,9 +5,9 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "zmq/context.hpp"
-#include "zmq/socket.hpp"
-#include "zmq/message.hpp"
+#include "zmqpp/context.hpp"
+#include "zmqpp/socket.hpp"
+#include "zmqpp/message.hpp"
 
 BOOST_AUTO_TEST_SUITE( socket )
 

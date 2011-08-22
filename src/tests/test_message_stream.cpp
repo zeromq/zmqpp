@@ -5,7 +5,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "zmq/message.hpp"
+#include "zmqpp/message.hpp"
 
 BOOST_AUTO_TEST_SUITE( message_stream )
 

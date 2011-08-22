@@ -5,7 +5,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "zmq/context.hpp"
+#include "zmqpp/context.hpp"
 
 BOOST_AUTO_TEST_SUITE( context )
 

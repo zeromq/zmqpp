@@ -5,10 +5,10 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "zmq/context.hpp"
-#include "zmq/message.hpp"
-#include "zmq/poller.hpp"
-#include "zmq/socket.hpp"
+#include "zmqpp/context.hpp"
+#include "zmqpp/message.hpp"
+#include "zmqpp/poller.hpp"
+#include "zmqpp/socket.hpp"
 
 BOOST_AUTO_TEST_SUITE( poll )
 

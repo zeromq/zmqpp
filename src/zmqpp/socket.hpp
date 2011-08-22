@@ -82,6 +82,7 @@ public:
 
 	void bind(std::string const& endpoint);
 	void connect(std::string const& endpoint);
+	void close();
 
 	// Upon sending a message zmq takes ownership of it and your left with a blank one.
 	bool send(message& message, bool const& dont_block = false);

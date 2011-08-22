@@ -76,6 +76,18 @@ void socket::connect(std::string const& endpoint)
 	}
 }
 
+void socket::close()
+{
+	int result = zmq_close(_socket);
+
+	if (0 != result)
+	{
+		throw zmq_internal_exception();
+	}
+
+	_socket = nullptr;
+}
+
 bool socket::send(message& other, bool const& dont_block /* = false */)
 {
 	// we wish to take ownership passed in object valid but leave so swap
@@ -415,7 +427,7 @@ void socket::operator=(socket&& source)
 
 socket::operator bool() const
 {
-	return NULL != _socket;
+	return nullptr != _socket;
 }
 
 

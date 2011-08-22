@@ -10,7 +10,7 @@
 #include <boost/thread.hpp>
 #include <boost/timer.hpp>
 
-#include "zmq/zmq.hpp"
+#include "zmqpp/zmq.hpp"
 
 
 BOOST_AUTO_TEST_SUITE( load )
