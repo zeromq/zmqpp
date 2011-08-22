@@ -29,7 +29,7 @@ socket::socket(const context& context, socket_type const& type)
 	, _type(type)
 	, _recv_buffer()
 {
-	_socket = zmq_socket(context, type);
+	_socket = zmq_socket(context, static_cast<int>(type));
 	if(nullptr == _socket)
 	{
 		throw zmq_internal_exception();
@@ -273,7 +273,7 @@ void socket::set(socket_option const& option, int const& value)
 	case socket_option::multicast_hops:
 	case socket_option::receive_timeout:
 	case socket_option::send_timeout:
-		zmq_setsockopt(_socket, option, &value, sizeof(value));
+		zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value));
 		break;
 	default:
 		throw exception("attempting to set a non signed integer option with a signed i<< ohint->owner->_stringsnteger value");
@@ -285,7 +285,7 @@ void socket::set(socket_option const& option, uint64_t const& value)
 	switch(option)
 	{
 	case socket_option::affinity:
-		zmq_setsockopt(_socket, option, &value, sizeof(value));
+		zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value));
 		break;
 	default:
 		throw exception("attempting to set a non unsigned 64 bit integer option with a unsigned 64 bit integer value");
@@ -299,7 +299,7 @@ void socket::set(socket_option const& option, std::string const& value)
 	case socket_option::identity:
 	case socket_option::subscribe:
 	case socket_option::unsubscribe:
-		zmq_setsockopt(_socket, option, value.c_str(), value.length());
+		zmq_setsockopt(_socket, static_cast<int>(option), value.c_str(), value.length());
 		break;
 	default:
 		throw exception("attempting to set a non string option with a string value");
@@ -333,7 +333,7 @@ void socket::get(socket_option const& option, int& value) const
 	case socket_option::send_timeout:
 	case socket_option::file_descriptor:
 	case socket_option::events:
-		zmq_getsockopt(_socket, option, &value, &value_size);
+		zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size);
 
 		// sanity check
 		assert(value_size <= sizeof(int));
@@ -352,7 +352,7 @@ void socket::get(socket_option const& option, bool& value) const
 	{
 	case socket_option::receive_more:
 	case socket_option::receive_label:
-		zmq_getsockopt(_socket, option, &int_value, &value_size);
+		zmq_getsockopt(_socket, static_cast<int>(option), &int_value, &value_size);
 
 		value = (int_value == 1) ? true : false;
 		break;
@@ -368,7 +368,7 @@ void socket::get(socket_option const& option, uint64_t& value) const
 	switch(option)
 	{
 	case socket_option::affinity:
-		zmq_getsockopt(_socket, option, &value, &value_size);
+		zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size);
 		break;
 	default:
 		throw exception("attempting to get a non unsigned 64 bit integer option with an unsigned 64 bit integer value");
@@ -383,7 +383,7 @@ void socket::get(socket_option const& option, std::string& value) const
 	switch(option)
 	{
 	case socket_option::identity:
-		zmq_getsockopt(_socket, option, buffer.data(), &size);
+		zmq_getsockopt(_socket, static_cast<int>(option), buffer.data(), &size);
 
 		value.assign(buffer.data(), size);
 		break;

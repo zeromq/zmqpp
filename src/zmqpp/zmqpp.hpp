@@ -25,8 +25,8 @@
  *      Author: Ben Gray (@benjamg)
  */
 
-#ifndef ZMQPP_ZMQ_HPP_
-#define ZMQPP_ZMQ_HPP_
+#ifndef ZMQPP_ZMQPP_HPP_
+#define ZMQPP_ZMQPP_HPP_
 
 #include <zmq.h>
 
@@ -48,4 +48,4 @@ void version(uint8_t& api, uint8_t& revision, uint8_t& age);
 
 }
 
-#endif /* ZMQPP_ZMQ_HPP_ */
+#endif /* ZMQPP_ZMQPP_HPP_ */

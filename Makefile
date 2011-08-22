@@ -32,7 +32,7 @@ VERSION_AGE      = 0
 # Paths
 #
 
-LIBRARY_DIR  = zmq
+LIBRARY_DIR  = zmqpp
 CLIENT_DIR   = client
 TESTS_DIR    = tests
 

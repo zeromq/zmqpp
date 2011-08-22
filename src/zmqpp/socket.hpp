@@ -17,23 +17,33 @@ namespace zmq
 class context;
 class message;
 
-enum socket_type {
+enum class socket_type {
 	pair       = ZMQ_PAIR,
+	publish    = ZMQ_PUB,
+	subscribe  = ZMQ_SUB,
+	pull       = ZMQ_PULL,
+	push       = ZMQ_PUSH,
+	router     = ZMQ_ROUTER,
+	dealer     = ZMQ_DEALER,
+	request    = ZMQ_REQ,
+	reply      = ZMQ_REP,
+	xpublish   = ZMQ_XPUB,
+	xsubscribe = ZMQ_XSUB,
+	xrequest   = ZMQ_XREQ,
+	xreply     = ZMQ_XREP,
+
+	// To match for people who prefer the shorter versions
 	pub        = ZMQ_PUB,
 	sub        = ZMQ_SUB,
 	req        = ZMQ_REQ,
 	rep        = ZMQ_REP,
-	pull       = ZMQ_PULL,
-	push       = ZMQ_PUSH,
 	xpub       = ZMQ_XPUB,
 	xsub       = ZMQ_XSUB,
 	xreq       = ZMQ_XREQ,
-	xrep       = ZMQ_XREP,
-	router     = ZMQ_ROUTER,
-	dealer     = ZMQ_DEALER
+	xrep       = ZMQ_XREP
 };
 
-enum socket_option {
+enum class socket_option {
 	affinity                = ZMQ_AFFINITY,
 	identity                = ZMQ_IDENTITY,
 	subscribe               = ZMQ_SUBSCRIBE,

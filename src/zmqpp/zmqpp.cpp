@@ -3,7 +3,7 @@
  *      Author: Ben Gray (@benjamg)
  */
 
-#include "zmq.hpp"
+#include "zmqpp.hpp"
 
 namespace
 {

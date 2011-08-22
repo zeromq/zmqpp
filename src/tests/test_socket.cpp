@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE( subscribe_helpers )
 {
 	zmq::context context;
 
-	zmq::socket publisher(context, zmq::socket_type::pub);
+	zmq::socket publisher(context, zmq::socket_type::publish);
 	publisher.bind("inproc://test");
 
-	zmq::socket subscriber(context, zmq::socket_type::sub);
+	zmq::socket subscriber(context, zmq::socket_type::subscribe);
 	subscriber.connect("inproc://test");
 	subscriber.subscribe("watch1");
 	subscriber.subscribe("watch2");
