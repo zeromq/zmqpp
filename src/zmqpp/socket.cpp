@@ -13,7 +13,7 @@
 #include "socket.hpp"
 #include "message.hpp"
 
-namespace zmq
+namespace zmqpp
 {
 
 const int socket::NORMAL;

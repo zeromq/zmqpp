@@ -10,7 +10,7 @@
 
 #include <zmq.h>
 
-namespace zmq
+namespace zmqpp
 {
 
 class exception : public std::runtime_error

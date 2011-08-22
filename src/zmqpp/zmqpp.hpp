@@ -40,7 +40,7 @@
 #include "poller.hpp"
 #include "socket.hpp"
 
-namespace zmq
+namespace zmqpp
 {
 
 std::string version();

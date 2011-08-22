@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_SUITE( socket )
 
 const int max_poll_timeout = 100;
 
-void wait_for_socket(zmq::socket& socket)
+void wait_for_socket(zmqpp::socket& socket)
 {
 	zmq_pollitem_t item = { socket, 0, ZMQ_POLLIN, 0 };
 	int result = zmq_poll(&item, 1, max_poll_timeout);
@@ -25,24 +25,24 @@ void wait_for_socket(zmq::socket& socket)
 
 BOOST_AUTO_TEST_CASE( socket_creation )
 {
-	zmq::context context;
-	zmq::socket socket(context, zmq::socket_type::pull);
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::pull);
 }
 
 BOOST_AUTO_TEST_CASE( socket_creation_bad_type )
 {
-	zmq::context context;
-	BOOST_CHECK_THROW(zmq::socket socket(context, static_cast<zmq::socket_type>(-1)), zmq::zmq_internal_exception)
+	zmqpp::context context;
+	BOOST_CHECK_THROW(zmqpp::socket socket(context, static_cast<zmqpp::socket_type>(-1)), zmqpp::zmq_internal_exception)
 }
 
 BOOST_AUTO_TEST_CASE( simple_pull_push )
 {
-	zmq::context context;
+	zmqpp::context context;
 
-	zmq::socket puller(context, zmq::socket_type::pull);
+	zmqpp::socket puller(context, zmqpp::socket_type::pull);
 	puller.bind("inproc://test");
 
-	zmq::socket pusher(context, zmq::socket_type::push);
+	zmqpp::socket pusher(context, zmqpp::socket_type::push);
 	pusher.connect("inproc://test");
 
 	BOOST_CHECK(pusher.send("hello world!"));
@@ -58,16 +58,16 @@ BOOST_AUTO_TEST_CASE( simple_pull_push )
 
 BOOST_AUTO_TEST_CASE( multipart_pair )
 {
-	zmq::context context;
+	zmqpp::context context;
 
-	zmq::socket alpha(context, zmq::socket_type::pair);
+	zmqpp::socket alpha(context, zmqpp::socket_type::pair);
 	alpha.bind("inproc://test");
 
-	zmq::socket omega(context, zmq::socket_type::pair);
+	zmqpp::socket omega(context, zmqpp::socket_type::pair);
 	omega.connect("inproc://test");
 
-	BOOST_CHECK(alpha.send("hello", zmq::socket::SEND_MORE));
-	BOOST_CHECK(alpha.send("world", zmq::socket::SEND_MORE));
+	BOOST_CHECK(alpha.send("hello", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(alpha.send("world", zmqpp::socket::SEND_MORE));
 	BOOST_CHECK(alpha.send("!"));
 
 	wait_for_socket(omega);
@@ -89,23 +89,23 @@ BOOST_AUTO_TEST_CASE( multipart_pair )
 
 BOOST_AUTO_TEST_CASE( subscribe_helpers )
 {
-	zmq::context context;
+	zmqpp::context context;
 
-	zmq::socket publisher(context, zmq::socket_type::publish);
+	zmqpp::socket publisher(context, zmqpp::socket_type::publish);
 	publisher.bind("inproc://test");
 
-	zmq::socket subscriber(context, zmq::socket_type::subscribe);
+	zmqpp::socket subscriber(context, zmqpp::socket_type::subscribe);
 	subscriber.connect("inproc://test");
 	subscriber.subscribe("watch1");
 	subscriber.subscribe("watch2");
 
-	BOOST_CHECK(publisher.send("watch0", zmq::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::SEND_MORE));
 	BOOST_CHECK(publisher.send("contents0"));
-	BOOST_CHECK(publisher.send("watch1", zmq::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::SEND_MORE));
 	BOOST_CHECK(publisher.send("contents1"));
-	BOOST_CHECK(publisher.send("watch2", zmq::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch2", zmqpp::socket::SEND_MORE));
 	BOOST_CHECK(publisher.send("contents2"));
-	BOOST_CHECK(publisher.send("watch3", zmq::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch3", zmqpp::socket::SEND_MORE));
 	BOOST_CHECK(publisher.send("contents3"));
 
 	wait_for_socket(subscriber);
@@ -129,11 +129,11 @@ BOOST_AUTO_TEST_CASE( subscribe_helpers )
 
 	subscriber.unsubscribe("watch1");
 
-	BOOST_CHECK(publisher.send("watch0", zmq::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::SEND_MORE));
 	BOOST_CHECK(publisher.send("contents0"));
-	BOOST_CHECK(publisher.send("watch1", zmq::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::SEND_MORE));
 	BOOST_CHECK(publisher.send("contents1"));
-	BOOST_CHECK(publisher.send("watch2", zmq::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch2", zmqpp::socket::SEND_MORE));
 	BOOST_CHECK(publisher.send("contents2"));
 
 	wait_for_socket(subscriber);
@@ -148,15 +148,15 @@ BOOST_AUTO_TEST_CASE( subscribe_helpers )
 
 BOOST_AUTO_TEST_CASE( sending_messages )
 {
-	zmq::context context;
+	zmqpp::context context;
 
-	zmq::socket pusher(context, zmq::socket_type::push);
+	zmqpp::socket pusher(context, zmqpp::socket_type::push);
 	pusher.bind("inproc://test");
 
-	zmq::socket puller(context, zmq::socket_type::pull);
+	zmqpp::socket puller(context, zmqpp::socket_type::pull);
 	puller.connect("inproc://test");
 
-	zmq::message message;
+	zmqpp::message message;
 	std::string part("another world");
 
 	message.add("hello world!");
@@ -177,15 +177,15 @@ BOOST_AUTO_TEST_CASE( sending_messages )
 
 BOOST_AUTO_TEST_CASE( receiving_messages )
 {
-	zmq::context context;
+	zmqpp::context context;
 
-	zmq::socket pusher(context, zmq::socket_type::push);
+	zmqpp::socket pusher(context, zmqpp::socket_type::push);
 	pusher.bind("inproc://test");
 
-	zmq::socket puller(context, zmq::socket_type::pull);
+	zmqpp::socket puller(context, zmqpp::socket_type::pull);
 	puller.connect("inproc://test");
 
-	zmq::message message;
+	zmqpp::message message;
 	std::string part("another world");
 
 	message.add("hello world!");
@@ -205,15 +205,15 @@ BOOST_AUTO_TEST_CASE( receiving_messages )
 
 BOOST_AUTO_TEST_CASE( cleanup_safe_with_pending_data )
 {
-	zmq::context context;
+	zmqpp::context context;
 
-	zmq::socket pusher(context, zmq::socket_type::push);
+	zmqpp::socket pusher(context, zmqpp::socket_type::push);
 	pusher.bind("inproc://test");
 
-	zmq::socket puller(context, zmq::socket_type::pull);
+	zmqpp::socket puller(context, zmqpp::socket_type::pull);
 	puller.connect("inproc://test");
 
-	zmq::message message;
+	zmqpp::message message;
 	std::string part("another world");
 
 	message.add("hello world!");

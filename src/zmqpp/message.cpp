@@ -10,7 +10,7 @@
 #include "inet.hpp"
 #include "message.hpp"
 
-namespace zmq
+namespace zmqpp
 {
 
 message::message()

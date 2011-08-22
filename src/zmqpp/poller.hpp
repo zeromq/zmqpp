@@ -14,7 +14,7 @@
 #include "exception.hpp"
 #include "socket.hpp"
 
-namespace zmq
+namespace zmqpp
 {
 
 class poller

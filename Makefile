@@ -140,7 +140,7 @@ uninstall:
 	rm $(LIBDIR)/$(LIBRARY_SHARED)
 
 clean:
-	rm -r $(BUILD_PATH)
+	rm -rf $(BUILD_PATH)
 
 client: $(CLIENT_TARGET)
 

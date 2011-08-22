@@ -10,7 +10,7 @@
 //TODO: cross-platform
 #include <netinet/in.h>
 
-namespace zmq
+namespace zmqpp
 {
 
 enum class order { unknown, big_endian, little_endian };
@@ -49,12 +49,12 @@ inline uint64_t swap_if_needed(uint64_t const& hostlonglong)
 
 inline uint64_t htonll(uint64_t const& hostlonglong)
 {
-	return zmq::swap_if_needed(hostlonglong);
+	return zmqpp::swap_if_needed(hostlonglong);
 }
 
 inline uint64_t ntohll(uint64_t const& hostlonglong)
 {
-	return zmq::swap_if_needed(hostlonglong);
+	return zmqpp::swap_if_needed(hostlonglong);
 }
 
 #endif /* INET_HPP_ */

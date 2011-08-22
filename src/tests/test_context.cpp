@@ -11,23 +11,23 @@ BOOST_AUTO_TEST_SUITE( context )
 
 BOOST_AUTO_TEST_CASE( initialises )
 {
-	zmq::context context;
+	zmqpp::context context;
 	BOOST_CHECK(context);
 }
 
 BOOST_AUTO_TEST_CASE( move_supporting )
 {
-	zmq::context first;
+	zmqpp::context first;
 	BOOST_CHECK(first);
 
-	zmq::context second( std::move(first) );
+	zmqpp::context second( std::move(first) );
 	BOOST_CHECK(second);
 	BOOST_CHECK(!first);
 }
 
 BOOST_AUTO_TEST_CASE( throws_exception )
 {
-	BOOST_CHECK_THROW(new zmq::context(-1), zmq::zmq_internal_exception);
+	BOOST_CHECK_THROW(new zmqpp::context(-1), zmqpp::zmq_internal_exception);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

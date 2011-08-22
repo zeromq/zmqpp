@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE( swaping_64bit_byteorder )
 {
 	uint64_t host = 0x1122334455667788;
 
-	uint64_t network = zmq::swap_if_needed(host);
+	uint64_t network = zmqpp::swap_if_needed(host);
 
 	uint8_t* bytes = reinterpret_cast<uint8_t*>(&network);
 
@@ -31,9 +31,9 @@ BOOST_AUTO_TEST_CASE( swaping_64bit_reversable )
 {
 	uint64_t host = 0x1122334455667788;
 
-	uint64_t network = zmq::swap_if_needed(host);
+	uint64_t network = zmqpp::swap_if_needed(host);
 
-	BOOST_CHECK_EQUAL(host, zmq::swap_if_needed(network));
+	BOOST_CHECK_EQUAL(host, zmqpp::swap_if_needed(network));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

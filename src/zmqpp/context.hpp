@@ -12,7 +12,7 @@
 
 #include "exception.hpp"
 
-namespace zmq
+namespace zmqpp
 {
 
 /**

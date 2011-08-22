@@ -82,17 +82,17 @@ BOOST_AUTO_TEST_CASE( push_messages )
 	long max_poll_timeout = 2000;
 	uint64_t messages = 1e6;
 
-	zmq::context context;
-	zmq::socket pusher(context, zmq::socket_type::push);
+	zmqpp::context context;
+	zmqpp::socket pusher(context, zmqpp::socket_type::push);
 	pusher.connect("tcp://localhost:12345");
 
-	zmq::socket puller(context, zmq::socket_type::pull);
+	zmqpp::socket puller(context, zmqpp::socket_type::pull);
 	puller.bind("tcp://*:12345");
 
 	auto pusher_func = [messages, &pusher](void) {
 		auto remaining = messages;
 		std::string data("hello world!");
-		zmq::message message;
+		zmqpp::message message;
 
 		do
 		{
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( push_messages )
 		while(--remaining > 0);
 	};
 
-	zmq::poller poller;
+	zmqpp::poller poller;
 	poller.add(puller);
 
 	boost::thread thread(pusher_func);

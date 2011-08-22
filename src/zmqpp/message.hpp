@@ -14,7 +14,7 @@
 
 #include <zmq.h>
 
-namespace zmq
+namespace zmqpp
 {
 
 class message

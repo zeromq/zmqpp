@@ -14,35 +14,35 @@ BOOST_AUTO_TEST_SUITE( message )
 
 BOOST_AUTO_TEST_CASE( initialising )
 {
-	zmq::message message;
+	zmqpp::message message;
 
 	BOOST_CHECK_EQUAL(0, message.parts());
 }
 
 BOOST_AUTO_TEST_CASE( throws_exception_reading_invalid_part )
 {
-	zmq::message message;
+	zmqpp::message message;
 
-	BOOST_CHECK_THROW(message.get(0), zmq::exception);
+	BOOST_CHECK_THROW(message.get(0), zmqpp::exception);
 }
 
 BOOST_AUTO_TEST_CASE( move_supporting )
 {
-	zmq::message first;
+	zmqpp::message first;
 	first.add("string");
 	BOOST_CHECK_EQUAL(1, first.parts());
 
-	zmq::message second( std::move(first) );
+	zmqpp::message second( std::move(first) );
 	BOOST_CHECK_EQUAL(1, second.parts());
 	BOOST_CHECK_EQUAL(0, first.parts());
 }
 
 BOOST_AUTO_TEST_CASE( copyable )
 {
-	zmq::message second;
+	zmqpp::message second;
 
 	{
-		zmq::message first;
+		zmqpp::message first;
 		first.add("string");
 		BOOST_CHECK_EQUAL(1, first.parts());
 
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( move_part )
 		called = true;
 	};
 
-	zmq::message* msg = new zmq::message();
+	zmqpp::message* msg = new zmqpp::message();
 	msg->move(data, data_size, release_func);
 
 	BOOST_REQUIRE_EQUAL(1, msg->parts());
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( copy_part )
 	memset(data, 0, data_size);
 	memcpy(data, "tests", data_size);
 
-	zmq::message* msg = new zmq::message();
+	zmqpp::message* msg = new zmqpp::message();
 	msg->add(data, data_size);
 
 	BOOST_REQUIRE_EQUAL(1, msg->parts());
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( copy_part )
 
 BOOST_AUTO_TEST_CASE( copy_part_string )
 {
-	zmq::message* msg = new zmq::message();
+	zmqpp::message* msg = new zmqpp::message();
 	std::string part("tests");
 
 	msg->add(part);
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( copy_part_string )
 
 BOOST_AUTO_TEST_CASE( multi_part_message )
 {
-	zmq::message message;
+	zmqpp::message message;
 	message.add("this is the first part");
 	message.add("some other content here");
 	message.add("and finally");
@@ -135,15 +135,15 @@ BOOST_AUTO_TEST_CASE( multi_part_message )
 
 BOOST_AUTO_TEST_CASE( stream_throws_exception )
 {
-	zmq::message message;
+	zmqpp::message message;
 	std::string part;
 
-	BOOST_CHECK_THROW(message >> part, zmq::exception);
+	BOOST_CHECK_THROW(message >> part, zmqpp::exception);
 }
 
 BOOST_AUTO_TEST_CASE( stream_output_string )
 {
-	zmq::message message;
+	zmqpp::message message;
 	message.add("part");
 
 	std::string part;
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( stream_output_string )
 
 BOOST_AUTO_TEST_CASE( stream_copy_input_c_string )
 {
-	zmq::message message;
+	zmqpp::message message;
 	message << "test part";
 
 	BOOST_REQUIRE_EQUAL(1, message.parts());
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( stream_copy_input_c_string )
 BOOST_AUTO_TEST_CASE( stream_copy_input_string )
 {
 	const std::string part("test part");
-	zmq::message message;
+	zmqpp::message message;
 
 	message << part;
 	BOOST_CHECK_EQUAL("test part", part);
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( stream_copy_input_string )
 
 BOOST_AUTO_TEST_CASE( stream_multiple_parts )
 {
-	zmq::message message;
+	zmqpp::message message;
 	message << "test part";
 	message << 42;
 
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE( stream_multiple_parts )
 
 BOOST_AUTO_TEST_CASE( output_stream_resetable )
 {
-	zmq::message message;
+	zmqpp::message message;
 	message << "test part";
 
 	std::string first;
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( output_stream_resetable )
 BOOST_AUTO_TEST_CASE( stream_move_input_string )
 {
 	std::string part("test part");
-	zmq::message message;
+	zmqpp::message message;
 
 	message << part;
 	BOOST_CHECK_EQUAL("", part);

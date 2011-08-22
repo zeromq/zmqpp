@@ -6,7 +6,7 @@
 #include "socket.hpp"
 #include "poller.hpp"
 
-namespace zmq
+namespace zmqpp
 {
 
 const long poller::WAIT_FOREVER;
