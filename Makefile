@@ -106,8 +106,8 @@ ALL_TEST_OBJECTS := $(patsubst $(SRC_PATH)/%.cpp, $(OBJECT_PATH)/%.o, $(shell fi
 
 TEST_SUITES := ${addprefix test-,${sort ${shell find ${TESTS_PATH} -iname *.cpp | xargs grep BOOST_AUTO_TEST_SUITE\( | sed 's/.*BOOST_AUTO_TEST_SUITE( \(.*\) )/\1/' }}}
 
-#error
-# BUILD Targets - StandardisBOOST_AUTO_TEST_SUITE( sanity )
+#
+# BUILD Targets - Standardised
 #
 
 .PHONY: check clean install installcheck uninstall client library test $(TEST_SUITES)
