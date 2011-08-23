@@ -7,9 +7,9 @@ CPPFLAGS =
 CXXFLAGS = 
 LDFLAGS  = 
 
-PREFIX = $(DESTDIR)/usr/local
-LIBDIR = $(PREFIX)/lib
-INCLUDEDIR = $(PREFIX)/include
+PREFIX = /usr/local
+LIBDIR = $(DESTDIR)$(PREFIX)/lib
+INCLUDEDIR = $(DESTDIR)$(PREFIX)/include
 
 #
 # Tools
