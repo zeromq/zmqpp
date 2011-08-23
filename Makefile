@@ -15,10 +15,11 @@ INCLUDEDIR = $(PREFIX)/include
 # Tools
 #
 
-CC       = g++
-LD       = g++
+CXX      = g++
+LD       = $(CXX)
 AR       = ar
 LDCONFIG = ldconfig
+
 #
 # Build values
 #
@@ -186,5 +187,5 @@ test: $(TESTS_TARGET)
 
 $(OBJECT_PATH)/%.o: $(SRC_PATH)/%.cpp
 	-mkdir -p $(dir $@)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(COMMON_FLAGS) $(CONFIG_FLAGS) -c -o $@ $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(COMMON_FLAGS) $(CONFIG_FLAGS) -c -o $@ $<
 

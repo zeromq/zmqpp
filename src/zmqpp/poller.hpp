@@ -11,11 +11,9 @@
 
 #include <zmq.h>
 
-#include "exception.hpp"
-#include "socket.hpp"
-
 namespace zmqpp
 {
+class socket;
 
 class poller
 {

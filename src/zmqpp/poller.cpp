@@ -3,6 +3,7 @@
  *      Author: Ben Gray (@benjamg)
  */
 
+#include "exception.hpp"
 #include "socket.hpp"
 #include "poller.hpp"
 

@@ -54,6 +54,7 @@ BOOST_AUTO_TEST_CASE( copyable )
 	BOOST_CHECK_EQUAL("string", second.get(0));
 }
 
+#ifndef IGNORE_LAMBDA_FUNCTION_TESTS
 BOOST_AUTO_TEST_CASE( move_part )
 {
 	bool called = false;
@@ -79,6 +80,7 @@ BOOST_AUTO_TEST_CASE( move_part )
 
 	BOOST_CHECK(called);
 }
+#endif
 
 BOOST_AUTO_TEST_CASE( copy_part )
 {
