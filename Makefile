@@ -89,7 +89,7 @@ CLIENT_LIBS = -L$(BUILD_PATH) \
 
 TEST_LIBS = -L$(BUILD_PATH) \
 	-l$(LIBRARY_NAME) \
-	-lboost_unit_test_framework -lboost_thread
+	-lboost_unit_test_framework
 
 ifeq ($(CONFIG),loadtest)
 	CONFIG_FLAGS := $(CONFIG_FLAGS) -DLOADTEST
