@@ -13,7 +13,7 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 
-#include <zmq/zmq.hpp>
+#include <zmqpp/zmqpp.hpp>
 
 boost::program_options::options_description connection_options()
 {
@@ -45,7 +45,7 @@ void usage(std::string const& executable_name)
 	std::cout << "ENDPOINT is any valid 0mq endpoint." << std::endl;
 }
 
-typedef std::tuple<zmq::socket_type, bool, bool, bool> socket_type_data;
+typedef std::tuple<zmqpp::socket_type, bool, bool, bool> socket_type_data;
 
 int main(int argc, char const* argv[])
 {
@@ -64,14 +64,14 @@ int main(int argc, char const* argv[])
 	bool usage = false;
 
 	std::map<std::string, socket_type_data> socket_types;
-	socket_types["push"] = socket_type_data(zmq::socket_type::push, true, false, false);
-	socket_types["pull"] = socket_type_data(zmq::socket_type::pull, false, true, false);
+	socket_types["push"] = socket_type_data(zmqpp::socket_type::push, true, false, false);
+	socket_types["pull"] = socket_type_data(zmqpp::socket_type::pull, false, true, false);
 
-	socket_types["pub"] = socket_type_data(zmq::socket_type::publish, true, false, false);
-	socket_types["sub"] = socket_type_data(zmq::socket_type::subcribe, false, true, false);
+	socket_types["pub"] = socket_type_data(zmqpp::socket_type::publish, true, false, false);
+	socket_types["sub"] = socket_type_data(zmqpp::socket_type::subscribe, false, true, false);
 
-	socket_types["req"] = socket_type_data(zmq::socket_type::request, true, false, true);
-	socket_types["rep"] = socket_type_data(zmq::socket_type::reply, false, true, true);
+	socket_types["req"] = socket_type_data(zmqpp::socket_type::request, true, false, true);
+	socket_types["rep"] = socket_type_data(zmqpp::socket_type::reply, false, true, true);
 
 	try {
 		boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(all).positional(arguments).run(), vm);
@@ -135,13 +135,13 @@ int main(int argc, char const* argv[])
 	}
 
 	socket_type_data data = socket_types[vm["type"].as<std::string>()];
-	zmq::socket_type type = std::get<0>(data);
+	zmqpp::socket_type type = std::get<0>(data);
 	bool can_send = std::get<1>(data);
 	bool can_recv = std::get<2>(data);
 	bool toggles = std::get<3>(data);
 
-	zmq::context context;
-	zmq::socket socket(context, type);
+	zmqpp::context context;
+	zmqpp::socket socket(context, type);
 	if (vm.count("bind"))
 	{
 		std::vector<std::string> endpoints = vm["bind"].as<std::vector<std::string>>();
@@ -152,7 +152,7 @@ int main(int argc, char const* argv[])
 			{
 				socket.bind(endpoints[i]);
 			}
-			catch(zmq::zmq_internal_exception& e)
+			catch(zmqpp::zmq_internal_exception& e)
 			{
 				std::cout << "invalid 0mq endpoint." << std::endl;
 				return EXIT_FAILURE;
@@ -170,7 +170,7 @@ int main(int argc, char const* argv[])
 			{
 				socket.connect(endpoints[i]);
 			}
-			catch(zmq::zmq_internal_exception& e)
+			catch(zmqpp::zmq_internal_exception& e)
 			{
 				std::cout << "invalid 0mq endpoint." << std::endl;
 				return EXIT_FAILURE;
@@ -178,7 +178,7 @@ int main(int argc, char const* argv[])
 		}
 	}
 
-	zmq::poller poller;
+	zmqpp::poller poller;
 	poller.add(socket);
 	poller.add(standardin);
 
@@ -197,8 +197,8 @@ int main(int argc, char const* argv[])
 
 	while(true)
 	{
-		poller.check_for(socket, (can_recv) ? zmq::poller::POLL_IN : zmq::poller::POLL_NONE);
-		poller.check_for(standardin, (can_send) ? zmq::poller::POLL_IN : zmq::poller::POLL_NONE);
+		poller.check_for(socket, (can_recv) ? zmqpp::poller::POLL_IN : zmqpp::poller::POLL_NONE);
+		poller.check_for(standardin, (can_send) ? zmqpp::poller::POLL_IN : zmqpp::poller::POLL_NONE);
 
 		if(poller.poll())
 		{
@@ -232,7 +232,7 @@ int main(int argc, char const* argv[])
 
 				//buffer.data[strlen(buffer.data()) - 1] = 0;
 				std::cout << "outbound: " << buffer.data() << std::endl;
-				if (!socket.send_raw(buffer.data(), strlen(buffer.data()), zmq::socket::DONT_WAIT))
+				if (!socket.send_raw(buffer.data(), strlen(buffer.data()), zmqpp::socket::DONT_WAIT))
 				{
 					std::cout << "send failed, socket would have blocked" << std::endl;
 				}

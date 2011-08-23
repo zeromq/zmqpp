@@ -22,10 +22,10 @@ class poller
 public:
 	static const long WAIT_FOREVER = -1;
 
-	static const int POLL_NONE = 0;
-	static const int POLL_IN = ZMQ_POLLIN;
-	static const int POLL_OUT = ZMQ_POLLOUT;
-	static const int POLL_ERROR = ZMQ_POLLERR;
+	static const short POLL_NONE = 0;
+	static const short POLL_IN = ZMQ_POLLIN;
+	static const short POLL_OUT = ZMQ_POLLOUT;
+	static const short POLL_ERROR = ZMQ_POLLERR;
 
 	poller();
 
