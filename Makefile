@@ -18,7 +18,6 @@ INCLUDEDIR = $(DESTDIR)$(PREFIX)/include
 CXX      = g++
 LD       = $(CXX)
 AR       = ar
-LDCONFIG = ldconfig
 
 #
 # Build values
