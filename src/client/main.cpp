@@ -96,7 +96,7 @@ int main(int argc, char const* argv[])
 
 	if (vm.count("version"))
 	{
-		std::cout << (strrchr(argv[0], '/') + 1) << " version " << BUILD_VERSION_API << "." << BUILD_VERSION_REVISION << std::endl;
+		std::cout << (strrchr(argv[0], '/') + 1) << " version " << BUILD_VERSION << std::endl;
 		return EXIT_SUCCESS;
 	}
 
