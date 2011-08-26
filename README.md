@@ -19,7 +19,7 @@ libzmqpp
 
 There is a Makefile provided which will build, test and install the second
 binding on a GNU Linux system I have not tested it on anything other than
-Ubuntu 11.04.
+Ubuntu 11.04 and Centos 5.5
 
 The tests for the binding (make check) require the boost unittest framework to
 have been installed however these do not need to be built or run to install
@@ -29,7 +29,7 @@ Requirements
 ------------
 
 ZeroMQ 3.0.0 or later
-C++0x compliant compiler (g++ 4.6.1 works)
+C++0x compliant compiler (g++ 4.6.1 works, g++ 4.4.5 requires flags)
 
 Installation
 ------------
@@ -42,6 +42,15 @@ checking.
     make check
     sudo make install
     make installcheck
+
+### Using g++ 4.4.5 (or similar)
+
+Compilation while using g++ 4.4.5, or any compiler without nullptr and lambda
+functions needs the CXXFLAG option to be modified as follows. Lambda functions
+are only used in the tests not the core library.
+
+    make CXXFLAGS="-Dnullptr=NULL"
+    make CXXFLAGS="-Dnullptr=NULL -DIGNORE_LAMBDA_FUNCTION_TESTS" check
     
 Debugging
 ---------

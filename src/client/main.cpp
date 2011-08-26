@@ -21,6 +21,7 @@ boost::program_options::options_description connection_options()
 	options.add_options()
 		("bind,b", boost::program_options::value<std::vector<std::string>>(), "bind to specified endpoint")
 		("connect,c", boost::program_options::value<std::vector<std::string>>(), "connect to specified endpoint")
+		("multipart,m", "enable multipart message sending")
 		;
 
 	return options;
@@ -142,6 +143,12 @@ int main(int argc, char const* argv[])
 
 	zmqpp::context context;
 	zmqpp::socket socket(context, type);
+
+	if (zmqpp::socket_type::subscribe == type)
+	{
+		socket.subscribe("");
+	}
+
 	if (vm.count("bind"))
 	{
 		std::vector<std::string> endpoints = vm["bind"].as<std::vector<std::string>>();
@@ -178,6 +185,8 @@ int main(int argc, char const* argv[])
 		}
 	}
 
+	bool multipart = (vm.count("multipart") > 0);
+
 	zmqpp::poller poller;
 	poller.add(socket);
 	poller.add(standardin);
@@ -195,6 +204,14 @@ int main(int argc, char const* argv[])
 		}
 	}
 
+	if (multipart)
+	{
+		std::cout << "Multipart messages enabled, newline on an empty line will be considered packet end." << std::endl;
+		std::cout << "The empty part will not be included." << std::endl;
+		std::cout << std::endl;
+	}
+
+	zmqpp::message message;
 	while(true)
 	{
 		poller.check_for(socket, (can_recv) ? zmqpp::poller::POLL_IN : zmqpp::poller::POLL_NONE);
@@ -206,15 +223,18 @@ int main(int argc, char const* argv[])
 			{
 				assert(can_recv);
 
-				std::string message;
-				socket.receive(message);
-				std::cout << "inbound: " << message << std::endl;
+				do
+				{
+					std::string message;
+					socket.receive(message);
+					std::cout << "<<: " << message << std::endl;
+				} while(socket.has_more_parts());
 
 				if (toggles)
 				{
 					can_recv = false;
 					can_send = true;
-					std::cout << "Sending now enabled" << std::endl;
+					std::cout << "**: Sending now enabled" << std::endl;
 				}
 			}
 
@@ -226,22 +246,34 @@ int main(int argc, char const* argv[])
 				char* result = fgets(buffer.data(), buffer.size(), stdin);
 				if (nullptr == result)
 				{
-					std::cout << "error in standard input" << std::endl;
+					std::cout << "!!: Error in standard input" << std::endl;
 					return EXIT_FAILURE;
 				}
 
-				//buffer.data[strlen(buffer.data()) - 1] = 0;
-				std::cout << "outbound: " << buffer.data() << std::endl;
-				if (!socket.send_raw(buffer.data(), strlen(buffer.data()), zmqpp::socket::DONT_WAIT))
+				buffer[strlen(buffer.data()) - 1] = 0;
+				if (!multipart || (strlen(buffer.data()) > 0))
 				{
-					std::cout << "send failed, socket would have blocked" << std::endl;
+					message.add(buffer.data(), strlen(buffer.data()));
 				}
 
-				if (toggles)
+				if (!multipart || (strlen(buffer.data()) == 0))
 				{
-					can_recv = true;
-					can_send = false;
-					std::cout << "Sending now disabled" << std::endl;
+					for(size_t i = 0; i < message.parts(); ++i)
+					{
+						std::cout << ">>: " << message.get<std::string>(i) << std::endl;
+					}
+
+					if (!socket.send(message, true))
+					{
+						std::cout << "!!: Send failed, socket would have blocked" << std::endl;
+					}
+
+					if (toggles)
+					{
+						can_recv = true;
+						can_send = false;
+						std::cout << "**: Sending now disabled" << std::endl;
+					}
 				}
 			}
 		}

@@ -30,8 +30,11 @@
 
 #include <zmq.h>
 
-#if ZMQ_VERSION_MAJOR < 3
-#error cppzmq requires a later version of 0mq
+#define ZMQPP_REQUIRED_ZMQ_MAJOR 3
+#define ZMQPP_REQUIRED_ZMQ_MINOR 0
+
+#if ZMQ_VERSION_MAJOR < ZMQPP_REQUIRED_ZMQ_MAJOR or ((ZMQ_VERSION_MAJOR == ZMQPP_REQUIRED_ZMQ_MAJOR) and (ZMQ_VERSION_MINOR < ZMQPP_REQUIRED_ZMQ_MINOR))
+#error zmqpp requires a later version of 0mq
 #endif
 
 #include "context.hpp"
@@ -44,7 +47,7 @@ namespace zmqpp
 {
 
 std::string version();
-void version(uint8_t& api, uint8_t& revision, uint8_t& age);
+void version(uint8_t& major, uint8_t& minor, uint8_t& revision);
 
 }
 

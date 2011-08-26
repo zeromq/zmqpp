@@ -5,7 +5,7 @@
 
 #include "zmqpp.hpp"
 
-namespace
+namespace zmqpp
 {
 
 std::string version()
@@ -13,11 +13,11 @@ std::string version()
 	return BUILD_VERSION;
 }
 
-void version(uint8_t& api, uint8_t& revision, uint8_t& age)
+void version(uint8_t& major, uint8_t& minor, uint8_t& revision)
 {
-	api = BUILD_VERSION_API;
+	major = BUILD_VERSION_MAJOR;
+	minor = BUILD_VERSION_MINOR;
 	revision = BUILD_VERSION_REVISION;
-	age = BUILD_VERSION_AGE;
 }
 
 
