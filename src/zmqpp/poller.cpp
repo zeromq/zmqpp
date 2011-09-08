@@ -19,8 +19,16 @@ const short poller::POLL_ERROR;
 poller::poller()
 	: _items()
 	, _index()
+	, _fdindex()
 {
 
+}
+
+poller::~poller()
+{
+	_items.clear();
+	_index.clear();
+	_fdindex.clear();
 }
 
 void poller::add(socket& socket, short const& event /* = POLL_IN */)
@@ -74,7 +82,7 @@ bool poller::poll(long timeout /* = WAIT_FOREVER */)
 	return (result > 0);
 }
 
-short poller::events(socket const& socket)
+short poller::events(socket const& socket) const
 {
 	auto found = _index.find(socket);
 	if (_index.end() == found)
@@ -85,7 +93,7 @@ short poller::events(socket const& socket)
 	return _items[(*found).second].revents;
 }
 
-short poller::events(int const& descriptor)
+short poller::events(int const& descriptor) const
 {
 	auto found = _fdindex.find(descriptor);
 	if (_fdindex.end() == found)

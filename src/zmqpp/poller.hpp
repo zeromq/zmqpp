@@ -26,6 +26,7 @@ public:
 	static const short POLL_ERROR = ZMQ_POLLERR;
 
 	poller();
+	~poller();
 
 	void add(socket& socket, short const& event = POLL_IN);
 	void add(int const& descriptor, short const& event = POLL_IN);
@@ -35,17 +36,17 @@ public:
 
 	bool poll(long timeout = WAIT_FOREVER);
 
-	short events(socket const& socket);
-	short events(int const& descriptor);
+	short events(socket const& socket) const;
+	short events(int const& descriptor) const;
 
 	template<typename Watched>
-	bool has_input(Watched const& watchable) { return events(watchable) & POLL_IN; }
+	bool has_input(Watched const& watchable) const { return events(watchable) & POLL_IN; }
 
 	template<typename Watched>
-	bool has_output(Watched const& watchable) { return events(watchable) & POLL_OUT; }
+	bool has_output(Watched const& watchable) const { return events(watchable) & POLL_OUT; }
 
 	template<typename Watched>
-	bool has_error(Watched const& watchable) { return events(watchable) & POLL_ERROR; }
+	bool has_error(Watched const& watchable) const { return events(watchable) & POLL_ERROR; }
 
 private:
 	std::vector<zmq_pollitem_t> _items;

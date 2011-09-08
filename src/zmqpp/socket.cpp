@@ -102,8 +102,9 @@ bool socket::send(message& other, bool const& dont_block /* = false */)
 
 	for(size_t i = 0; i < parts; ++i)
 	{
-		int flag = (dont_block) ? socket::DONT_WAIT : socket::NORMAL;
-		flag = (i < (parts - 1)) ? socket::SEND_MORE : socket::NORMAL;
+		int flag = socket::NORMAL;
+		if(dont_block) { flag |= socket::DONT_WAIT; }
+		if(i < (parts - 1)) { flag |= socket::SEND_MORE; }
 
 		int result = zmq_sendmsg(_socket, &local.raw_msg(i), flag);
 
