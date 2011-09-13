@@ -11,11 +11,17 @@
 
 #include <zmq.h>
 
+#include "compatibility.hpp"
+
 namespace zmqpp
 {
 
 class context;
 class message;
+
+typedef std::string endpoint_t;
+typedef context     context_t;
+typedef message     message_t;
 
 enum class socket_type {
 	pair       = ZMQ_PAIR,
@@ -77,16 +83,16 @@ public:
 	static const int SEND_MORE  = ZMQ_SNDMORE;
 	static const int SEND_LABEL = ZMQ_SNDLABEL;
 
-	socket(context const& context, socket_type const& type);
+	socket(context_t const& context, socket_type const& type);
 	~socket();
 
-	void bind(std::string const& endpoint);
-	void connect(std::string const& endpoint);
+	void bind(endpoint_t const& endpoint);
+	void connect(endpoint_t const& endpoint);
 	void close();
 
 	// Upon sending a message zmq takes ownership of it and your left with a blank one.
-	bool send(message& message, bool const& dont_block = false);
-	bool receive(message& message, bool const& dont_block = false);
+	bool send(message_t& message, bool const& dont_block = false);
+	bool receive(message_t& message, bool const& dont_block = false);
 
 	/**
 	 * returns true if sent, false if would block and ZMQ_DONTWAIT was used
@@ -144,7 +150,7 @@ private:
 	socket(socket const&);
 	void operator=(socket const&);
 
-	void track_message(message const&, uint32_t const&, bool&);
+	void track_message(message_t const&, uint32_t const&, bool&);
 };
 
 }

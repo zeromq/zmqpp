@@ -10,8 +10,8 @@
 
 #include "context.hpp"
 #include "exception.hpp"
-#include "socket.hpp"
 #include "message.hpp"
+#include "socket.hpp"
 
 namespace zmqpp
 {
@@ -56,7 +56,7 @@ socket::~socket()
 	}
 }
 
-void socket::bind(std::string const& endpoint)
+void socket::bind(endpoint_t const& endpoint)
 {
 	int result = zmq_bind(_socket, endpoint.c_str());
 
@@ -66,7 +66,7 @@ void socket::bind(std::string const& endpoint)
 	}
 }
 
-void socket::connect(std::string const& endpoint)
+void socket::connect(endpoint_t const& endpoint)
 {
 	int result = zmq_connect(_socket, endpoint.c_str());
 

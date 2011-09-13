@@ -10,7 +10,9 @@
 
 #include <zmq.h>
 
+#include "compatibility.hpp"
 #include "exception.hpp"
+
 
 namespace zmqpp
 {

@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( copyable )
 	BOOST_CHECK_EQUAL("string", second.get(0));
 }
 
-#ifndef IGNORE_LAMBDA_FUNCTION_TESTS
+#ifndef ZMQPP_IGNORE_LAMBDA_FUNCTION_TESTS
 BOOST_AUTO_TEST_CASE( move_part )
 {
 	bool called = false;
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE( output_stream_resetable )
 	BOOST_CHECK_EQUAL("test part", second);
 }
 
-#ifdef ZMQ_NON_CONST_STREAM_OPERATORS_MOVE
+#ifdef ZMQPP_NON_CONST_STREAM_OPERATORS_MOVE
 BOOST_AUTO_TEST_CASE( stream_move_input_string )
 {
 	std::string part("test part");

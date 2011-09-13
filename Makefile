@@ -8,6 +8,7 @@ CXXFLAGS =
 LDFLAGS  = 
 
 PREFIX = /usr/local
+BINDIR = $(DESTDIR)$(PREFIX)/bin
 LIBDIR = $(DESTDIR)$(PREFIX)/lib
 INCLUDEDIR = $(DESTDIR)$(PREFIX)/include
 
@@ -26,7 +27,7 @@ AR       = ar
 LIBRARY_NAME     = zmqpp
 VERSION_MAJOR    = 1
 VERSION_MINOR    = 0
-VERSION_REVISION = 2
+VERSION_REVISION = 4
 
 #
 # Paths
@@ -41,7 +42,7 @@ LIBRARY_PATH = $(SRC_PATH)/$(LIBRARY_DIR)
 CLIENT_PATH  = $(SRC_PATH)/$(CLIENT_DIR)
 TESTS_PATH   = $(SRC_PATH)/$(TESTS_DIR)
 
-BUILD_PATH   = ./build/$(CONFIG)
+BUILD_PATH   = ./build/$(CONFIG)-$(CXX)
 OBJECT_PATH  = $(BUILD_PATH)/obj
 
 #
@@ -115,7 +116,7 @@ TEST_SUITES := ${addprefix test-,${sort ${shell find ${TESTS_PATH} -iname *.cpp 
 all: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE)
 	@echo "use make check to test the build"
 
-check: test
+check: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE) test
 
 install: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE)
 	-mkdir $(INCLUDEDIR)/$(LIBRARY_DIR)
@@ -125,6 +126,8 @@ install: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE)
 	ln -sf $(LIBRARY_SHARED).$(APP_VERSION) $(LIBDIR)/$(LIBRARY_SHARED).$(VERSION_MAJOR)
 	ln -sf $(LIBRARY_SHARED).$(APP_VERSION) $(LIBDIR)/$(LIBRARY_SHARED)
 	chmod 755 $(LIBDIR)/$(LIBRARY_SHARED)
+	-cp $(BUILD_PATH)/$(CLIENT_TARGET) $(BINDIR)
+	-chmod 755 $(BINDIR)/$(CLIENT_TARGET)
 	$(LDCONFIG)
 	@echo "use make installcheck to test the install"
 	

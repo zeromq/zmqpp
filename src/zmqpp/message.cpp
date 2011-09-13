@@ -13,6 +13,17 @@
 namespace zmqpp
 {
 
+struct zmq_msg_wrapper
+{
+	bool sent;
+	zmq_msg_t msg;
+};
+
+struct callback_releaser
+{
+	message::release_function func;
+};
+
 message::message()
 	: _parts()
 	, _read_cursor(0)

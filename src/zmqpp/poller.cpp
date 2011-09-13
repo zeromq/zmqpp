@@ -7,14 +7,16 @@
 #include "socket.hpp"
 #include "poller.hpp"
 
+#include <zmq.h>
+
 namespace zmqpp
 {
 
-const long poller::WAIT_FOREVER;
-const short poller::POLL_NONE;
-const short poller::POLL_IN;
-const short poller::POLL_OUT;
-const short poller::POLL_ERROR;
+const long poller::WAIT_FOREVER = -1;
+const short poller::POLL_NONE   = 0;
+const short poller::POLL_IN     = ZMQ_POLLIN;
+const short poller::POLL_OUT    = ZMQ_POLLOUT;
+const short poller::POLL_ERROR  = ZMQ_POLLERR;
 
 poller::poller()
 	: _items()

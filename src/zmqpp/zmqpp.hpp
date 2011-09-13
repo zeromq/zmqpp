@@ -37,6 +37,7 @@
 #error zmqpp requires a later version of 0mq
 #endif
 
+#include "compatibility.hpp"
 #include "context.hpp"
 #include "exception.hpp"
 #include "message.hpp"
@@ -48,6 +49,11 @@ namespace zmqpp
 
 std::string version();
 void version(uint8_t& major, uint8_t& minor, uint8_t& revision);
+
+typedef std::string endpoint_t;
+typedef message     message_t;
+typedef poller      poller_t;
+typedef socket      socket_t;
 
 }
 

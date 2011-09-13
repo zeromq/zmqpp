@@ -9,34 +9,36 @@
 #include <unordered_map>
 #include <vector>
 
-#include <zmq.h>
+#include "compatibility.hpp"
 
 namespace zmqpp
 {
 class socket;
 
+typedef socket socket_t;
+
 class poller
 {
 public:
-	static const long WAIT_FOREVER = -1;
+	static const long WAIT_FOREVER;
 
-	static const short POLL_NONE = 0;
-	static const short POLL_IN = ZMQ_POLLIN;
-	static const short POLL_OUT = ZMQ_POLLOUT;
-	static const short POLL_ERROR = ZMQ_POLLERR;
+	static const short POLL_NONE;
+	static const short POLL_IN;
+	static const short POLL_OUT;
+	static const short POLL_ERROR;
 
 	poller();
 	~poller();
 
-	void add(socket& socket, short const& event = POLL_IN);
+	void add(socket_t& socket, short const& event = POLL_IN);
 	void add(int const& descriptor, short const& event = POLL_IN);
 
-	void check_for(socket const& socket, short const& event);
+	void check_for(socket_t const& socket, short const& event);
 	void check_for(int const& descriptor, short const& event);
 
 	bool poll(long timeout = WAIT_FOREVER);
 
-	short events(socket const& socket) const;
+	short events(socket_t const& socket) const;
 	short events(int const& descriptor) const;
 
 	template<typename Watched>

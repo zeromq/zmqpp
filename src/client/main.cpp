@@ -144,7 +144,7 @@ int main(int argc, char const* argv[])
 	zmqpp::context context;
 	zmqpp::socket socket(context, type);
 
-	if (zmqpp::socket_type::subscribe == type)
+	if ("sub" == vm["type"].as<std::string>())
 	{
 		socket.subscribe("");
 	}

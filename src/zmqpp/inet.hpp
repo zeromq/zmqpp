@@ -10,10 +10,26 @@
 //TODO: cross-platform
 #include <netinet/in.h>
 
+#include "compatibility.hpp"
+
 namespace zmqpp
 {
 
-enum class order { unknown, big_endian, little_endian };
+#define ZMQPP_COMPARABLE_ENUM enum class
+
+// deal with older compilers not supporting C++0x typesafe enum class name {} construct
+#ifdef __GNUC__
+#if __GNUC__ == 4
+#if __GNUC_MINOR__ == 4
+#if __GNUC_PATCHLEVEL__ < 5
+#undef ZMQPP_COMPARABLE_ENUM
+#define ZMQPP_COMPARABLE_ENUM enum
+#endif // if __GNUC_PATCHLEVEL__ < 5
+#endif // if __GNUC_MINOR__ = 4
+#endif // if __GNUC_
+#endif // ifdef
+
+ZMQPP_COMPARABLE_ENUM order { unknown, big_endian, little_endian };
 
 inline uint64_t swap_if_needed(uint64_t const& hostlonglong)
 {

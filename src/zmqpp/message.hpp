@@ -14,8 +14,11 @@
 
 #include <zmq.h>
 
+#include "compatibility.hpp"
+
 namespace zmqpp
 {
+struct zmq_msg_wrapper;
 
 class message
 {
@@ -115,17 +118,6 @@ public:
 	zmq_msg_t& raw_new_msg();
 
 private:
-	struct zmq_msg_wrapper
-	{
-		bool sent;
-		zmq_msg_t msg;
-	};
-
-	struct callback_releaser
-	{
-		release_function func;
-	};
-
 	std::vector<zmq_msg_wrapper> _parts;
 	size_t _read_cursor;
 
