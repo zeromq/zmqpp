@@ -15,6 +15,10 @@
 
 #include <zmqpp/zmqpp.hpp>
 
+#ifndef BUILD_CLIENT_NAME
+#define BUILD_CLIENT_NAME "zmqpp"
+#endif
+
 boost::program_options::options_description connection_options()
 {
 	boost::program_options::options_description options("Connection Options");
@@ -96,14 +100,14 @@ int main(int argc, char const* argv[])
 
 	if (vm.count("version"))
 	{
-		std::cout << (strrchr(argv[0], '/') + 1) << " version " << BUILD_VERSION << std::endl;
+		std::cout << BUILD_CLIENT_NAME << " version " << BUILD_VERSION << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (usage || (0 == vm.count("type")) || vm.count("help") ||
 			((0 == vm.count("connect")) && (0 == vm.count("bind"))))
 	{
-		std::cout << "Usage: " << (strrchr(argv[0], '/') + 1) << " [options] SOCKETTYPE ENDPOINT" << std::endl;
+		std::cout << "Usage: " BUILD_CLIENT_NAME " [options] SOCKETTYPE ENDPOINT" << std::endl;
 		std::cout << "0mq command line client tool." << std::endl;
 		std::cout << "SOCKETTYPE is one of the supported 0mq socket types." << std::endl;
 
