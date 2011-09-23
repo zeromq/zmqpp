@@ -13,12 +13,20 @@
 namespace zmqpp
 {
 
+/*!
+ * \brief internal construct
+ * \internal wraps the zmq struct block so allow us to monitor sent state
+ */
 struct zmq_msg_wrapper
 {
 	bool sent;
 	zmq_msg_t msg;
 };
 
+/*!
+ * \brief internal construct
+ * \internal handles bubbling callback from zmq c style to the c++ functor provided
+ */
 struct callback_releaser
 {
 	message::release_function func;

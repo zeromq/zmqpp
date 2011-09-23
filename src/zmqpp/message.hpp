@@ -1,6 +1,8 @@
-/*
- *  Created on: 9 Aug 2011
- *      Author: Ben Gray (@benjamg)
+/**
+ * \file
+ *
+ * \date   9 Aug 2011
+ * \author Ben Gray (\@benjamg)
  */
 
 #ifndef ZMQPP_MESSAGE_HPP_
@@ -20,6 +22,11 @@ namespace zmqpp
 {
 struct zmq_msg_wrapper;
 
+/*!
+ * \brief a zmq message with optional multipart support
+ *
+ *
+ */
 class message
 {
 public:
@@ -30,11 +37,11 @@ public:
 	~message();
 
 	size_t parts() const;
-	size_t size(size_t const& part = 0);
-	std::string get(size_t const& part = 0);
+	size_t size(size_t const& part);
+	std::string get(size_t const& part);
 
 	template<typename Type>
-	void get(Type& value, size_t const& part = 0)
+	void get(Type& value, size_t const& part)
 	{
 		size_t old = _read_cursor;
 		_read_cursor = part;
@@ -45,7 +52,7 @@ public:
 	}
 
 	template<typename Type>
-	Type get(size_t const& part = 0)
+	Type get(size_t const& part)
 	{
 		Type value;
 		get(value, part);
@@ -102,8 +109,8 @@ public:
 	message& operator<<(std::string const& string);
 
 	// Move supporting
-	message(message&& source);
-	void operator=(message&& source);
+	message(message&& source) noexcept;
+	message& operator=(message&& source) noexcept;
 
 	// Copy support
 	message copy();
@@ -122,8 +129,8 @@ private:
 	size_t _read_cursor;
 
 	// Disable implicit copy support, code must request a copy to clone
-	message(message const&);
-	void operator=(message const&);
+	message(message const&) noexcept;
+	message& operator=(message const&) noexcept;
 
 	static void release_callback(void* data, void* hint);
 };

@@ -60,6 +60,19 @@ less optimisations and a number of sanity check assert statements. If you are
 not using the installed library the sanity check effect is governed by the
 defining NDEBUG.
 
+Documentation
+=============
+
+Most of the code is now commented with doxygen style tags, and a basic
+configuration file to generate them is in the root directory.
+
+To build the documentation with doxygen then use;
+
+    doxygen zmqpp.doxygen.conf
+
+And the resulting html or latex docs will be in the docs/html or docs/latex
+directories.
+
 
 zmqpp
 =====

@@ -1,6 +1,8 @@
-/*
- *  Created on: 9 Aug 2011
- *      Author: Ben Gray (@benjamg)
+/**
+ * \file
+ *
+ * \date   9 Aug 2011
+ * \author Ben Gray (\@benjamg)
  */
 
 #ifndef ZMQPP_CONTEXT_HPP_
@@ -13,26 +15,28 @@
 #include "compatibility.hpp"
 #include "exception.hpp"
 
-
 namespace zmqpp
 {
 
-/**
- * \class context
- * \brief The context class represents internal zmq context and io threads.
+/*!
+ * The context class represents internal zmq context and io threads.
  *
  * By default the context class will create one thread, however this can be
  * overridden in the constructor.
  *
  * The context class is the only object that can be considered thread safe.
  *
+ * All sockets using endpoints other than inproc require the context to have
+ * at least one thread.
+ *
  * This class is c++0x move supporting and cannot be copied.
  */
 class context
 {
 public:
-	/**
-	 * \brief Initialise the 0mq context.
+
+	/*!
+	 * Initialise the 0mq context.
 	 *
 	 * If only inproc is used then the context may be created with zero threads.
 	 * Any inproc endpoint using sockets must be created using the same context.
@@ -41,7 +45,7 @@ public:
 	 * however there is no requirement (other than inproc restrictions) for you
 	 * to do this.
 	 *
-	 * \param threads an integer argument for the number of required threads. Defaults to 1
+	 * \param threads an integer argument for the number of required threads. Defaults to 1.
 	 */
 	context(int const& threads = 1)
 		: _context(nullptr)
@@ -54,11 +58,11 @@ public:
 		}
 	}
 
-	/**
-	 * \brief closes the 0mq context.
+	/*!
+	 * Closes the 0mq context.
 	 *
 	 * Any sockets using this context will throw exceptions if they are still
-	 * in use
+	 * in use.
 	 */
 	~context()
 	{
@@ -76,34 +80,35 @@ public:
 		}
 	}
 
-	/**
-	 * \brief Move supporting constructor
+	/*!
+	 * Move supporting constructor.
 	 *
-	 * allows zero-copy move semantics to be used with this class
+	 * allows zero-copy move semantics to be used with this class.
 	 *
-	 * \param source a rvalue instance of the object who's internals we wish to steal
+	 * \param source a rvalue instance of the object who's internals we wish to steal.
 	 */
-	context(context&& source)
+	context(context&& source) noexcept
 	{
 		_context = source._context;
 		source._context = nullptr;
 	}
 
-	/**
-	 * \brief Move supporting operator
+	/*!
+	 * Move supporting operator.
 	 *
-	 * allows zero-copy move semantics to be used with this class
+	 * allows zero-copy move semantics to be used with this class.
 	 *
-	 * \param source a rvalue instance of the object who's internals we wish to steal
+	 * \param source an rvalue instance of the context who's internals we wish to steal.
 	 */
-	void operator=(context&& source)
+	context& operator=(context&& source) noexcept
 	{
 		_context = source._context;
 		source._context = nullptr;
+		return *this;
 	}
 
-	/**
-	 * \brief Validity checking of the context
+	/*!
+	 * Validity checking of the context
 	 *
 	 * Checks if the underlying 0mq context for this instance is valid.
 	 *
@@ -117,10 +122,10 @@ public:
 		return nullptr != _context;
 	}
 
-	/**
-	 * DON'T USE: Access to the raw 0mq context
+	/*!
+	 * Access to the raw 0mq context
 	 *
-	 * \return void pointer to the underlying 0mq context
+	 * \return void pointer to the underlying 0mq context.
 	 */
 	operator void*() const
 	{
@@ -132,7 +137,7 @@ private:
 
 	// No copy - private and not implemented
 	context(context const&);
-	void operator=(context const&);
+	context& operator=(context const&) noexcept;
 };
 
 }
