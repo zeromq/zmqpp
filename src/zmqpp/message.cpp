@@ -371,14 +371,15 @@ message& message::operator<<(std::string const& string)
 	return *this;
 }
 
-message::message(message&& source)
+message::message(message&& source) noexcept
 {
 	std::swap(_parts, source._parts);
 }
 
-void message::operator=(message&& source)
+message& message::operator=(message&& source) noexcept
 {
 	std::swap(_parts, source._parts);
+	return *this;
 }
 
 message message::copy()

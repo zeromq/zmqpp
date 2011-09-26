@@ -25,12 +25,23 @@ struct zmq_msg_wrapper;
 /*!
  * \brief a zmq message with optional multipart support
  *
- *
+ * A zmq message is made up of one or more parts which are sent together to
+ * the target endpoints. zmq guarantees either the whole message or none
+ * of the message will be delivered.
  */
 class message
 {
 public:
-	// The release function will be called on any void* moved part, it must be thread safe
+	/*!
+	 * \brief callback to release user allocated data.
+	 *
+	 * The release function will be called on any void* moved part.
+	 * It must be thread safe to the extent that the callback may occur on
+	 * one of the context threads.
+	 *
+	 * The function called will be passed a single variable which is the
+	 * pointer to the memory allocated.
+	 */
 	typedef std::function<void (void*)> release_function;
 
 	message();
@@ -61,6 +72,12 @@ public:
 
 	// Move operators will take ownership of message parts without copying
 	void move(void* part, size_t& size, release_function const& release);
+
+	template<typename Object>
+	void move(Object *part)
+	{
+		move(part, sizeof(Object), &deleter_callback<Object>);
+	}
 
 	// Copy operators will take copies of any data
 	void add(void const* part, size_t const& size);
@@ -133,6 +150,12 @@ private:
 	message& operator=(message const&) noexcept;
 
 	static void release_callback(void* data, void* hint);
+
+	template<typename Object>
+	static void deleter_callback(void* data)
+	{
+		delete static_cast<Object*>(data);
+	}
 };
 
 }

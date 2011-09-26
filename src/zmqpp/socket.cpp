@@ -405,7 +405,7 @@ void socket::get(socket_option const& option, std::string& value) const
 	}
 }
 
-socket::socket(socket&& source)
+socket::socket(socket&& source) noexcept
 {
 	_socket = source._socket;
 	source._socket = nullptr;
@@ -415,14 +415,15 @@ socket::socket(socket&& source)
 	// don't need to move the _recv_buffer
 }
 
-void socket::operator=(socket&& source)
+socket& socket::operator=(socket&& source) noexcept
 {
 	_socket = source._socket;
 	source._socket = nullptr;
 
 	_type = source._type; // just clone?
-
 	// don't need to move the _recv_buffer
+
+	return *this;
 }
 
 
