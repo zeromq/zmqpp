@@ -62,6 +62,8 @@ public:
 		_read_cursor = old;
 	}
 
+	// Warn: If a pointer type is requested the message (well zmq) still 'owns'
+	// the data and will release it when the message object is freed.
 	template<typename Type>
 	Type get(size_t const& part)
 	{
@@ -70,9 +72,27 @@ public:
 		return value;
 	}
 
+	// Raw get data operations, useful with data structures more than anything else
+	// Warn: The message (well zmq) still 'owns' the data and will release it
+	// when the message object is freed.
+	template<typename Type>
+	void get(Type*& value, size_t const& part)
+	{
+		value = static_cast<Type*>(raw_data(part));
+	}
+
+	// Warn: The message (well zmq) still 'owns' the data and will release it
+	// when the message object is freed.
+	template<typename Type>
+	void get(Type** value, size_t const& part)
+	{
+		*value = static_cast<Type*>(raw_data(part));
+	}
+
 	// Move operators will take ownership of message parts without copying
 	void move(void* part, size_t& size, release_function const& release);
 
+	// Raw move data operation, useful with data structures more than anything else
 	template<typename Object>
 	void move(Object *part)
 	{
@@ -142,7 +162,8 @@ public:
 	zmq_msg_t& raw_new_msg();
 
 private:
-	std::vector<zmq_msg_wrapper> _parts;
+	typedef std::vector<zmq_msg_wrapper> parts_type;
+	parts_type _parts;
 	size_t _read_cursor;
 
 	// Disable implicit copy support, code must request a copy to clone

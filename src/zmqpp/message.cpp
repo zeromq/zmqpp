@@ -42,9 +42,6 @@ message::~message()
 {
 	for(size_t i = 0; i < _parts.size(); ++i)
 	{
-		// only close once
-		if (_parts[i].sent) { continue; }
-
 		zmq_msg_t& msg = _parts[i].msg;
 
 #ifndef NDEBUG // unused assert variable in release
@@ -98,11 +95,30 @@ zmq_msg_t& message::raw_msg(size_t const& part /* = 0 */)
 
 zmq_msg_t& message::raw_new_msg()
 {
-	size_t part_count = _parts.size();
-	_parts.resize(part_count + 1);
+	parts_type tmp(_parts.size() + 1);
 
-	zmq_msg_t& msg = _parts[part_count].msg;
-	zmq_msg_init(&msg);
+	for(size_t i = 0; i < _parts.size(); ++i)
+	{
+		zmq_msg_t& dest = tmp[i].msg;
+		if( 0 != zmq_msg_init(&dest) )
+		{
+			throw zmq_internal_exception();
+		}
+
+		zmq_msg_t& src = _parts[i].msg;
+		if( 0 != zmq_msg_move(&dest, &src) )
+		{
+			throw zmq_internal_exception();
+		}
+	}
+
+	std::swap(tmp, _parts);
+
+	zmq_msg_t& msg = _parts.back().msg;
+	if( 0 != zmq_msg_init(&msg) )
+	{
+		throw zmq_internal_exception();
+	}
 
 	return msg;
 }
@@ -116,24 +132,63 @@ std::string message::get(size_t const& part /* = 0 */)
 // Move operators will take ownership of message parts without copying
 void message::move(void* part, size_t& size, release_function const& release)
 {
-	size_t part_count = _parts.size();
-	_parts.resize(part_count + 1);
+	parts_type tmp(_parts.size() + 1);
+
+	for(size_t i = 0; i < _parts.size(); ++i)
+	{
+		zmq_msg_t& dest = tmp[i].msg;
+		if( 0 != zmq_msg_init(&dest) )
+		{
+			throw zmq_internal_exception();
+		}
+
+		zmq_msg_t& src = _parts[i].msg;
+		if( 0 != zmq_msg_move(&dest, &src) )
+		{
+			throw zmq_internal_exception();
+		}
+	}
+
+	std::swap(tmp, _parts);
 
 	callback_releaser* hint = new callback_releaser();
 	hint->func = release;
 
-	zmq_msg_t& msg = _parts[part_count].msg;
-	zmq_msg_init_data(&msg, part, size, &message::release_callback, hint);
+	zmq_msg_t& msg = _parts.back().msg;
+	if (0 != zmq_msg_init_data(&msg, part, size, &message::release_callback, hint))
+	{
+		throw zmq_internal_exception();
+	}
 }
 
 void message::add(void const* part, size_t const& size)
 {
-	size_t part_count = _parts.size();
-	_parts.resize(part_count + 1);
+	parts_type tmp(_parts.size() + 1);
 
-	zmq_msg_t& msg = _parts[part_count].msg;
+	for(size_t i = 0; i < _parts.size(); ++i)
+	{
+		zmq_msg_t& dest = tmp[i].msg;
+		if( 0 != zmq_msg_init(&dest) )
+		{
+			throw zmq_internal_exception();
+		}
 
-	zmq_msg_init_size(&msg, size);
+		zmq_msg_t& src = _parts[i].msg;
+		if( 0 != zmq_msg_move(&dest, &src) )
+		{
+			throw zmq_internal_exception();
+		}
+	}
+
+	std::swap(tmp, _parts);
+
+	zmq_msg_t& msg = _parts.back().msg;
+
+	if( 0 != zmq_msg_init_size(&msg, size) )
+	{
+		throw zmq_internal_exception();
+	}
+
 	void* msg_data = zmq_msg_data(&msg);
 
 	memcpy(msg_data, part, size);
@@ -394,8 +449,15 @@ void message::copy(message& source)
 	_parts.resize(source._parts.size());
 	for(size_t i = 0; i < source._parts.size(); ++i)
 	{
-		zmq_msg_init_size(&_parts[i].msg, zmq_msg_size(&source._parts[i].msg));
-		zmq_msg_copy(&_parts[i].msg, &source._parts[i].msg);
+		if( 0 != zmq_msg_init_size(&_parts[i].msg, zmq_msg_size(&source._parts[i].msg)) )
+		{
+			throw zmq_internal_exception();
+		}
+
+		if( 0 != zmq_msg_copy(&_parts[i].msg, &source._parts[i].msg) )
+		{
+			throw zmq_internal_exception();
+		}
 	}
 
 	// we don't need a copy of the releasers as we did data copies of the internal data,
@@ -408,11 +470,7 @@ void message::sent(size_t const& part)
 {
 	// sanity check
 	assert(!_parts[part].sent);
-
 	_parts[part].sent = true;
-
-	// message sent, tell zmq we no longer care about it
-	zmq_msg_close(&_parts[part].msg);
 }
 
 // Note that these releasers are not thread safe, the only safety is provided by
