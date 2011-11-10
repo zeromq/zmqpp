@@ -27,7 +27,7 @@ AR       = ar
 LIBRARY_NAME     = zmqpp
 VERSION_MAJOR    = 1
 VERSION_MINOR    = 0
-VERSION_REVISION = 5
+VERSION_REVISION = 11
 
 #
 # Paths
@@ -113,23 +113,26 @@ TEST_SUITES := ${addprefix test-,${sort ${shell find ${TESTS_PATH} -iname *.cpp 
 # BUILD Targets - Standardised
 #
 
-.PHONY: check clean install installcheck uninstall client library test $(TEST_SUITES)
+.PHONY: clean uninstall test $(TEST_SUITES)
 
-all: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE)
+main: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE)
+	@echo "use make check to test the build"
+
+all: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE) $(CLIENT_TARGET)
 	@echo "use make check to test the build"
 
 check: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE) test
 
-install: all
-	-mkdir $(INCLUDEDIR)/$(LIBRARY_DIR)
+install: 
+	mkdir -p $(INCLUDEDIR)/$(LIBRARY_DIR)
 	cp $(ALL_LIBRARY_INCLUDES) $(INCLUDEDIR)/$(LIBRARY_DIR)
 	chmod 644 $(INCLUDEDIR)/$(LIBRARY_DIR)/*.hpp
 	cp $(BUILD_PATH)/$(LIBRARY_SHARED).$(VERSION_MAJOR) $(LIBDIR)/$(LIBRARY_SHARED).$(APP_VERSION)
 	ln -sf $(LIBRARY_SHARED).$(APP_VERSION) $(LIBDIR)/$(LIBRARY_SHARED).$(VERSION_MAJOR)
 	ln -sf $(LIBRARY_SHARED).$(APP_VERSION) $(LIBDIR)/$(LIBRARY_SHARED)
 	chmod 755 $(LIBDIR)/$(LIBRARY_SHARED)
-	-cp $(BUILD_PATH)/$(CLIENT_TARGET) $(BINDIR)
-	-chmod 755 $(BINDIR)/$(CLIENT_TARGET)
+	if [ -f $(BUILD_PATH)/$(CLIENT_TARGET) ]; then cp $(BUILD_PATH)/$(CLIENT_TARGET) $(BINDIR); fi
+	if [ -f $(BINDIR)/$(CLIENT_TARGET) ]; then chmod 755 $(BINDIR)/$(CLIENT_TARGET); fi
 	$(LDCONFIG)
 	@echo "use make installcheck to test the install"
 	
@@ -137,11 +140,11 @@ installcheck: $(TESTS_TARGET)
 	$(BUILD_PATH)/$(TESTS_TARGET)
 
 uninstall:
-	rm -r $(INCLUDEDIR)/$(LIBRARY_DIR)
-	rm $(LIBDIR)/$(LIBRARY_ARCHIVE)
-	rm $(LIBDIR)/$(LIBRARY_SHARED).$(APP_VERSION)
-	rm $(LIBDIR)/$(LIBRARY_SHARED).$(VERSION_MAJOR)
-	rm $(LIBDIR)/$(LIBRARY_SHARED)
+	rm -rf $(INCLUDEDIR)/$(LIBRARY_DIR)
+	rm -f $(LIBDIR)/$(LIBRARY_SHARED).$(APP_VERSION)
+	rm -f $(LIBDIR)/$(LIBRARY_SHARED).$(VERSION_MAJOR)
+	rm -f $(LIBDIR)/$(LIBRARY_SHARED)
+	rm -f $(BINDIR)/$(CLIENT_TARGET)
 
 clean:
 	rm -rf $(BUILD_PATH)
