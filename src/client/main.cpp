@@ -165,7 +165,7 @@ int main(int argc, char const* argv[])
 			}
 			catch(zmqpp::zmq_internal_exception& e)
 			{
-				std::cout << "invalid 0mq endpoint." << std::endl;
+				std::cout << "failed to bind to endpoint: " << e.what() << std::endl;
 				return EXIT_FAILURE;
 			}
 		}
@@ -183,7 +183,7 @@ int main(int argc, char const* argv[])
 			}
 			catch(zmqpp::zmq_internal_exception& e)
 			{
-				std::cout << "invalid 0mq endpoint." << std::endl;
+				std::cout << "failed to bind to endpoint: " << e.what() << std::endl;
 				return EXIT_FAILURE;
 			}
 		}
