@@ -4,7 +4,7 @@ Introduction
 This C++ binding is a 'high-level' library that hides most of the c-style
 interface core 0mq provides. It consists of a number of header and source
 files all residing in the zmq directory, these files are provided under the
-MIT license (see zmq/zmq.hpp for details).
+MIT license (see LICENCE for details).
 
 They can either be included directly into any 0mq using project or used as a
 library. A really basic Makefile is provided for this purpose and will generate
