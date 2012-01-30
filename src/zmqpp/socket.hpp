@@ -82,6 +82,27 @@ public:
 	void connect(endpoint_t const& endpoint);
 
 	/*!
+	 * Asynchronously connects to multiple endpoints.
+	 * If the endpoint is not inproc then zmq will happily keep trying
+	 * to connect until there is something there.
+	 *
+	 * Inproc sockets must have a valid target already bound before connection
+	 * will work.
+	 *
+	 * This is a helper function that wraps the single item connect in a loop
+	 *
+	 * \param iteratorable the container of zmq endpoints to connect to
+	 */
+	template<typename Iteratorable>
+	void connect(Iteratorable const& iteratorable)
+	{
+		for(auto it = iteratorable.begin(); it != iteratorable.end(); ++it)
+		{
+			connect(*it);
+		}
+	}
+
+	/*!
 	 * Closes the internal zmq socket and marks this instance
 	 * as invalid.
 	 */
