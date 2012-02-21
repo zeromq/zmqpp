@@ -63,6 +63,14 @@ public:
 	~socket();
 
 	/*!
+	 * Get the type of the socket, this works on zmqpp types and not the zmq internal types.
+	 * Use the socket::get method if you wish to intergoate the zmq internal ones.
+	 *
+	 * \return the type of the socket
+	 */
+	socket_type type() const { return _type; }
+
+	/*!
 	 * Asynchronously binds to an endpoint.
 	 *
 	 * \param endpoint the zmq endpoint to bind to
@@ -91,12 +99,13 @@ public:
 	 *
 	 * This is a helper function that wraps the single item connect in a loop
 	 *
-	 * \param iteratorable the container of zmq endpoints to connect to
+	 * \param connections_begin the starting iterator for zmq endpoints.
+	 * \param connections_end the final iterator for zmq endpoints.
 	 */
-	template<typename Iteratorable>
-	void connect(Iteratorable const& iteratorable)
+	template<typename InputIterator>
+	void connect(InputIterator const& connections_begin, InputIterator const& connections_end)
 	{
-		for(auto it = iteratorable.begin(); it != iteratorable.end(); ++it)
+		for(InputIterator it = connections_begin; it != connections_end; ++it)
 		{
 			connect(*it);
 		}
@@ -201,6 +210,33 @@ public:
 	void subscribe(std::string const& topic);
 
 	/*!
+	 * Subscribe to a topic
+	 *
+	 * Helper function that is equivalent of a loop calling
+	 * \code
+	 * set(zmqpp::socket_option::subscribe, topic);
+	 * \endcode
+	 *
+	 * This method is only useful for subscribe type sockets.
+	 *
+	 * Generally this will be used with stl collections using begin() and
+	 * end() functions to get the iterators.
+	 * For this reason the end loop runs until the end iterator, not inclusive
+	 * of it.
+	 *
+	 * \param topics_begin the starting iterator for topics.
+	 * \param topics_end the final iterator for topics.
+	 */
+	template<typename InputIterator>
+	void subscribe(InputIterator const& topics_begin, InputIterator const& topics_end)
+	{
+		for(InputIterator it = topics_begin; it != topics_end; ++it)
+		{
+			subscribe(*it);
+		}
+	}
+
+	/*!
 	 * Unsubscribe from a topic
 	 *
 	 * Helper function that is equivalent of calling
@@ -210,9 +246,36 @@ public:
 	 *
 	 * This method is only useful for subscribe type sockets.
 	 *
-	 * \param topic the topic to subscribe to.
+	 * \param topic the topic to unsubscribe from.
 	 */
 	void unsubscribe(std::string const& topic);
+
+	/*!
+	 * Unsubscribe from a topic
+	 *
+	 * Helper function that is equivalent of a loop calling
+	 * \code
+	 * set(zmqpp::socket_option::unsubscribe, topic);
+	 * \endcode
+	 *
+	 * This method is only useful for subscribe type sockets.
+	 *
+	 * Generally this will be used with stl collections using begin() and
+	 * end() functions to get the iterators.
+	 * For this reason the end loop runs until the end iterator, not inclusive
+	 * of it.
+	 *
+	 * \param topics_begin the starting iterator for topics.
+	 * \param topics_end the final iterator for topics.
+	 */
+	template<typename InputIterator>
+	void unsubscribe(InputIterator const& topics_begin, InputIterator const& topics_end)
+	{
+		for(InputIterator it = topics_begin; it != topics_end; ++it)
+		{
+			unsubscribe(*it);
+		}
+	}
 
 	/*!
 	 * If the last receive part call to the socket resulted
