@@ -18,8 +18,8 @@ BOOST_AUTO_TEST_CASE( correct_zmq_version )
 	int major, minor, patch;
 	zmq_version(&major, &minor, &patch);
 
-	BOOST_CHECK_EQUAL( ZMQPP_REQUIRED_ZMQ_MAJOR, major );
-	BOOST_CHECK_EQUAL( ZMQPP_REQUIRED_ZMQ_MINOR, minor );
+	BOOST_CHECK_LE( ZMQPP_REQUIRED_ZMQ_MAJOR, major );
+	BOOST_CHECK_LE( ZMQPP_REQUIRED_ZMQ_MINOR, minor );
 }
 
 BOOST_AUTO_TEST_CASE( correct_zmqpp_version )

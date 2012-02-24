@@ -47,7 +47,9 @@ public:
 	static const int NORMAL     = 0;            /*!< /brief default send type, no flags set */
 	static const int DONT_WAIT  = ZMQ_DONTWAIT; /*!< /brief don't block if sending is not currently possible  */
 	static const int SEND_MORE  = ZMQ_SNDMORE;  /*!< /brief more parts will follow this one */
+#ifdef ZMQ_EXPERIMENTAL_LABELS
 	static const int SEND_LABEL = ZMQ_SNDLABEL; /*!< /brief this message part is an internal zmq label */
+#endif
 
 	/*!
 	 * Create a socket for a given type.
@@ -196,6 +198,7 @@ public:
 	bool receive_raw(char* buffer, int& length, int const& flags = NORMAL);
 
 	/*!
+	 *
 	 * Subscribe to a topic
 	 *
 	 * Helper function that is equivalent of calling
@@ -293,6 +296,18 @@ public:
 	 * \param value to set the option to
 	 */
 	void set(socket_option const& option, int const& value);
+
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+	/*!
+	 * Set the value of an option in the underlaying zmq socket.
+	 *
+	 * \since 2.0.0 (built against 0mq version 3.1.x or later)
+	 *
+	 * \param option a valid ::socket_option
+	 * \param value to set the option to
+	 */
+	void set(socket_option const& option, bool const& value);
+#endif
 
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.

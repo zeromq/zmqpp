@@ -19,7 +19,9 @@ namespace zmqpp
 const int socket::NORMAL;
 const int socket::DONT_WAIT;
 const int socket::SEND_MORE;
+#ifdef ZMQ_EXPERIMENTAL_LABELS
 const int socket::SEND_LABEL;
+#endif
 
 const int max_socket_option_buffer_size = 256;
 const int max_stream_buffer_size = 4096;
@@ -286,12 +288,29 @@ void socket::set(socket_option const& option, int const& value)
 	case socket_option::multicast_hops:
 	case socket_option::receive_timeout:
 	case socket_option::send_timeout:
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+	case socket_option::ipv4_only:
+#endif
 		zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value));
 		break;
 	default:
 		throw exception("attempting to set a non signed integer option with a signed i<< ohint->owner->_stringsnteger value");
 	}
 }
+
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+void socket::set(socket_option const& option, bool const& value)
+{
+	switch(option)
+	{
+	case socket_option::ipv4_only:
+		zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value));
+		break;
+	default:
+		throw exception("attempting to set a non boolean option with a boolean value");
+	}
+}
+#endif
 
 void socket::set(socket_option const& option, uint64_t const& value)
 {
@@ -329,7 +348,6 @@ void socket::get(socket_option const& option, int& value) const
 	{
 	case socket_option::type:
 	case socket_option::receive_more:
-	case socket_option::receive_label:
 	case socket_option::send_high_water_mark:
 	case socket_option::receive_high_water_mark:
 	case socket_option::rate:
@@ -346,6 +364,12 @@ void socket::get(socket_option const& option, int& value) const
 	case socket_option::send_timeout:
 	case socket_option::file_descriptor:
 	case socket_option::events:
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+	case socket_option::ipv4_only:
+#endif
+#ifdef ZMQ_EXPERIMENTAL_LABELS
+	case socket_option::receive_label:
+#endif
 		zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size);
 
 		// sanity check
@@ -364,7 +388,12 @@ void socket::get(socket_option const& option, bool& value) const
 	switch(option)
 	{
 	case socket_option::receive_more:
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+	case socket_option::ipv4_only:
+#endif
+#ifdef ZMQ_EXPERIMENTAL_LABELS
 	case socket_option::receive_label:
+#endif
 		zmq_getsockopt(_socket, static_cast<int>(option), &int_value, &value_size);
 
 		value = (int_value == 1) ? true : false;
