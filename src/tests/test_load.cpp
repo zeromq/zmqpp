@@ -10,7 +10,7 @@
 #include <boost/thread.hpp>
 #include <boost/timer.hpp>
 
-#include "zmqpp/zmq.hpp"
+#include "zmqpp/zmqpp.hpp"
 
 
 BOOST_AUTO_TEST_SUITE( load )
@@ -19,8 +19,8 @@ BOOST_AUTO_TEST_CASE( push_messages_baseline )
 {
 	boost::timer t;
 
-	long max_poll_timeout = 2000;
-	uint64_t messages = 1e6;
+	long max_poll_timeout = 500;
+	uint64_t messages = 1e7;
 
 	auto context = zmq_init(1);
 	auto pusher = zmq_socket(context, ZMQ_PUSH);
@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE( push_messages )
 {
 	boost::timer t;
 
-	long max_poll_timeout = 2000;
-	uint64_t messages = 1e6;
+	long max_poll_timeout = 500;
+	uint64_t messages = 1e7;
 
 	zmqpp::context context;
 	zmqpp::socket pusher(context, zmqpp::socket_type::push);
@@ -91,13 +91,12 @@ BOOST_AUTO_TEST_CASE( push_messages )
 
 	auto pusher_func = [messages, &pusher](void) {
 		auto remaining = messages;
-		std::string data("hello world!");
 		zmqpp::message message;
 
 		do
 		{
-			message.add(data);
-			pusher.send(data);
+			message.add("hello world!");
+			pusher.send(message);
 		}
 		while(--remaining > 0);
 	};

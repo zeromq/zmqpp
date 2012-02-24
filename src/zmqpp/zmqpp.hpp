@@ -30,15 +30,6 @@
 #ifndef ZMQPP_ZMQPP_HPP_
 #define ZMQPP_ZMQPP_HPP_
 
-#include <zmq.h>
-
-#define ZMQPP_REQUIRED_ZMQ_MAJOR 3
-#define ZMQPP_REQUIRED_ZMQ_MINOR 0
-
-#if ZMQ_VERSION_MAJOR < ZMQPP_REQUIRED_ZMQ_MAJOR or ((ZMQ_VERSION_MAJOR == ZMQPP_REQUIRED_ZMQ_MAJOR) and (ZMQ_VERSION_MINOR < ZMQPP_REQUIRED_ZMQ_MINOR))
-#error zmqpp requires a later version of 0mq
-#endif
-
 /**
  * \def ZMQPP_VERSION_MAJOR
  * zmqpp major version number, generated at compile time
@@ -56,6 +47,8 @@
  * zmqpp version revision number, generated at compile time
  */
 #define	ZMQPP_VERSION_REVISION BUILD_VERSION_REVISION
+
+#include <zmq.h>
 
 #include "compatibility.hpp"
 #include "context.hpp"
