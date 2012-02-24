@@ -25,9 +25,9 @@ AR       = ar
 #
 
 LIBRARY_NAME     = zmqpp
-VERSION_MAJOR    = 1
+VERSION_MAJOR    = 2
 VERSION_MINOR    = 0
-VERSION_REVISION = 11
+VERSION_REVISION = 0
 
 #
 # Paths
@@ -68,7 +68,7 @@ ifeq ($(CONFIG),max)
 	CONFIG_FLAGS = -O3 -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNDEBUG
 endif
 ifneq (,$(findstring $(CONFIG),release loadtest))
-	CONFIG_FLAGS = -O3 -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNO_DEBUG_LOG -DNO_TRACE_LOG -DNDEBUG
+	CONFIG_FLAGS = -g -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNO_DEBUG_LOG -DNO_TRACE_LOG -DNDEBUG
 endif
 
 COMMON_FLAGS = -MMD -std=c++0x -pipe -Wall -fPIC \
@@ -148,6 +148,7 @@ uninstall:
 
 clean:
 	rm -rf $(BUILD_PATH)
+	rm -rf docs
 
 client: $(CLIENT_TARGET)
 

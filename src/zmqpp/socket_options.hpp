@@ -38,7 +38,12 @@ enum class socket_option {
     multicast_hops          = ZMQ_MULTICAST_HOPS,    /*!< Maximum number of multicast hops */
     receive_timeout         = ZMQ_RCVTIMEO,          /*!< Maximum inbound block timeout */
     send_timeout            = ZMQ_SNDTIMEO,          /*!< Maximum outbound block timeout */
-    receive_label           = ZMQ_RCVLABEL           /*!< Received label part - get only */
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+    ipv4_only               = ZMQ_IPV4ONLY,
+#endif
+#ifdef ZMQ_EXPERIMENTAL_LABELS
+    receive_label           = ZMQ_RCVLABEL,          /*!< Received label part - get only */
+#endif
 };
 
 }
