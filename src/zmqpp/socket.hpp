@@ -47,7 +47,9 @@ public:
 	static const int NORMAL     = 0;            /*!< /brief default send type, no flags set */
 	static const int DONT_WAIT  = ZMQ_DONTWAIT; /*!< /brief don't block if sending is not currently possible  */
 	static const int SEND_MORE  = ZMQ_SNDMORE;  /*!< /brief more parts will follow this one */
+#ifdef ZMQ_EXPERIMENTAL_LABELS
 	static const int SEND_LABEL = ZMQ_SNDLABEL; /*!< /brief this message part is an internal zmq label */
+#endif
 
 	/*!
 	 * Create a socket for a given type.
@@ -61,6 +63,14 @@ public:
 	 * This will close any socket still open before returning
 	 */
 	~socket();
+
+	/*!
+	 * Get the type of the socket, this works on zmqpp types and not the zmq internal types.
+	 * Use the socket::get method if you wish to intergoate the zmq internal ones.
+	 *
+	 * \return the type of the socket
+	 */
+	socket_type type() const { return _type; }
 
 	/*!
 	 * Asynchronously binds to an endpoint.
@@ -80,6 +90,28 @@ public:
 	 * \param endpoint the zmq endpoint to connect to
 	 */
 	void connect(endpoint_t const& endpoint);
+
+	/*!
+	 * Asynchronously connects to multiple endpoints.
+	 * If the endpoint is not inproc then zmq will happily keep trying
+	 * to connect until there is something there.
+	 *
+	 * Inproc sockets must have a valid target already bound before connection
+	 * will work.
+	 *
+	 * This is a helper function that wraps the single item connect in a loop
+	 *
+	 * \param connections_begin the starting iterator for zmq endpoints.
+	 * \param connections_end the final iterator for zmq endpoints.
+	 */
+	template<typename InputIterator>
+	void connect(InputIterator const& connections_begin, InputIterator const& connections_end)
+	{
+		for(InputIterator it = connections_begin; it != connections_end; ++it)
+		{
+			connect(*it);
+		}
+	}
 
 	/*!
 	 * Closes the internal zmq socket and marks this instance
@@ -166,6 +198,7 @@ public:
 	bool receive_raw(char* buffer, int& length, int const& flags = NORMAL);
 
 	/*!
+	 *
 	 * Subscribe to a topic
 	 *
 	 * Helper function that is equivalent of calling
@@ -180,6 +213,33 @@ public:
 	void subscribe(std::string const& topic);
 
 	/*!
+	 * Subscribe to a topic
+	 *
+	 * Helper function that is equivalent of a loop calling
+	 * \code
+	 * set(zmqpp::socket_option::subscribe, topic);
+	 * \endcode
+	 *
+	 * This method is only useful for subscribe type sockets.
+	 *
+	 * Generally this will be used with stl collections using begin() and
+	 * end() functions to get the iterators.
+	 * For this reason the end loop runs until the end iterator, not inclusive
+	 * of it.
+	 *
+	 * \param topics_begin the starting iterator for topics.
+	 * \param topics_end the final iterator for topics.
+	 */
+	template<typename InputIterator>
+	void subscribe(InputIterator const& topics_begin, InputIterator const& topics_end)
+	{
+		for(InputIterator it = topics_begin; it != topics_end; ++it)
+		{
+			subscribe(*it);
+		}
+	}
+
+	/*!
 	 * Unsubscribe from a topic
 	 *
 	 * Helper function that is equivalent of calling
@@ -189,9 +249,36 @@ public:
 	 *
 	 * This method is only useful for subscribe type sockets.
 	 *
-	 * \param topic the topic to subscribe to.
+	 * \param topic the topic to unsubscribe from.
 	 */
 	void unsubscribe(std::string const& topic);
+
+	/*!
+	 * Unsubscribe from a topic
+	 *
+	 * Helper function that is equivalent of a loop calling
+	 * \code
+	 * set(zmqpp::socket_option::unsubscribe, topic);
+	 * \endcode
+	 *
+	 * This method is only useful for subscribe type sockets.
+	 *
+	 * Generally this will be used with stl collections using begin() and
+	 * end() functions to get the iterators.
+	 * For this reason the end loop runs until the end iterator, not inclusive
+	 * of it.
+	 *
+	 * \param topics_begin the starting iterator for topics.
+	 * \param topics_end the final iterator for topics.
+	 */
+	template<typename InputIterator>
+	void unsubscribe(InputIterator const& topics_begin, InputIterator const& topics_end)
+	{
+		for(InputIterator it = topics_begin; it != topics_end; ++it)
+		{
+			unsubscribe(*it);
+		}
+	}
 
 	/*!
 	 * If the last receive part call to the socket resulted
@@ -209,6 +296,18 @@ public:
 	 * \param value to set the option to
 	 */
 	void set(socket_option const& option, int const& value);
+
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+	/*!
+	 * Set the value of an option in the underlaying zmq socket.
+	 *
+	 * \since 2.0.0 (built against 0mq version 3.1.x or later)
+	 *
+	 * \param option a valid ::socket_option
+	 * \param value to set the option to
+	 */
+	void set(socket_option const& option, bool const& value);
+#endif
 
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
