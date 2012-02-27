@@ -84,6 +84,22 @@ std::string version();
  */
 void version(uint8_t& major, uint8_t& minor, uint8_t& revision);
 
+/*!
+ * Retrieve the parts of the 0mq version this library was built against.
+ *
+ * Because sections of the library are optionally compiled in or ignored
+ * depending on the version of 0mq it was compiled against this method is
+ * provided to allow sanity checking for usage.
+ *
+ * Set the three parameters to values representing the 0mq version number.
+ * These values are generated at library compile time.
+ *
+ * \param major an unsigned 8 bit reference to set to the major version.
+ * \param minor an unsigned 8 bit reference to set to the minor version.
+ * \param revision an unsigned 8 bit reference to set the current revision.
+ */
+void zmq_version(uint8_t& major, uint8_t& minor, uint8_t& patch);
+
 typedef context     context_t;   /*!< \brief context type */
 typedef std::string endpoint_t;  /*!< \brief endpoint type */
 typedef message     message_t;   /*!< \brief message type */

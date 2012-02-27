@@ -34,4 +34,14 @@ BOOST_AUTO_TEST_CASE( correct_zmqpp_version )
 	BOOST_CHECK_EQUAL( BUILD_VERSION, zmqpp::version() );
 }
 
+BOOST_AUTO_TEST_CASE( same_zmq_version_as_built_against )
+{
+	uint8_t major, minor, patch;
+	zmqpp::zmq_version(major, minor, patch);
+
+	BOOST_CHECK_EQUAL( ZMQ_VERSION_MAJOR, major );
+	BOOST_CHECK_EQUAL( ZMQ_VERSION_MINOR, minor );
+	BOOST_CHECK_EQUAL( ZMQ_VERSION_PATCH, patch );
+}
+
 BOOST_AUTO_TEST_SUITE_END()
