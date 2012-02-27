@@ -108,7 +108,11 @@ bool socket::send(message& other, bool const& dont_block /* = false */)
 		if(dont_block) { flag |= socket::DONT_WAIT; }
 		if(i < (parts - 1)) { flag |= socket::SEND_MORE; }
 
+#if (ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0)
 		int result = zmq_sendmsg(_socket, &local.raw_msg(i), flag);
+#else
+		int result = zmq_msg_send(&local.raw_msg(i), _socket, flag);
+#endif
 
 		if (result < 0)
 		{
@@ -258,7 +262,7 @@ void socket::unsubscribe(std::string const& topic)
 	set(socket_option::unsubscribe, topic);
 }
 
-bool socket::has_more_parts()
+bool socket::has_more_parts() const
 {
 	return get<bool>(socket_option::receive_more);
 }

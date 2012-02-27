@@ -287,7 +287,7 @@ public:
 	 *
 	 * \return true if there are more parts
 	 */
-	bool has_more_parts();
+	bool has_more_parts() const;
 
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.

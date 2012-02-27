@@ -15,7 +15,15 @@
 
 BOOST_AUTO_TEST_SUITE( socket )
 
+const int bubble_poll_timeout = 1;
 const int max_poll_timeout = 100;
+
+void bubble_subscriptions(zmqpp::socket& socket)
+{
+	zmq_pollitem_t item = { socket, 0, ZMQ_POLLIN, 0 };
+	int result = zmq_poll(&item, 1, bubble_poll_timeout);
+	BOOST_REQUIRE_MESSAGE(0 == result, "polling command failed to timeout during subscription bubble");
+}
 
 void wait_for_socket(zmqpp::socket& socket)
 {
@@ -132,6 +140,7 @@ BOOST_AUTO_TEST_CASE( subscribe_helpers )
 	BOOST_CHECK(!subscriber.has_more_parts());
 
 	subscriber.unsubscribe("watch1");
+	bubble_subscriptions(subscriber);
 
 	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::SEND_MORE));
 	BOOST_CHECK(publisher.send("contents0"));
@@ -181,24 +190,6 @@ BOOST_AUTO_TEST_CASE( subscribe_helpers_multitopic_method )
 	BOOST_CHECK(subscriber.receive(message));
 	BOOST_CHECK_EQUAL("contents1", message);
 	BOOST_CHECK(!subscriber.has_more_parts());
-
-	wait_for_socket(subscriber);
-
-	BOOST_CHECK(subscriber.receive(message));
-	BOOST_CHECK_EQUAL("watch2", message);
-	BOOST_REQUIRE(subscriber.has_more_parts());
-	BOOST_CHECK(subscriber.receive(message));
-	BOOST_CHECK_EQUAL("contents2", message);
-	BOOST_CHECK(!subscriber.has_more_parts());
-
-	subscriber.unsubscribe("watch1");
-
-	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::SEND_MORE));
-	BOOST_CHECK(publisher.send("contents0"));
-	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::SEND_MORE));
-	BOOST_CHECK(publisher.send("contents1"));
-	BOOST_CHECK(publisher.send("watch2", zmqpp::socket::SEND_MORE));
-	BOOST_CHECK(publisher.send("contents2"));
 
 	wait_for_socket(subscriber);
 
