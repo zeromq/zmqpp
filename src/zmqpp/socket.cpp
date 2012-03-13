@@ -439,13 +439,17 @@ void socket::get(socket_option const& option, std::string& value) const
 }
 
 socket::socket(socket&& source) noexcept
+	: _socket(source._socket)
+	, _type(source._type)
+	, _recv_buffer()
 {
-	_socket = source._socket;
+	// we steal the zmq_msg_t from the valid socket, we only init our own because it's cheap
+	// and zmq_msg_move does a valid check
+	zmq_msg_init(&_recv_buffer);
+	zmq_msg_move(&_recv_buffer, &source._recv_buffer);
+
+	// Clean up source a little
 	source._socket = nullptr;
-
-	_type = source._type; // just clone?
-
-	// don't need to move the _recv_buffer
 }
 
 socket& socket::operator=(socket&& source) noexcept
@@ -454,7 +458,6 @@ socket& socket::operator=(socket&& source) noexcept
 	source._socket = nullptr;
 
 	_type = source._type; // just clone?
-	// don't need to move the _recv_buffer
 
 	return *this;
 }

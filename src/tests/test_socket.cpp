@@ -5,6 +5,7 @@
 
 #include <array>
 #include <list>
+#include <memory>
 #include <string>
 
 #include <boost/test/unit_test.hpp>
@@ -45,6 +46,29 @@ BOOST_AUTO_TEST_CASE( socket_creation_bad_type )
 {
 	zmqpp::context context;
 	BOOST_CHECK_THROW(zmqpp::socket socket(context, static_cast<zmqpp::socket_type>(-1)), zmqpp::zmq_internal_exception)
+}
+
+BOOST_AUTO_TEST_CASE( valid_socket )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::pull);
+	socket.bind("inproc://test");
+
+	zmqpp::message message;
+	BOOST_CHECK(!socket.receive(message, true));
+}
+
+BOOST_AUTO_TEST_CASE( valid_move_supporting )
+{
+	zmqpp::context context;
+	std::unique_ptr<zmqpp::socket> original(new zmqpp::socket(context, zmqpp::socket_type::pull));
+	original->bind("inproc://test");
+
+	zmqpp::socket clone(std::move(*original));
+	//original.reset();
+
+	zmqpp::message message;
+	BOOST_CHECK(!clone.receive(message, true));
 }
 
 BOOST_AUTO_TEST_CASE( simple_pull_push )
