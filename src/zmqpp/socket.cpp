@@ -90,13 +90,9 @@ void socket::close()
 	_socket = nullptr;
 }
 
-bool socket::send(message& other, bool const& dont_block /* = false */)
+bool socket::send(message& message, bool const& dont_block /* = false */)
 {
-	// we wish to take ownership passed in object valid but leave so swap
-	message local;
-	std::swap(local, other);
-
-	size_t parts = local.parts();
+	size_t parts = message.parts();
 	if (parts == 0)
 	{
 		throw std::invalid_argument("sending requires messages have at least one part");
@@ -109,9 +105,9 @@ bool socket::send(message& other, bool const& dont_block /* = false */)
 		if(i < (parts - 1)) { flag |= socket::SEND_MORE; }
 
 #if (ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0)
-		int result = zmq_sendmsg(_socket, &local.raw_msg(i), flag);
+		int result = zmq_sendmsg(_socket, &message.raw_msg(i), flag);
 #else
-		int result = zmq_msg_send(&local.raw_msg(i), _socket, flag);
+		int result = zmq_msg_send(&message.raw_msg(i), _socket, flag);
 #endif
 
 		if (result < 0)
@@ -129,9 +125,12 @@ bool socket::send(message& other, bool const& dont_block /* = false */)
 			throw zmq_internal_exception();
 		}
 
-		local.sent(i);
+		message.sent(i);
 	}
 
+	// Leave message reference in a stable state
+	zmqpp::message local;
+	std::swap(local, message);
 	return true;
 }
 
