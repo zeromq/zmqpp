@@ -4,377 +4,197 @@
  */
 
 #include <boost/test/unit_test.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "zmqpp/context.hpp"
 #include "zmqpp/socket.hpp"
 
 BOOST_AUTO_TEST_SUITE( socket_options )
 
-BOOST_AUTO_TEST_CASE( check_allowed_set_socket_options_int )
+#define STRINGIFY(x) #x
+#define CHECK_SET(socket, type, option) check_set<type>(socket, zmqpp::socket_option::option, STRINGIFY(option))
+#define CHECK_GET(socket, type, option) check_get<type>(socket, zmqpp::socket_option::option, STRINGIFY(option))
+
+// Note the hacky abuse of the fact we don't have float options
+#define CHECK_NOSET(socket, option) check_set<float>(socket, zmqpp::socket_option::option, STRINGIFY(option))
+#define CHECK_NOGET(socket, option) check_get<float>(socket, zmqpp::socket_option::option, STRINGIFY(option))
+
+template<typename CheckType, typename WantedType>
+void try_set(zmqpp::socket& socket, zmqpp::socket_option const& option, CheckType const& value, std::string const& option_name, std::string const& value_type)
+{
+	BOOST_CHECKPOINT("setting option " << option_name << " against set type '" << value_type << "'");
+	try
+	{
+		socket.set(option, value);
+		BOOST_CHECK_MESSAGE(typeid(CheckType) == typeid(WantedType), "expected exception setting option " << option_name << " against type '" << value_type << "'");
+	}
+	catch(zmqpp::exception const& e)
+	{
+		BOOST_CHECK_MESSAGE(typeid(CheckType) != typeid(WantedType), "threw unexpected exception setting option " << option_name << " against type '" << value_type << "'");
+	}
+}
+
+template<typename CheckType, typename WantedType>
+void try_get(zmqpp::socket const& socket, zmqpp::socket_option const& option, std::string const& option_name, std::string const& value_type)
+{
+	BOOST_CHECKPOINT("getting option " << option_name << " against set type '" << value_type << "'");
+	try
+	{
+		CheckType value;
+		socket.get(option, value);
+		BOOST_CHECK_MESSAGE(typeid(CheckType) == typeid(WantedType), "expected exception getting option " << option_name << " against type '" << value_type << "'");
+	}
+	catch(zmqpp::exception const& e)
+	{
+		BOOST_CHECK_MESSAGE(typeid(CheckType) != typeid(WantedType), "threw unexpected exception getting option " << option_name << " against type '" << value_type << "'");
+	}
+}
+
+template<typename Type>
+void check_set(zmqpp::socket& socket, zmqpp::socket_option const& option, std::string const& option_name)
+{
+	// Boolean
+	try_set<bool, Type>(socket, option, true, option_name, "boolean (true)");
+	try_set<bool, Type>(socket, option, false, option_name, "boolean (false)");
+
+	// Integer - Masquerade of unsigned 64bit integer
+	if (typeid(uint64_t) == typeid(Type))
+	{
+		// Positive integers are valid as unsigned 64bit
+		try_set<int, Type>(socket, option, -1, option_name, "signed integer (negative)");
+		try_set<int, int>(socket, option, 1, option_name, "signed_integer (positive / masquerade)");
+	}
+	// Integer - Masquerade of boolean
+	else if (typeid(bool) == typeid(Type))
+	{
+		// Integers are valid as boolean
+		try_set<int, int>(socket, option, -1, option_name, "signed integer (negative / masquerade)");
+		try_set<int, int>(socket, option, 1, option_name, "signed integer (positive / masquerade)");
+	}
+	// Integer - Others
+	else
+	{
+		try_set<int, Type>(socket, option, -1, option_name, "signed integer (negative)");
+		try_set<int, Type>(socket, option, 1, option_name, "signed integer (positive)");
+	}
+
+	// Unsigned 64bit integer
+	try_set<uint64_t, Type>(socket, option, 1, option_name, "unsigned 64bit integer");
+
+	// Strings
+	try_set<std::string, Type>(socket, option, "test", option_name, "string");
+}
+
+template<typename Type>
+void check_get(zmqpp::socket& socket, zmqpp::socket_option const& option, std::string const& option_name)
+{
+	// Boolean
+	try_get<bool, Type>(socket, option, option_name, "boolean");
+
+	// Integer - Masquerade of boolean
+	if (typeid(bool) == typeid(Type))
+	{
+		try_get<int, int>(socket, option, option_name, "signed integer");
+	}
+	// Integer - Others
+	else
+	{
+		try_get<int, Type>(socket, option, option_name, "signed integer");
+	}
+
+	// Unsigned 64bit integer
+	try_get<uint64_t, Type>(socket, option, option_name, "unsigned 64bit integer");
+
+	// Strings
+	try_get<std::string, Type>(socket, option, option_name, "string");
+}
+
+BOOST_AUTO_TEST_CASE( set_socket_options )
 {
 	zmqpp::context context;
 	zmqpp::socket socket(context, zmqpp::socket_type::sub);
 
-	// int only
-	socket.set(zmqpp::socket_option::send_high_water_mark, 0);
-	socket.set(zmqpp::socket_option::receive_high_water_mark, 0);
-	socket.set(zmqpp::socket_option::rate, 100);
-	socket.set(zmqpp::socket_option::send_buffer_size, 0);
-	socket.set(zmqpp::socket_option::receive_buffer_size, 0);
-	socket.set(zmqpp::socket_option::recovery_interval, 10000);
-	socket.set(zmqpp::socket_option::linger, -1);
-	socket.set(zmqpp::socket_option::reconnect_interval, 100);
-	socket.set(zmqpp::socket_option::reconnect_interval_max, 0);
-	socket.set(zmqpp::socket_option::backlog, 100);
-	socket.set(zmqpp::socket_option::max_messsage_size, -1);
-	socket.set(zmqpp::socket_option::multicast_hops, 1);
-	socket.set(zmqpp::socket_option::receive_timeout, -1);
-	socket.set(zmqpp::socket_option::send_timeout, -1);
-
-	// boolean - should auto convert if int used
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
-	socket.set(zmqpp::socket_option::ipv4_only, 1);
+	CHECK_SET(socket, uint64_t, affinity);
+	CHECK_SET(socket, std::string, identity);
+	CHECK_SET(socket, std::string, subscribe);
+	CHECK_SET(socket, std::string, unsubscribe);
+	CHECK_SET(socket, int, rate);
+	CHECK_SET(socket, int, send_buffer_size);
+	CHECK_SET(socket, int, receive_buffer_size);
+	CHECK_NOSET(socket, receive_more);
+	CHECK_NOSET(socket, file_descriptor);
+	CHECK_NOSET(socket, events);
+	CHECK_NOSET(socket, type);
+	CHECK_SET(socket, int, linger);
+	CHECK_SET(socket, int, backlog);
+	CHECK_SET(socket, int, recovery_interval);
+#if (ZMQ_VERSION_MAJOR == 2)
+	CHECK_SET(socket, int, recovery_interval_seconds);
 #endif
-
-	// uint64 - should auto convert if +ve int used
-	socket.set(zmqpp::socket_option::affinity, 0);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::affinity, -1), zmqpp::exception);
-
-	// string only
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::identity, 0), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::subscribe, 0), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::unsubscribe, 0), zmqpp::exception);
-
-	// get only, should error
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_more, 0), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::file_descriptor, 0), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::events, 0), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::type, 0), zmqpp::exception);
+	CHECK_SET(socket, int, reconnect_interval);
+	CHECK_SET(socket, int, reconnect_interval_max);
+	CHECK_SET(socket, int, receive_timeout);
+	CHECK_SET(socket, int, send_timeout);
+#if (ZMQ_VERSION_MAJOR == 2)
+	CHECK_SET(socket, uint64_t, high_water_mark);
+	CHECK_SET(socket, int, swap_size);
+	CHECK_SET(socket, bool, multicast_loopback);
+#else
+	CHECK_SET(socket, int, max_messsage_size);
+	CHECK_SET(socket, int, send_high_water_mark);
+	CHECK_SET(socket, int, receive_high_water_mark);
+	CHECK_SET(socket, int, multicast_hops);
+#endif
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+	CHECK_SET(socket, bool, ipv4_only);
+#endif
 #ifdef ZMQ_EXPERIMENTAL_LABELS
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_label, 0), zmqpp::exception);
+	CHECK_NOSET(socket, receive_label);
 #endif
 }
 
+BOOST_AUTO_TEST_CASE( get_socket_options )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::sub);
+
+	CHECK_GET(socket, uint64_t, affinity);
+	CHECK_GET(socket, std::string, identity);
+	CHECK_NOGET(socket, subscribe);
+	CHECK_NOGET(socket, unsubscribe);
+	CHECK_GET(socket, int, rate);
+	CHECK_GET(socket, int, send_buffer_size);
+	CHECK_GET(socket, int, receive_buffer_size);
+	CHECK_GET(socket, bool, receive_more);
+	CHECK_GET(socket, int, file_descriptor);
+	CHECK_GET(socket, int, events);
+	CHECK_GET(socket, int, type);
+	CHECK_GET(socket, int, linger);
+	CHECK_GET(socket, int, backlog);
+	CHECK_GET(socket, int, recovery_interval);
+#if (ZMQ_VERSION_MAJOR == 2)
+	CHECK_GET(socket, int, recovery_interval_seconds);
+#endif
+	CHECK_GET(socket, int, reconnect_interval);
+	CHECK_GET(socket, int, reconnect_interval_max);
+	CHECK_GET(socket, int, receive_timeout);
+	CHECK_GET(socket, int, send_timeout);
+#if (ZMQ_VERSION_MAJOR == 2)
+	CHECK_GET(socket, uint64_t, high_water_mark);
+	CHECK_GET(socket, int, swap_size);
+	CHECK_GET(socket, bool, multicast_loopback);
+#else
+	CHECK_GET(socket, int, max_messsage_size);
+	CHECK_GET(socket, int, send_high_water_mark);
+	CHECK_GET(socket, int, receive_high_water_mark);
+	CHECK_GET(socket, int, multicast_hops);
+#endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
-BOOST_AUTO_TEST_CASE( check_allowed_set_socket_options_boolean )
-{
-	zmqpp::context context;
-	zmqpp::socket socket(context, zmqpp::socket_type::sub);
-
-	bool value = true;
-
-	// int only
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::send_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::rate, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::send_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::recovery_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::linger, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::reconnect_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::reconnect_interval_max, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::backlog, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::max_messsage_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::multicast_hops, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_timeout, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::send_timeout, value), zmqpp::exception);
-
-	// boolean - should auto convert if int used
-	socket.set(zmqpp::socket_option::ipv4_only, value);
-
-	// uint64 - should auto convert if +ve int used
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::affinity, value), zmqpp::exception);
-
-	// string only
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::identity, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::subscribe, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::unsubscribe, value), zmqpp::exception);
-
-	// get only, should error
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_more, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::file_descriptor, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::events, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::type, value), zmqpp::exception);
-#ifdef ZMQ_EXPERIMENTAL_LABELS
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_label, value), zmqpp::exception);
-#endif
-}
-#endif
-
-BOOST_AUTO_TEST_CASE( check_allowed_set_socket_options_uint64 )
-{
-	zmqpp::context context;
-	zmqpp::socket socket(context, zmqpp::socket_type::sub);
-
-	uint64_t value = 0;
-
-	// int only
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::send_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::rate, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::send_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::recovery_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::linger, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::reconnect_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::reconnect_interval_max, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::backlog, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::max_messsage_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::multicast_hops, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_timeout, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::send_timeout, value), zmqpp::exception);
-
-	// boolean - should auto convert if int used
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::ipv4_only, value), zmqpp::exception);
-#endif
-
-	// uint64 - should auto convert if +ve int used
-	socket.set(zmqpp::socket_option::affinity, value);
-
-	// string only
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::identity, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::subscribe, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::unsubscribe, value), zmqpp::exception);
-
-	// get only, should error
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_more, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::file_descriptor, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::events, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::type, value), zmqpp::exception);
-#ifdef ZMQ_EXPERIMENTAL_LABELS
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_label, value), zmqpp::exception);
-#endif
-}
-
-BOOST_AUTO_TEST_CASE( check_allowed_set_socket_options_string )
-{
-	zmqpp::context context;
-	zmqpp::socket socket(context, zmqpp::socket_type::sub);
-
-	std::string value("test");
-
-	// int only
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::send_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::rate, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::send_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::recovery_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::linger, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::reconnect_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::reconnect_interval_max, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::backlog, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::max_messsage_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::multicast_hops, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_timeout, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::send_timeout, value), zmqpp::exception);
-
-	// boolean - should auto convert if int used
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::ipv4_only, value), zmqpp::exception);
-#endif
-
-	// uint64 - should auto convert if +ve int used
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::affinity, value), zmqpp::exception);
-
-	// string only
-	socket.set(zmqpp::socket_option::identity, value);
-	socket.set(zmqpp::socket_option::subscribe, value);
-	socket.set(zmqpp::socket_option::unsubscribe, value);
-
-	// get only, should error
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_more, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::file_descriptor, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::events, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::type, value), zmqpp::exception);
-#ifdef ZMQ_EXPERIMENTAL_LABELS
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::receive_label, value), zmqpp::exception);
-#endif
-}
-
-BOOST_AUTO_TEST_CASE( check_allowed_get_socket_options_int )
-{
-	zmqpp::context context;
-	zmqpp::socket socket(context, zmqpp::socket_type::sub);
-
-	int value;
-
-	// int only
-	socket.get(zmqpp::socket_option::file_descriptor, value);
-	socket.get(zmqpp::socket_option::send_high_water_mark, value);
-	socket.get(zmqpp::socket_option::receive_high_water_mark, value);
-	socket.get(zmqpp::socket_option::rate, value);
-	socket.get(zmqpp::socket_option::send_buffer_size, value);
-	socket.get(zmqpp::socket_option::receive_buffer_size, value);
-	socket.get(zmqpp::socket_option::recovery_interval, value);
-	socket.get(zmqpp::socket_option::linger, value);
-	socket.get(zmqpp::socket_option::reconnect_interval, value);
-	socket.get(zmqpp::socket_option::reconnect_interval_max, value);
-	socket.get(zmqpp::socket_option::backlog, value);
-	socket.get(zmqpp::socket_option::max_messsage_size, value);
-	socket.get(zmqpp::socket_option::multicast_hops, value);
-	socket.get(zmqpp::socket_option::receive_timeout, value);
-	socket.get(zmqpp::socket_option::send_timeout, value);
-	socket.get(zmqpp::socket_option::events, value);
-	socket.get(zmqpp::socket_option::type, value);
-
-	// boolean - should auto convert if int used
-	socket.get(zmqpp::socket_option::receive_more, value);
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
-	socket.get(zmqpp::socket_option::ipv4_only, value);
+	CHECK_GET(socket, bool, ipv4_only);
 #endif
 #ifdef ZMQ_EXPERIMENTAL_LABELS
-	socket.get(zmqpp::socket_option::receive_label, value);
+	CHECK_GET(socket, bool, receive_label);
 #endif
-
-	// uint64 only
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::affinity, value), zmqpp::exception);
-
-	// string only
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::identity, value), zmqpp::exception);
-
-	// set only, should error
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::subscribe, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::unsubscribe, value), zmqpp::exception);
-}
-
-BOOST_AUTO_TEST_CASE( check_allowed_get_socket_options_boolean )
-{
-	zmqpp::context context;
-	zmqpp::socket socket(context, zmqpp::socket_type::sub);
-
-	bool value;
-
-	// int only
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::file_descriptor, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::send_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::rate, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::send_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::recovery_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::linger, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::reconnect_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::reconnect_interval_max, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::backlog, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::max_messsage_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::multicast_hops, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_timeout, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::send_timeout, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::events, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::type, value), zmqpp::exception);
-
-	// boolean - should auto convert if int used
-	socket.get(zmqpp::socket_option::receive_more, value);
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
-	socket.get(zmqpp::socket_option::ipv4_only, value);
-#endif
-#ifdef ZMQ_EXPERIMENTAL_LABELS
-	socket.get(zmqpp::socket_option::receive_label, value);
-#endif
-
-	// uint64 only
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::affinity, value), zmqpp::exception);
-
-	// string only
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::identity, value), zmqpp::exception);
-
-	// set only, should error
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::subscribe, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::unsubscribe, value), zmqpp::exception);
-}
-
-BOOST_AUTO_TEST_CASE( check_allowed_get_socket_options_uint64 )
-{
-	zmqpp::context context;
-	zmqpp::socket socket(context, zmqpp::socket_type::sub);
-
-	uint64_t value;
-
-	// int only
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::file_descriptor, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::send_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::rate, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::send_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::recovery_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::linger, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::reconnect_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::reconnect_interval_max, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::backlog, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::max_messsage_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::multicast_hops, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_timeout, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::send_timeout, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::events, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::type, value), zmqpp::exception);
-
-	// boolean - should auto convert if int used
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_more, value), zmqpp::exception);
-#if ZMQ_VERSION_MAJOR > 3 or (ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1)
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::ipv4_only, value), zmqpp::exception);
-#endif
-#ifdef ZMQ_EXPERIMENTAL_LABELS
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_label, value), zmqpp::exception);
-#endif
-
-	// uint64 only
-	socket.get(zmqpp::socket_option::affinity, value);
-
-	// string only
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::identity, value), zmqpp::exception);
-
-	// set only, should error
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::subscribe, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::unsubscribe, value), zmqpp::exception);
-}
-
-BOOST_AUTO_TEST_CASE( check_allowed_get_socket_options_string )
-{
-	zmqpp::context context;
-	zmqpp::socket socket(context, zmqpp::socket_type::sub);
-
-	std::string value;
-
-	// int only
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::file_descriptor, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::send_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_high_water_mark, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::rate, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::send_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_buffer_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::recovery_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::linger, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::reconnect_interval, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::reconnect_interval_max, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::backlog, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::max_messsage_size, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::multicast_hops, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_timeout, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::send_timeout, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::events, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::type, value), zmqpp::exception);
-
-	// boolean - should auto convert if int used
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_more, value), zmqpp::exception);
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::ipv4_only, value), zmqpp::exception);
-#endif
-#ifdef ZMQ_EXPERIMENTAL_LABELS
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::receive_label, value), zmqpp::exception);
-#endif
-
-	// uint64 only
-	BOOST_CHECK_THROW(socket.set(zmqpp::socket_option::affinity, value), zmqpp::exception);
-
-	// string only
-	socket.get(zmqpp::socket_option::identity, value);
-
-	// set only, should error
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::subscribe, value), zmqpp::exception);
-	BOOST_CHECK_THROW(socket.get(zmqpp::socket_option::unsubscribe, value), zmqpp::exception);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

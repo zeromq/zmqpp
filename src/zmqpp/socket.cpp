@@ -104,10 +104,14 @@ bool socket::send(message& message, bool const& dont_block /* = false */)
 		if(dont_block) { flag |= socket::DONT_WAIT; }
 		if(i < (parts - 1)) { flag |= socket::SEND_MORE; }
 
+#if (ZMQ_VERSION_MAJOR == 2)
+		int result = zmq_send(_socket, &message.raw_msg(i), flag);
+#else
 #if (ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0)
 		int result = zmq_sendmsg(_socket, &message.raw_msg(i), flag);
 #else
 		int result = zmq_msg_send(&message.raw_msg(i), _socket, flag);
+#endif
 #endif
 
 		if (result < 0)
@@ -146,7 +150,11 @@ bool socket::receive(message& message, bool const& dont_block /* = false */)
 
 	while(more)
 	{
+#if (ZMQ_VERSION_MAJOR == 2)
+		int result = zmq_recv(_socket, &_recv_buffer, flags);
+#else
 		int result = zmq_recvmsg(_socket, &_recv_buffer, flags);
+#endif
 
 		if(result < 0)
 		{
@@ -172,25 +180,17 @@ bool socket::receive(message& message, bool const& dont_block /* = false */)
 
 bool socket::send(std::string const& string, int const& flags /* = NORMAL */)
 {
-	int result = zmq_send(_socket, string.data(), string.size(), flags);
-
-	if(result >= 0)
-	{
-		return true;
-	}
-
-	if (EAGAIN == zmq_errno())
-	{
-		return false;
-	}
-
-	throw zmq_internal_exception();
+	return send_raw(string.data(), string.size(), flags);
 }
 
 
 bool socket::receive(std::string& string, int const& flags /* = NORMAL */)
 {
+#if (ZMQ_VERSION_MAJOR == 2)
+	int result = zmq_recv(_socket, &_recv_buffer, flags);
+#else
 	int result = zmq_recvmsg(_socket, &_recv_buffer, flags);
+#endif
 
 	if(result >= 0)
 	{
@@ -212,8 +212,16 @@ bool socket::receive(std::string& string, int const& flags /* = NORMAL */)
 
 bool socket::send_raw(char const* buffer, int const& length, int const& flags /* = NORMAL */)
 {
+#if (ZMQ_VERSION_MAJOR == 2)
+    zmq_msg_t msg;
+    int rc = zmq_msg_init_size (&msg, length);
+    if (rc != 0) { return false; }
+    memcpy(zmq_msg_data(&msg), buffer, length);
+    int result = zmq_send(_socket, &msg, flags);
+    zmq_msg_close(&msg);
+#else
 	int result = zmq_send(_socket, buffer, length, flags);
-
+#endif
 	if(result >= 0)
 	{
 		return true;
@@ -229,7 +237,11 @@ bool socket::send_raw(char const* buffer, int const& length, int const& flags /*
 
 bool socket::receive_raw(char* buffer, int& length, int const& flags /* = NORMAL */)
 {
+#if (ZMQ_VERSION_MAJOR == 2)
+	int result = zmq_recv(_socket, &_recv_buffer, flags);
+#else
 	int result = zmq_recvmsg(_socket, &_recv_buffer, flags);
+#endif
 
 	if(result >= 0)
 	{
@@ -272,13 +284,14 @@ void socket::set(socket_option const& option, int const& value)
 {
 	switch(option)
 	{
+#if (ZMQ_VERSION_MAJOR == 2)
+	case socket_option::high_water_mark:
+#endif
 	case socket_option::affinity:
 		if (value < 0)
 			throw exception("attempting to set an unsigned 64 bit integer option with a negative integer");
 		set(option, static_cast<uint64_t>(value));
 		break;
-	case socket_option::send_high_water_mark:
-	case socket_option::receive_high_water_mark:
 	case socket_option::rate:
 	case socket_option::send_buffer_size:
 	case socket_option::receive_buffer_size:
@@ -287,10 +300,18 @@ void socket::set(socket_option const& option, int const& value)
 	case socket_option::recovery_interval:
 	case socket_option::reconnect_interval:
 	case socket_option::reconnect_interval_max:
-	case socket_option::max_messsage_size:
-	case socket_option::multicast_hops:
 	case socket_option::receive_timeout:
 	case socket_option::send_timeout:
+#if (ZMQ_VERSION_MAJOR == 2)
+	case socket_option::recovery_interval_seconds:
+	case socket_option::swap_size:
+	case socket_option::multicast_loopback:
+#else
+	case socket_option::send_high_water_mark:
+	case socket_option::receive_high_water_mark:
+	case socket_option::max_messsage_size:
+	case socket_option::multicast_hops:
+#endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
 	case socket_option::ipv4_only:
 #endif
@@ -301,24 +322,30 @@ void socket::set(socket_option const& option, int const& value)
 	}
 }
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+
 void socket::set(socket_option const& option, bool const& value)
 {
 	switch(option)
 	{
+#if (ZMQ_VERSION_MAJOR == 2)
+	case socket_option::multicast_loopback:
+#endif
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
 	case socket_option::ipv4_only:
+#endif
 		zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value));
 		break;
 	default:
 		throw exception("attempting to set a non boolean option with a boolean value");
 	}
 }
-#endif
+
 
 void socket::set(socket_option const& option, uint64_t const& value)
 {
 	switch(option)
 	{
+	case socket_option::high_water_mark:
 	case socket_option::affinity:
 		zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value));
 		break;
@@ -351,8 +378,6 @@ void socket::get(socket_option const& option, int& value) const
 	{
 	case socket_option::type:
 	case socket_option::receive_more:
-	case socket_option::send_high_water_mark:
-	case socket_option::receive_high_water_mark:
 	case socket_option::rate:
 	case socket_option::recovery_interval:
 	case socket_option::send_buffer_size:
@@ -361,12 +386,20 @@ void socket::get(socket_option const& option, int& value) const
 	case socket_option::backlog:
 	case socket_option::reconnect_interval:
 	case socket_option::reconnect_interval_max:
-	case socket_option::max_messsage_size:
-	case socket_option::multicast_hops:
 	case socket_option::receive_timeout:
 	case socket_option::send_timeout:
 	case socket_option::file_descriptor:
 	case socket_option::events:
+#if (ZMQ_VERSION_MAJOR == 2)
+	case socket_option::recovery_interval_seconds:
+	case socket_option::multicast_loopback:
+	case socket_option::swap_size:
+#else
+	case socket_option::send_high_water_mark:
+	case socket_option::receive_high_water_mark:
+	case socket_option::max_messsage_size:
+	case socket_option::multicast_hops:
+#endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
 	case socket_option::ipv4_only:
 #endif
@@ -391,6 +424,9 @@ void socket::get(socket_option const& option, bool& value) const
 	switch(option)
 	{
 	case socket_option::receive_more:
+#if (ZMQ_VERSION_MAJOR == 2)
+	case socket_option::multicast_loopback:
+#endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
 	case socket_option::ipv4_only:
 #endif
@@ -412,6 +448,9 @@ void socket::get(socket_option const& option, uint64_t& value) const
 
 	switch(option)
 	{
+#if (ZMQ_VERSION_MAJOR == 2)
+	case socket_option::high_water_mark:
+#endif
 	case socket_option::affinity:
 		zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size);
 		break;
