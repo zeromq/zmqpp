@@ -319,6 +319,16 @@ public:
 	 */
 	void set(socket_option const& option, uint64_t const& value);
 
+#if (ZMQ_VERSION_MAJOR == 2)
+	/*!
+	 * Set the value of an option in the underlaying zmq socket.
+	 *
+	 * \param option a valid ::socket_option
+	 * \param value to set the option to
+	 */
+	void set(socket_option const& option, int64_t const& value);
+#endif
+
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
 	 *
@@ -351,6 +361,16 @@ public:
 	 */
 	void get(socket_option const& option, uint64_t& value) const;
 
+#if (ZMQ_VERSION_MAJOR == 2)
+	/*!
+	 * Get a socket option from the underlaying zmq socket.
+	 *
+	 * \param option a valid ::socket_option
+	 * \param value referenced uint64_t to return value in
+	 */
+	void get(socket_option const& option, int64_t& value) const;
+#endif
+
 	/*!
 	 * Get a socket option from the underlaying zmq socket.
 	 *
@@ -369,7 +389,7 @@ public:
 	template<typename Type>
 	Type get(socket_option const& option) const
 	{
-		Type value;
+		Type value = Type();
 		get(option, value);
 		return value;
 	}

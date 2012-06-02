@@ -34,7 +34,14 @@ BOOST_AUTO_TEST_CASE( push_messages_baseline )
 
 		do
 		{
+#if (ZMQ_VERSION_MAJOR == 2)
+			zmq_msg_t msg;
+			zmq_msg_init_size (&msg, sizeof("hello world!"));
+			memcpy(zmq_msg_data(&msg), "hello world!", sizeof("hello world!"));
+			zmq_send(pusher, &msg, 0);
+#else
 			zmq_send(pusher, "hello world!", strlen("hello world!"), 0);
+#endif
 		}
 		while(--remaining > 0);
 	};
@@ -50,7 +57,11 @@ BOOST_AUTO_TEST_CASE( push_messages_baseline )
 	{
 		BOOST_REQUIRE(item.revents & ZMQ_POLLIN);
 
+#if (ZMQ_VERSION_MAJOR == 2)
+		zmq_recv(puller, &message, 0);
+#else
 		zmq_recvmsg(puller, &message, 0);
+#endif
 		std::string str_message(static_cast<char*>(zmq_msg_data(&message)), zmq_msg_size(&message));
 
 		BOOST_CHECK_EQUAL("hello world!", str_message);
