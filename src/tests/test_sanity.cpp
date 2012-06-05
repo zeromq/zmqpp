@@ -84,4 +84,18 @@ BOOST_AUTO_TEST_CASE( zmq_basic_push_pull )
 	zmq_term(context);
 }
 
+BOOST_AUTO_TEST_CASE( zmq_basic_options )
+{
+	std::string data = "hello world!";
+
+	void* context = zmq_init(1);
+	void* socket = zmq_socket(context, ZMQ_SUB);
+	zmq_bind(socket, "inproc://test");
+
+	int value;
+	size_t value_size = sizeof(value);
+	BOOST_CHECK_EQUAL(0, zmq_getsockopt(socket, ZMQ_TYPE, &value, &value_size));
+	BOOST_CHECK_EQUAL(ZMQ_SUB, value);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

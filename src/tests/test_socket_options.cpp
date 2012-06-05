@@ -131,8 +131,16 @@ void check_get(zmqpp::socket& socket, zmqpp::socket_option const& option, std::s
 	try_get<uint64_t, Type>(socket, option, option_name, "unsigned 64bit integer");
 
 #if (ZMQ_VERSION_MAJOR == 2)
-	// 64bit integer
-	try_get<int64_t, Type>(socket, option, option_name, "signed 64bit integer");
+	// 64bit integer - Masquerade of boolean
+	if (typeid(bool) == typeid(Type))
+	{
+		try_get<int64_t, int64_t>(socket, option, option_name, "signed 64bit integer (masquerade)");
+	}
+	// 64bit integer - Others
+	else
+	{
+		try_get<int64_t, Type>(socket, option, option_name, "signed 64bit integer");
+	}
 #endif
 
 	// Strings
@@ -142,7 +150,7 @@ void check_get(zmqpp::socket& socket, zmqpp::socket_option const& option, std::s
 BOOST_AUTO_TEST_CASE( set_socket_options )
 {
 	zmqpp::context context;
-	zmqpp::socket socket(context, zmqpp::socket_type::sub);
+	zmqpp::socket socket(context, zmqpp::socket_type::subscribe);
 	socket.bind("inproc://test");
 
 	CHECK_NOSET(socket, receive_more);
@@ -195,7 +203,7 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 BOOST_AUTO_TEST_CASE( get_socket_options )
 {
 	zmqpp::context context;
-	zmqpp::socket socket(context, zmqpp::socket_type::sub);
+	zmqpp::socket socket(context, zmqpp::socket_type::subscribe);
 	socket.bind("inproc://test");
 
 	CHECK_NOGET(socket, subscribe);

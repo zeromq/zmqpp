@@ -437,8 +437,13 @@ void socket::get(socket_option const& option, int& value) const
 
 	switch(option)
 	{
-	case socket_option::type:
+#if (ZMQ_VERSION_MAJOR == 2)
 	case socket_option::receive_more:
+	case socket_option::multicast_loopback:
+		value = static_cast<int>(get<int64_t>(option));
+		break;
+#endif
+	case socket_option::type:
 	case socket_option::linger:
 	case socket_option::backlog:
 	case socket_option::reconnect_interval:
@@ -447,9 +452,8 @@ void socket::get(socket_option const& option, int& value) const
 	case socket_option::send_timeout:
 	case socket_option::file_descriptor:
 	case socket_option::events:
-#if (ZMQ_VERSION_MAJOR == 2)
-	case socket_option::multicast_loopback:
-#else
+#if (ZMQ_VERSION_MAJOR > 2)
+	case socket_option::receive_more:
 	case socket_option::send_buffer_size:
 	case socket_option::receive_buffer_size:
 	case socket_option::rate:
@@ -465,7 +469,7 @@ void socket::get(socket_option const& option, int& value) const
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	case socket_option::receive_label:
 #endif
-		if (0 == zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size))
+		if (0 != zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size))
 		{
 			throw zmq_internal_exception();
 		}
@@ -500,7 +504,7 @@ void socket::get(socket_option const& option, bool& value) const
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	case socket_option::receive_label:
 #endif
-		if (0 == zmq_getsockopt(_socket, static_cast<int>(option), &int_value, &value_size))
+		if (0 != zmq_getsockopt(_socket, static_cast<int>(option), &int_value, &value_size))
 		{
 			throw zmq_internal_exception();
 		}
@@ -524,7 +528,7 @@ void socket::get(socket_option const& option, uint64_t& value) const
 	case socket_option::receive_buffer_size:
 #endif
 	case socket_option::affinity:
-		if(0 == zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size))
+		if(0 != zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size))
 		{
 			throw zmq_internal_exception();
 		}
@@ -545,7 +549,9 @@ void socket::get(socket_option const& option, int64_t& value) const
 	case socket_option::recovery_interval:
 	case socket_option::recovery_interval_seconds:
 	case socket_option::swap_size:
-		if(0 == zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size))
+	case socket_option::receive_more:
+	case socket_option::multicast_loopback:
+		if(0 != zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size))
 		{
 			throw zmq_internal_exception();
 		}
@@ -564,7 +570,7 @@ void socket::get(socket_option const& option, std::string& value) const
 	switch(option)
 	{
 	case socket_option::identity:
-		if(0 == zmq_getsockopt(_socket, static_cast<int>(option), buffer.data(), &size))
+		if(0 != zmq_getsockopt(_socket, static_cast<int>(option), buffer.data(), &size))
 		{
 			throw zmq_internal_exception();
 		}
