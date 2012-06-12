@@ -306,6 +306,13 @@ void socket::set(socket_option const& option, int const& value)
 	case socket_option::swap_size:
 		set(option, static_cast<int64_t>(value));
 		break;
+#endif
+#if (ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0)
+	case socket_option::max_messsage_size:
+		set(option, static_cast<int64_t>(value));
+		break;
+#endif
+#if (ZMQ_VERSION_MAJOR == 2)
 	// Boolean
 	case socket_option::multicast_loopback:
 		if (value == 0) { set(option, false); }
@@ -313,32 +320,30 @@ void socket::set(socket_option const& option, int const& value)
 		else { throw exception("attempting to set a boolean option with a non 0 or 1 integer"); }
 		break;
 	// Integers that require +ve numbers
-	case socket_option::reconnect_interval:
 	case socket_option::reconnect_interval_max:
+#else
+	case socket_option::reconnect_interval_max:
+	case socket_option::send_buffer_size:
+	case socket_option::recovery_interval:
+	case socket_option::receive_buffer_size:
+	case socket_option::send_high_water_mark:
+	case socket_option::receive_high_water_mark:
+	case socket_option::multicast_hops:
+	case socket_option::rate:
+#endif
 		if (value < 0) { throw exception("attempting to set a positive only integer option with a negative integer"); }
 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
 		{
 			throw zmq_internal_exception();
 		}
 		break;
-#else
-	// Integers
 	case socket_option::reconnect_interval:
-	case socket_option::reconnect_interval_max:
-	case socket_option::rate:
-	case socket_option::recovery_interval:
-	case socket_option::send_buffer_size:
-	case socket_option::receive_buffer_size:
-	case socket_option::send_high_water_mark:
-	case socket_option::receive_high_water_mark:
-	case socket_option::max_messsage_size:
-	case socket_option::multicast_hops:
-#endif
 	case socket_option::linger:
 	case socket_option::backlog:
 	case socket_option::receive_timeout:
 	case socket_option::send_timeout:
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+	case socket_option::max_messsage_size:
 	case socket_option::ipv4_only:
 #endif
 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
@@ -347,7 +352,7 @@ void socket::set(socket_option const& option, int const& value)
 		}
 		break;
 	default:
-		throw exception("attempting to set a non signed integer option with a signed i<< ohint->owner->_stringsnteger value");
+		throw exception("attempting to set a non signed integer option with a signed integer value");
 	}
 }
 
@@ -390,15 +395,19 @@ void socket::set(socket_option const& option, uint64_t const& value)
 	}
 }
 
-#if (ZMQ_VERSION_MAJOR == 2)
+#if (ZMQ_VERSION_MAJOR == 2) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0))
 void socket::set(socket_option const& option, int64_t const& value)
 {
 	switch(option)
 	{
+#if (ZMQ_VERSION_MAJOR == 2)
 	case socket_option::rate:
 	case socket_option::recovery_interval:
 	case socket_option::recovery_interval_seconds:
 	case socket_option::swap_size:
+#else
+	case socket_option::max_messsage_size:
+#endif
 		// zmq only allowed +ve int64_t options
 		if (value < 0) { throw exception("attempting to set a positive only 64 bit integer option with a negative 64bit integer"); }
 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
@@ -460,11 +469,11 @@ void socket::get(socket_option const& option, int& value) const
 	case socket_option::recovery_interval:
 	case socket_option::send_high_water_mark:
 	case socket_option::receive_high_water_mark:
-	case socket_option::max_messsage_size:
 	case socket_option::multicast_hops:
 #endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
 	case socket_option::ipv4_only:
+	case socket_option::max_messsage_size:
 #endif
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	case socket_option::receive_label:
@@ -538,19 +547,23 @@ void socket::get(socket_option const& option, uint64_t& value) const
 	}
 }
 
-#if (ZMQ_VERSION_MAJOR == 2)
+#if (ZMQ_VERSION_MAJOR == 2) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0))
 void socket::get(socket_option const& option, int64_t& value) const
 {
 	size_t value_size = sizeof(int64_t);
 
 	switch(option)
 	{
+#if (ZMQ_VERSION_MAJOR == 2)
 	case socket_option::rate:
 	case socket_option::recovery_interval:
 	case socket_option::recovery_interval_seconds:
 	case socket_option::swap_size:
 	case socket_option::receive_more:
 	case socket_option::multicast_loopback:
+#else
+	case socket_option::max_messsage_size:
+#endif
 		if(0 != zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size))
 		{
 			throw zmq_internal_exception();

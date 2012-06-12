@@ -319,7 +319,7 @@ public:
 	 */
 	void set(socket_option const& option, uint64_t const& value);
 
-#if (ZMQ_VERSION_MAJOR == 2)
+#if (ZMQ_VERSION_MAJOR == 2) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0))
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
 	 *
@@ -361,7 +361,7 @@ public:
 	 */
 	void get(socket_option const& option, uint64_t& value) const;
 
-#if (ZMQ_VERSION_MAJOR == 2)
+#if (ZMQ_VERSION_MAJOR == 2) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0))
 	/*!
 	 * Get a socket option from the underlaying zmq socket.
 	 *

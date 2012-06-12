@@ -9,6 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <array>
 #include <cstring>
 
 #include <zmq.h>
@@ -24,7 +25,11 @@ BOOST_AUTO_TEST_CASE( correct_zmq_version )
 	zmq_version(&major, &minor, &patch);
 
 	BOOST_CHECK_LE( ZMQPP_REQUIRED_ZMQ_MAJOR, major );
-	BOOST_CHECK_LE( ZMQPP_REQUIRED_ZMQ_MINOR, minor );
+	if(ZMQPP_REQUIRED_ZMQ_MAJOR == major)
+	{
+		BOOST_CHECK_LE( ZMQPP_REQUIRED_ZMQ_MINOR, minor );
+	}
+//	BOOST_CHECK_MESSAGE(false, "version: " << major << "." << minor << "." << patch );
 }
 
 BOOST_AUTO_TEST_CASE( correct_zmqpp_version )
@@ -61,23 +66,33 @@ BOOST_AUTO_TEST_CASE( zmq_basic_push_pull )
 	void* pusher = zmq_socket(context, ZMQ_PUSH);
 	zmq_connect(pusher, "inproc://test");
 
+#if (ZMQ_VERSION_MAJOR == 2)
 	zmq_msg_t sent_message;
 	zmq_msg_init_size(&sent_message, data.size());
 	memcpy(zmq_msg_data(&sent_message), data.data(), data.size());
 
 	BOOST_CHECK_EQUAL(0, zmq_send(pusher, &sent_message, 0));
+#else
+	BOOST_CHECK_EQUAL(data.size(), zmq_send(pusher, data.data(), data.size(), 0));
+#endif
 
 	zmq_pollitem_t items[] = { { puller, ZMQ_POLLIN, 0 } };
 	BOOST_CHECK_EQUAL(0, zmq_poll(items, 1, max_poll_timeout));
 
-	zmq_msg_t recieved_message;
-	zmq_msg_init(&recieved_message);
-	zmq_recv(puller, &recieved_message, 0);
-
-	BOOST_CHECK_EQUAL(static_cast<char*>(zmq_msg_data(&sent_message)), data.data());
+	zmq_msg_t received_message;
+	zmq_msg_init(&received_message);
+#if (ZMQ_VERSION_MAJOR == 2)
+	zmq_recv(puller, &received_message, 0);
+	BOOST_CHECK_EQUAL(static_cast<char*>(zmq_msg_data(&received_message)), data.c_str());
 
 	zmq_msg_close(&sent_message);
-	zmq_msg_close(&recieved_message);
+	zmq_msg_close(&received_message);
+#else
+	std::array<char, 32> buffer;
+	memset(buffer.data(), 0, buffer.size());
+	zmq_recv(puller, buffer.data(), buffer.size(), 0);
+	BOOST_CHECK_EQUAL(buffer.data(), data.c_str());
+#endif
 
 	zmq_close(pusher);
 	zmq_close(puller);
