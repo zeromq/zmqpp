@@ -29,7 +29,6 @@ BOOST_AUTO_TEST_CASE( correct_zmq_version )
 	{
 		BOOST_CHECK_LE( ZMQPP_REQUIRED_ZMQ_MINOR, minor );
 	}
-//	BOOST_CHECK_MESSAGE(false, "version: " << major << "." << minor << "." << patch );
 }
 
 BOOST_AUTO_TEST_CASE( correct_zmqpp_version )

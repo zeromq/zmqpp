@@ -73,14 +73,12 @@ void check_set(zmqpp::socket& socket, zmqpp::socket_option const& option, std::s
 		try_set<int, Type>(socket, option, -1, option_name, "signed integer (negative)");
 		try_set<int, int>(socket, option, 42, option_name, "signed_integer (positive / masquerade)");
 	}
-#if (ZMQ_VERSION_MAJOR == 2) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0))
 	else if (typeid(int64_t) == typeid(Type))
 	{
 		if (positive_only) { try_set<int, Type>(socket, option, -1, option_name, "signed integer (negative)");	}
 		else { try_set<int, int>(socket, option, -1, option_name, "signed integer (negative / masquerade)"); }
 		try_set<int, int>(socket, option, 42, option_name, "signed integer (positive / masquerade)");
 	}
-#endif
 	// Integer - Masquerade of boolean
 	else if (typeid(bool) == typeid(Type))
 	{
@@ -101,7 +99,7 @@ void check_set(zmqpp::socket& socket, zmqpp::socket_option const& option, std::s
 	// Unsigned 64bit integer
 	try_set<uint64_t, Type>(socket, option, 1, option_name, "unsigned 64bit integer");
 
-#if (ZMQ_VERSION_MAJOR == 2) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0))
+#if (ZMQ_VERSION_MAJOR == 2) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
 	// 64bit integer
 	try_set<int64_t, Type>(socket, option, 1, option_name, "signed 64bit integer");
 #endif
@@ -141,8 +139,8 @@ void check_get(zmqpp::socket& socket, zmqpp::socket_option const& option, std::s
 	{
 		try_get<int64_t, Type>(socket, option, option_name, "signed 64bit integer");
 	}
-#endif
-#if ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0))
+#else
+	// 64bit integer
 	try_get<int64_t, Type>(socket, option, option_name, "signed 64bit integer");
 #endif
 
@@ -172,7 +170,16 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	// For some reason -1 not working here
 	//CHECK_SET(socket, int, reconnect_interval);
 	CHECK_SET_POSITIVE(socket, int, reconnect_interval_max);
-#if (ZMQ_VERSION_MAJOR == 2)
+#if (ZMQ_VERSION_MAJOR > 2)
+	CHECK_SET_POSITIVE(socket, int, send_buffer_size);
+	CHECK_SET_POSITIVE(socket, int, receive_buffer_size);
+	CHECK_SET_POSITIVE(socket, int, rate);
+	CHECK_SET_POSITIVE(socket, int, recovery_interval);
+	CHECK_SET_POSITIVE(socket, int, send_high_water_mark);
+	CHECK_SET_POSITIVE(socket, int, receive_high_water_mark);
+	CHECK_SET_POSITIVE(socket, int, multicast_hops);
+	CHECK_SET_POSITIVE(socket, int64_t, max_messsage_size);
+#else
 	CHECK_SET(socket, bool, multicast_loopback);
 	CHECK_SET_POSITIVE(socket, int64_t, rate);
 	CHECK_SET_POSITIVE(socket, int64_t, recovery_interval);
@@ -181,19 +188,6 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	CHECK_SET(socket, uint64_t, send_buffer_size);
 	CHECK_SET(socket, uint64_t, receive_buffer_size);
 	CHECK_SET(socket, uint64_t, high_water_mark);
-#else
-	CHECK_SET_POSITIVE(socket, int, send_buffer_size);
-	CHECK_SET_POSITIVE(socket, int, receive_buffer_size);
-	CHECK_SET_POSITIVE(socket, int, rate);
-	CHECK_SET_POSITIVE(socket, int, recovery_interval);
-	CHECK_SET_POSITIVE(socket, int, send_high_water_mark);
-	CHECK_SET_POSITIVE(socket, int, receive_high_water_mark);
-	CHECK_SET_POSITIVE(socket, int, multicast_hops);
-#if ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0))
-	CHECK_SET_POSITIVE(socket, int64_t, max_messsage_size);
-#else
-	CHECK_SET(socket, int, max_messsage_size);
-#endif
 #endif
 
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
@@ -226,7 +220,16 @@ BOOST_AUTO_TEST_CASE( get_socket_options )
 	CHECK_GET(socket, uint64_t, affinity);
 	CHECK_GET(socket, std::string, identity);
 
-#if (ZMQ_VERSION_MAJOR == 2)
+#if (ZMQ_VERSION_MAJOR > 2)
+	CHECK_GET(socket, int, send_buffer_size);
+	CHECK_GET(socket, int, receive_buffer_size);
+	CHECK_GET(socket, int, rate);
+	CHECK_GET(socket, int, recovery_interval);
+	CHECK_GET(socket, int, send_high_water_mark);
+	CHECK_GET(socket, int, receive_high_water_mark);
+	CHECK_GET(socket, int, multicast_hops);
+	CHECK_GET(socket, int64_t, max_messsage_size);
+#else
 	CHECK_GET(socket, bool, multicast_loopback);
 	CHECK_GET(socket, int64_t, rate);
 	CHECK_GET(socket, int64_t, recovery_interval);
@@ -235,19 +238,6 @@ BOOST_AUTO_TEST_CASE( get_socket_options )
 	CHECK_GET(socket, uint64_t, send_buffer_size);
 	CHECK_GET(socket, uint64_t, receive_buffer_size);
 	CHECK_GET(socket, uint64_t, high_water_mark);
-#else
-	CHECK_GET(socket, int, send_buffer_size);
-	CHECK_GET(socket, int, receive_buffer_size);
-	CHECK_GET(socket, int, rate);
-	CHECK_GET(socket, int, recovery_interval);
-	CHECK_GET(socket, int, send_high_water_mark);
-	CHECK_GET(socket, int, receive_high_water_mark);
-	CHECK_GET(socket, int, multicast_hops);
-#if ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0))
-	CHECK_GET(socket, int64_t, max_messsage_size);
-#else
-	CHECK_SET(socket, int, max_messsage_size);
-#endif
 #endif
 
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
