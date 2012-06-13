@@ -100,7 +100,12 @@ int main(int argc, char const* argv[])
 
 	if (vm.count("version"))
 	{
+		uint8_t major, minor, patch;
+		zmqpp::zmq_version(major, minor, patch);
+
 		std::cout << BUILD_CLIENT_NAME << " version " << BUILD_VERSION << std::endl;
+		std::cout << "  built against 0mq version " << static_cast<int>(major) << "." << static_cast<int>(minor) << "." << static_cast<int>(patch) << std::endl;
+
 		return EXIT_SUCCESS;
 	}
 
