@@ -20,4 +20,11 @@ void version(uint8_t& major, uint8_t& minor, uint8_t& revision)
 	revision = ZMQPP_VERSION_REVISION;
 }
 
+void zmq_version(uint8_t& major, uint8_t& minor, uint8_t& patch)
+{
+	major = ZMQ_VERSION_MAJOR;
+	minor = ZMQ_VERSION_MINOR;
+	patch = ZMQ_VERSION_PATCH;
+}
+
 }
