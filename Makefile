@@ -54,7 +54,7 @@ APP_DATESTAMP  = $(shell date '+"%Y-%m-%d %H:%M"')
 
 LIBRARY_SHARED  = lib$(LIBRARY_NAME).so
 LIBRARY_ARCHIVE = lib$(LIBRARY_NAME).a
-CLIENT_TARGET   = $(LIBRARY_NAME) 
+CLIENT_TARGET   = $(LIBRARY_NAME)
 TESTS_TARGET    = $(LIBRARY_NAME)-tests
 
 CONFIG_FLAGS =
@@ -62,13 +62,13 @@ ifeq ($(CONFIG),debug)
 	CONFIG_FLAGS = -g -fno-inline -ftemplate-depth-1000
 endif
 ifeq ($(CONFIG),valgrind)
-	CONFIG_FLAGS = -g -O1 -DNO_DEBUG_LOG -DNtestO_TRACE_LOG
+	CONFIG_FLAGS = -g -O1 -DNO_DEBUG_LOG -DNO_TRACE_LOG
 endif
 ifeq ($(CONFIG),max)
 	CONFIG_FLAGS = -O3 -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNDEBUG
 endif
 ifneq (,$(findstring $(CONFIG),release loadtest))
-	CONFIG_FLAGS = -g -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNO_DEBUG_LOG -DNO_TRACE_LOG -DNDEBUG
+	CONFIG_FLAGS = -O3 -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNO_DEBUG_LOG -DNO_TRACE_LOG -DNDEBUG
 endif
 
 COMMON_FLAGS = -MMD -std=c++0x -pipe -Wall -fPIC \
@@ -176,7 +176,7 @@ $(TEST_SUITES): $(TESTS_TARGET)
 test: $(TESTS_TARGET)
 	@echo "running all test targets ($(TEST_SUITES))"
 	LD_LIBRARY_PATH=$(BUILD_PATH):$(LD_LIBRARY_PATH) $(BUILD_PATH)/$(TESTS_TARGET)
-	
+
 #
 # Dependencies
 # We don't care if they don't exist as the object won't have been built
