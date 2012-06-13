@@ -24,17 +24,25 @@ BOOST_AUTO_TEST_CASE( push_messages_baseline )
 
 	auto context = zmq_init(1);
 	auto pusher = zmq_socket(context, ZMQ_PUSH);
-	zmq_connect(pusher, "tcp://localhost:12345");
+	BOOST_REQUIRE_MESSAGE(0 == zmq_connect(pusher, "tcp://localhost:5555"), zmq_strerror(zmq_errno()));
 
 	auto puller = zmq_socket(context, ZMQ_PULL);
-	zmq_bind(puller, "tcp://*:12345");
+	BOOST_REQUIRE_MESSAGE(0 == zmq_bind(puller, "tcp://*:5555"), zmq_strerror(zmq_errno()));
 
 	auto pusher_func = [messages, &pusher](void) {
+		std::string data("hello world!");
 		auto remaining = messages;
 
 		do
 		{
-			zmq_send(pusher, "hello world!", strlen("hello world!"), 0);
+#if (ZMQ_VERSION_MAJOR == 2)
+			zmq_msg_t msg;
+			BOOST_REQUIRE_MESSAGE(0 == zmq_msg_init_size(&msg, data.size()), zmq_strerror(zmq_errno()));
+			memcpy(zmq_msg_data(&msg), data.data(), data.size());
+			BOOST_REQUIRE_MESSAGE(0 == zmq_send(pusher, &msg, 0), zmq_strerror(zmq_errno()));
+#else
+			BOOST_REQUIRE_MESSAGE(0 == zmq_send(pusher, data.data(), data.size(), 0), zmq_strerror(zmq_errno()));
+#endif
 		}
 		while(--remaining > 0);
 	};
@@ -50,7 +58,11 @@ BOOST_AUTO_TEST_CASE( push_messages_baseline )
 	{
 		BOOST_REQUIRE(item.revents & ZMQ_POLLIN);
 
+#if (ZMQ_VERSION_MAJOR == 2)
+		zmq_recv(puller, &message, 0);
+#else
 		zmq_recvmsg(puller, &message, 0);
+#endif
 		std::string str_message(static_cast<char*>(zmq_msg_data(&message)), zmq_msg_size(&message));
 
 		BOOST_CHECK_EQUAL("hello world!", str_message);

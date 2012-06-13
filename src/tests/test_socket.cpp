@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE( receiving_messages )
 	wait_for_socket(puller);
 
 	BOOST_CHECK(puller.receive(message));
-	BOOST_CHECK_EQUAL(2, message.parts());
+	BOOST_REQUIRE_EQUAL(2, message.parts());
 	BOOST_CHECK_EQUAL("hello world!", message.get(0));
 	BOOST_CHECK_EQUAL("another world", message.get(1));
 	BOOST_CHECK(!puller.has_more_parts());

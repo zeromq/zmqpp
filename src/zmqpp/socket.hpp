@@ -45,7 +45,11 @@ class socket
 {
 public:
 	static const int NORMAL     = 0;            /*!< /brief default send type, no flags set */
+#if (ZMQ_VERSION_MAJOR == 2)
+	static const int DONT_WAIT  = ZMQ_NOBLOCK;  /*!< /brief don't block if sending is not currently possible  */
+#else
 	static const int DONT_WAIT  = ZMQ_DONTWAIT; /*!< /brief don't block if sending is not currently possible  */
+#endif
 	static const int SEND_MORE  = ZMQ_SNDMORE;  /*!< /brief more parts will follow this one */
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	static const int SEND_LABEL = ZMQ_SNDLABEL; /*!< /brief this message part is an internal zmq label */
@@ -297,7 +301,6 @@ public:
 	 */
 	void set(socket_option const& option, int const& value);
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
 	 *
@@ -307,7 +310,6 @@ public:
 	 * \param value to set the option to
 	 */
 	void set(socket_option const& option, bool const& value);
-#endif
 
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
@@ -316,6 +318,14 @@ public:
 	 * \param value to set the option to
 	 */
 	void set(socket_option const& option, uint64_t const& value);
+
+	/*!
+	 * Set the value of an option in the underlaying zmq socket.
+	 *
+	 * \param option a valid ::socket_option
+	 * \param value to set the option to
+	 */
+	void set(socket_option const& option, int64_t const& value);
 
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
@@ -353,6 +363,14 @@ public:
 	 * Get a socket option from the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
+	 * \param value referenced uint64_t to return value in
+	 */
+	void get(socket_option const& option, int64_t& value) const;
+
+	/*!
+	 * Get a socket option from the underlaying zmq socket.
+	 *
+	 * \param option a valid ::socket_option
 	 * \param value referenced std::string to return value in
 	 */
 	void get(socket_option const& option, std::string& value) const;
@@ -367,7 +385,7 @@ public:
 	template<typename Type>
 	Type get(socket_option const& option) const
 	{
-		Type value;
+		Type value = Type();
 		get(option, value);
 		return value;
 	}
