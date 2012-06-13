@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE( simple_pull_push )
 	zmqpp::socket pusher(context, zmqpp::socket_type::push);
 	pusher.connect("inproc://test");
 
-	BOOST_CHECK(pusher.send("hello world!"));
+	BOOST_CHECK(pusher.send_raw("hello world!", sizeof("hello world!")));
 
 	zmqpp::poller poller;
 	poller.add(puller);
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE( simple_pull_push )
 	std::string message;
 	BOOST_CHECK(puller.receive(message));
 
-	BOOST_CHECK_EQUAL("hello world!", message);
+	BOOST_CHECK_EQUAL("hello world!", message.c_str());
 	BOOST_CHECK(!puller.has_more_parts());
 }
 
