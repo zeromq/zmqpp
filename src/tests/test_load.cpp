@@ -15,33 +15,38 @@
 
 BOOST_AUTO_TEST_SUITE( load )
 
+// Number of messages to push
+const uint64_t messages = 1e7;
+
+// Short message to send
+const std::string short_message = "hello world!";
+
+// Timeout for polling in milliseconds
+const long max_poll_timeout = 500;
+
 BOOST_AUTO_TEST_CASE( push_messages_baseline )
 {
 	boost::timer t;
 
-	long max_poll_timeout = 500;
-	uint64_t messages = 1e7;
+	void* context = zmq_init(1);
+	void* pusher = zmq_socket(context, ZMQ_PUSH);
+	BOOST_REQUIRE_MESSAGE(0 == zmq_connect(pusher, "tcp://localhost:5555"), "connect: " << zmq_strerror(zmq_errno()));
 
-	auto context = zmq_init(1);
-	auto pusher = zmq_socket(context, ZMQ_PUSH);
-	BOOST_REQUIRE_MESSAGE(0 == zmq_connect(pusher, "tcp://localhost:5555"), zmq_strerror(zmq_errno()));
-
-	auto puller = zmq_socket(context, ZMQ_PULL);
-	BOOST_REQUIRE_MESSAGE(0 == zmq_bind(puller, "tcp://*:5555"), zmq_strerror(zmq_errno()));
+	void* puller = zmq_socket(context, ZMQ_PULL);
+	BOOST_REQUIRE_MESSAGE(0 == zmq_bind(puller, "tcp://*:5555"), "bind: " << zmq_strerror(zmq_errno()));
 
 	auto pusher_func = [messages, &pusher](void) {
-		std::string data("hello world!");
 		auto remaining = messages;
 
 		do
 		{
 #if (ZMQ_VERSION_MAJOR == 2)
 			zmq_msg_t msg;
-			BOOST_REQUIRE_MESSAGE(0 == zmq_msg_init_size(&msg, data.size()), zmq_strerror(zmq_errno()));
-			memcpy(zmq_msg_data(&msg), data.data(), data.size());
-			BOOST_REQUIRE_MESSAGE(0 == zmq_send(pusher, &msg, 0), zmq_strerror(zmq_errno()));
+			zmq_msg_init_size(&msg, short_message.size());
+			memcpy(zmq_msg_data(&msg), short_message.data(), short_message.size());
+			zmq_send(pusher, &msg, 0);
 #else
-			BOOST_REQUIRE_MESSAGE(0 == zmq_send(pusher, data.data(), data.size(), 0), zmq_strerror(zmq_errno()));
+			zmq_send(pusher, short_message.data(), short_message.size(), 0);
 #endif
 		}
 		while(--remaining > 0);
@@ -63,9 +68,8 @@ BOOST_AUTO_TEST_CASE( push_messages_baseline )
 #else
 		zmq_recvmsg(puller, &message, 0);
 #endif
-		std::string str_message(static_cast<char*>(zmq_msg_data(&message)), zmq_msg_size(&message));
 
-		BOOST_CHECK_EQUAL("hello world!", str_message);
+		BOOST_CHECK_EQUAL(0, strncmp(short_message.data(), static_cast<char*>(zmq_msg_data(&message)), short_message.size()));
 		++processed;
 	}
 	zmq_msg_close(&message);
@@ -91,15 +95,12 @@ BOOST_AUTO_TEST_CASE( push_messages )
 {
 	boost::timer t;
 
-	long max_poll_timeout = 500;
-	uint64_t messages = 1e7;
-
 	zmqpp::context context;
 	zmqpp::socket pusher(context, zmqpp::socket_type::push);
-	pusher.connect("tcp://localhost:12345");
+	pusher.connect("tcp://localhost:55555");
 
 	zmqpp::socket puller(context, zmqpp::socket_type::pull);
-	puller.bind("tcp://*:12345");
+	puller.bind("tcp://*:55555");
 
 	auto pusher_func = [messages, &pusher](void) {
 		auto remaining = messages;
@@ -107,7 +108,7 @@ BOOST_AUTO_TEST_CASE( push_messages )
 
 		do
 		{
-			message.add("hello world!");
+			message.add(short_message);
 			pusher.send(message);
 		}
 		while(--remaining > 0);
@@ -119,14 +120,14 @@ BOOST_AUTO_TEST_CASE( push_messages )
 	boost::thread thread(pusher_func);
 
 	uint64_t processed = 0;
+	std::string message;
 	while(poller.poll(max_poll_timeout))
 	{
 		BOOST_REQUIRE(poller.has_input(puller));
 
-		std::string message;
 		puller.receive(message);
 
-		BOOST_CHECK_EQUAL("hello world!", message);
+		BOOST_CHECK_EQUAL(short_message, message);
 		++processed;
 	}
 
@@ -135,7 +136,7 @@ BOOST_AUTO_TEST_CASE( push_messages )
 	BOOST_CHECK_MESSAGE(thread.timed_join(boost::posix_time::milliseconds(max_poll_timeout)), "hung while joining pusher thread");
 	BOOST_CHECK_EQUAL(processed, messages);
 
-	BOOST_TEST_MESSAGE("Copy String");
+	BOOST_TEST_MESSAGE("ZMQPP: Copy String");
 	BOOST_TEST_MESSAGE("Messages pushed    : " << processed);
 	BOOST_TEST_MESSAGE("Run time           : " << elapsed_run << " seconds");
 	BOOST_TEST_MESSAGE("Messages per second: " << processed / elapsed_run);
