@@ -45,7 +45,7 @@ the library.
 Requirements
 ------------
 
-ZeroMQ 3.0.0 or later
+ZeroMQ 2.2.x or later
 C++0x compliant compiler (g++ 4.6.x, g++ 4.4.x with compatability.hpp)
 
 
