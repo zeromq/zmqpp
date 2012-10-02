@@ -51,6 +51,34 @@ void poller::add(int const& descriptor, short const& event /* = POLL_IN */)
 	_fdindex[descriptor] = index;
 }
 
+bool poller::has(socket_t const& socket)
+{
+	return _index.find(socket) != _index.end();
+}
+
+bool poller::has(int const& descriptor)
+{
+	return _fdindex.find(descriptor) != _fdindex.end();
+}
+
+void poller::remove(socket_t const& socket)
+{
+	auto found = _index.find(socket);
+	if (_index.end() == found) { return; }
+
+	_items.erase(_items.begin() + found->second);
+	_index.erase(found);
+}
+
+void poller::remove(int const& descriptor)
+{
+	auto found = _fdindex.find(descriptor);
+	if (_fdindex.end() == found) { return; }
+
+	_items.erase(_items.begin() + found->second);
+	_fdindex.erase(found);
+}
+
 void poller::check_for(socket const& socket, short const& event)
 {
 	auto found = _index.find(socket);
@@ -59,7 +87,7 @@ void poller::check_for(socket const& socket, short const& event)
 		throw exception("this socket is not represented within this poller");
 	}
 
-	_items[(*found).second].events = event;
+	_items[found->second].events = event;
 }
 
 void poller::check_for(int const& descriptor, short const& event)
@@ -70,7 +98,7 @@ void poller::check_for(int const& descriptor, short const& event)
 		throw exception("this socket is not represented within this poller");
 	}
 
-	_items[(*found).second].events = event;
+	_items[found->second].events = event;
 }
 
 bool poller::poll(long timeout /* = WAIT_FOREVER */)
@@ -92,7 +120,7 @@ short poller::events(socket const& socket) const
 		throw exception("this socket is not represented within this poller");
 	}
 
-	return _items[(*found).second].revents;
+	return _items[found->second].revents;
 }
 
 short poller::events(int const& descriptor) const
@@ -103,7 +131,7 @@ short poller::events(int const& descriptor) const
 		throw exception("this file descriptor is not represented within this poller");
 	}
 
-	return _items[(*found).second].revents;
+	return _items[found->second].revents;
 }
 
 }

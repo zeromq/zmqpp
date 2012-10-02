@@ -63,6 +63,36 @@ public:
 	void add(int const& descriptor, short const& event = POLL_IN | POLL_ERROR );
 
 	/*!
+	 * Check if we are monitoring a given socket with this poller.
+	 *
+	 * \param socket the socket to check.
+	 * \return true if it is there.
+	 */
+	bool has(socket_t const& socket);
+
+	/*!
+	 * Check if we are monitoring a given file descriptor with this poller.
+	 *
+	 * \param descriptor the file descriptor to check.
+	 * \return true if it is there.
+	 */
+	bool has(int const& descriptor);
+
+	/*!
+	 * Stop monitoring a socket.
+	 *
+	 * \param socket the socket to stop monitoring.
+	 */
+	void remove(socket_t const& socket);
+
+	/*!
+	 * Stop monitoring a file descriptor.
+	 *
+	 * \param descriptor the file descriptor to stop monitoring.
+	 */
+	void remove(int const& descriptor);
+
+	/*!
 	 * Update the monitored event flags for a given socket.
 	 *
 	 * \param socket the socket to update event flags.
