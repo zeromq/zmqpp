@@ -238,6 +238,7 @@ int main(int argc, char const* argv[])
 					socket.receive(message);
 					std::cout << "<<: " << message << std::endl;
 				} while(socket.has_more_parts());
+				std::cout << " --- " << std::endl;
 
 				if (toggles)
 				{
