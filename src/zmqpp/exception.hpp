@@ -72,14 +72,25 @@ public:
 		, _error(zmq_errno())
 	{ }
 
+	zmq_internal_exception(std::string const & situation)
+		: exception(zmq_strerror(zmq_errno()))
+		, _error(zmq_errno())
+		, _situation (situation)
+	{ }
+
+	~zmq_internal_exception() throw()
+	{}
+
 	/*!
 	 * Retrieve the zmq error number associated with this exception.
 	 * \return zmq error number
 	 */
 	int zmq_error() const { return _error; }
+	std::string const & situation (void) const { return _situation; }
 
 private:
 	int _error;
+	std::string _situation;
 };
 
 }

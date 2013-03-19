@@ -64,7 +64,7 @@ void socket::bind(endpoint_t const& endpoint)
 
 	if (0 != result)
 	{
-		throw zmq_internal_exception();
+		throw zmq_internal_exception("bind [" + endpoint + "]");
 	}
 }
 
@@ -74,7 +74,7 @@ void socket::unbind(endpoint_t const& endpoint)
 
 	if (0 != result)
 	{
-		throw zmq_internal_exception();
+		throw zmq_internal_exception("connect [" + endpoint + "]");
 	}
 }
 
