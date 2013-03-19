@@ -393,7 +393,7 @@ public:
 	/*!
 	 * Move constructor
 	 *
-	 * Moves the internals of source to this object, there is no guaranty
+	 * Moves the internals of source to this object, there is no guarantee
 	 * that source will be left in a valid state.
 	 *
 	 * This constructor is noexcept and so will not throw exceptions
@@ -405,7 +405,7 @@ public:
 	/*!
 	 * Move operator
 	 *
-	 * Moves the internals of source to this object, there is no guaranty
+	 * Moves the internals of source to this object, there is no guarantee
 	 * that source will be left in a valid state.
 	 *
 	 * This function is noexcept and so will not throw exceptions
