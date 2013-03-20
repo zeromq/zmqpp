@@ -26,15 +26,23 @@ const int socket::send_label;
 const int max_socket_option_buffer_size = 256;
 const int max_stream_buffer_size = 4096;
 
-socket::socket(const context& context, socket_type const type)
+
+socket::socket(const context& context, socket_type const& type, char const* label /* = nullptr */)
 	: _socket(nullptr)
 	, _type(type)
+	, _label((label == nullptr) ? "" : label)
 	, _recv_buffer()
 {
 	_socket = zmq_socket(context, static_cast<int>(type));
 	if(nullptr == _socket)
 	{
-		throw zmq_internal_exception();
+		std::string exception_message;
+		exception_message += "c'tor";
+		if (!_label.empty())
+		{
+			exception_message += " \"" + _label + "\"";
+		}
+		throw zmq_internal_exception(exception_message);
 	}
 
 	zmq_msg_init(&_recv_buffer);
@@ -64,7 +72,14 @@ void socket::bind(endpoint_t const& endpoint)
 
 	if (0 != result)
 	{
-		throw zmq_internal_exception("bind [" + endpoint + "]");
+		std::string exception_message;
+		exception_message += "bind";
+		if (!_label.empty())
+		{
+			exception_message += " \"" + _label + "\"";
+		}
+		exception_message += " [" + endpoint + "]";
+		throw zmq_internal_exception(exception_message);
 	}
 }
 
@@ -84,7 +99,14 @@ void socket::connect(endpoint_t const& endpoint)
 
 	if (0 != result)
 	{
-		throw zmq_internal_exception();
+		std::string exception_message;
+		exception_message += "connect";
+		if (!_label.empty())
+		{
+			exception_message += " \"" + _label + "\"";
+		}
+		exception_message += " [" + endpoint + "]";
+		throw zmq_internal_exception(exception_message);
 	}
 }
 
@@ -94,7 +116,13 @@ void socket::disconnect(endpoint_t const& endpoint)
 
 	if (0 != result)
 	{
-		throw zmq_internal_exception();
+		exception_message += "disconnect";
+		if (!_label.empty())
+		{
+			exception_message += " \"" + _label + "\"";
+		}
+		exception_message += " [" + endpoint + "]";
+		throw zmq_internal_exception(exception_message);
 	}
 }
 
@@ -104,7 +132,13 @@ void socket::close()
 
 	if (0 != result)
 	{
-		throw zmq_internal_exception();
+		std::string exception_message;
+		exception_message += "close";
+		if (!_label.empty())
+		{
+			exception_message += " \"" + _label + "\"";
+		}
+		throw zmq_internal_exception(exception_message);
 	}
 
 	_socket = nullptr;
@@ -159,7 +193,15 @@ bool socket::send(message& message, bool const dont_block /* = false */)
 			// sanity checking
 			assert(EAGAIN != zmq_errno());
 
-			throw zmq_internal_exception();
+			{
+				std::string exception_message;
+				exception_message += "send";
+				if (!_label.empty())
+				{
+					exception_message += " \"" + _label + "\"";
+				}
+				throw zmq_internal_exception(exception_message);
+			}
 		}
 
 		message.sent(i);
@@ -215,7 +257,15 @@ bool socket::receive(message& message, bool const dont_block /* = false */)
 
 			assert(EAGAIN != zmq_errno());
 
-			throw zmq_internal_exception();
+			{
+				std::string exception_message;
+				exception_message += "receive";
+				if (!_label.empty())
+				{
+					exception_message += " \"" + _label + "\"";
+				}
+				throw zmq_internal_exception(exception_message);
+			}
 		}
 
 		zmq_msg_t& dest = message.raw_new_msg();
@@ -706,6 +756,7 @@ void socket::get(socket_option const option, std::string& value) const
 socket::socket(socket&& source) noexcept
 	: _socket(source._socket)
 	, _type(source._type)
+	, _label(source._label)
 	, _recv_buffer()
 {
 	// we steal the zmq_msg_t from the valid socket, we only init our own because it's cheap
@@ -722,6 +773,7 @@ socket& socket::operator=(socket&& source) noexcept
 	std::swap(_socket, source._socket);
 
 	_type = source._type; // just clone?
+	_label = source._label; // just swap?
 
 	// we steal the zmq_msg_t from the valid socket, we only init our own because it's cheap
 	// and zmq_msg_move does a valid check

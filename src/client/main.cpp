@@ -65,8 +65,14 @@ int main(int argc, char const* argv[])
 		}
 	}
 
+	std::string label;
+	if (vm.count("label"))
+	{
+		label = vm["label"].as<std::string>();
+	}
+
 	zmqpp::context context;
-	zmqpp::socket socket( context, options.type );
+	zmqpp::socket socket( context, options.type, label.c_str() );
 
 	// TODO: allow subscriptions on command line
 	if( zmqpp::socket_type::subscribe == options.type ) { socket.subscribe( "" ); }
