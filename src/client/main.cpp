@@ -262,6 +262,11 @@ int main(int argc, char const* argv[])
 
 				} while(socket.has_more_parts());
 
+				if (annotate)
+				{
+					std::cout << " --- " << std::endl;
+				}
+
 				if (toggles)
 				{
 					can_recv = false;
