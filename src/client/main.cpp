@@ -251,10 +251,6 @@ int main(int argc, char const* argv[])
 
 					std::cout << message << std::endl;
 
-					if (newline)
-					{
-						std::cout << std::endl;
-					}
 					if (flush)
 					{
 						std::cout.flush();
@@ -265,6 +261,10 @@ int main(int argc, char const* argv[])
 				if (annotate)
 				{
 					std::cout << " --- " << std::endl;
+				}
+				else if (newline)
+				{
+					std::cout << std::endl;
 				}
 
 				if (toggles)
