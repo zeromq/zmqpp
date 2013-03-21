@@ -23,6 +23,7 @@ boost::program_options::options_description connection_options()
 {
 	boost::program_options::options_description options("Connection Options");
 	options.add_options()
+		("annotate,a", "annotate output with direction")
 		("bind,b", boost::program_options::value<std::vector<std::string>>(), "bind to specified endpoint")
 		("connect,c", boost::program_options::value<std::vector<std::string>>(), "connect to specified endpoint")
 		("multipart,m", "enable multipart message sending")
@@ -220,6 +221,8 @@ int main(int argc, char const* argv[])
 		std::cerr << std::endl;
 	}
 
+	bool annotate = (vm.count("annotate") > 0);
+
 	zmqpp::message message;
 	while(true)
 	{
@@ -236,7 +239,14 @@ int main(int argc, char const* argv[])
 				{
 					std::string message;
 					socket.receive(message);
-					std::cout << "<<: " << message << std::endl;
+
+					if (annotate)
+					{
+						std::cout << "<<: ";
+					}
+
+					std::cout << message << std::endl;
+
 				} while(socket.has_more_parts());
 
 				if (toggles)
@@ -255,7 +265,12 @@ int main(int argc, char const* argv[])
 				char* result = fgets(buffer.data(), buffer.size(), stdin);
 				if (nullptr == result)
 				{
-					std::cerr << "!!: Error in standard input" << std::endl;
+					if (annotate)
+					{
+						std::cerr << "!!: ";
+					}
+
+					std::cerr << "Error in standard input" << std::endl;
 					return EXIT_FAILURE;
 				}
 
@@ -269,19 +284,35 @@ int main(int argc, char const* argv[])
 				{
 					for(size_t i = 0; i < message.parts(); ++i)
 					{
-						std::cout << ">>: " << message.get<std::string>(i) << std::endl;
+						if (annotate)
+						{
+							std::cout << ">>: ";
+						}
+
+						std::cout << message.get<std::string>(i) << std::endl;
 					}
 
 					if (!socket.send(message, true))
 					{
-						std::cerr << "!!: Send failed, socket would have blocked" << std::endl;
+						if (annotate)
+						{
+							std::cerr << "!!: ";
+						}
+
+						std::cerr << "Send failed, socket would have blocked" << std::endl;
 					}
 
 					if (toggles)
 					{
 						can_recv = true;
 						can_send = false;
-						std::cerr << "**: Sending now disabled" << std::endl;
+
+						if (annotate)
+						{
+							std::cerr << "**: ";
+						}
+
+						std::cerr << "Sending now disabled" << std::endl;
 					}
 				}
 			}
