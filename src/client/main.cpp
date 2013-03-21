@@ -23,9 +23,12 @@ boost::program_options::options_description connection_options()
 {
 	boost::program_options::options_description options("Connection Options");
 	options.add_options()
+		("annotate,a", "annotate output with direction")
 		("bind,b", boost::program_options::value<std::vector<std::string>>(), "bind to specified endpoint")
 		("connect,c", boost::program_options::value<std::vector<std::string>>(), "connect to specified endpoint")
+		("flush,f", "flush output frequently")
 		("multipart,m", "enable multipart message sending")
+		("newline,n", "extra newlines")
 		;
 
 	return options;
@@ -44,10 +47,10 @@ boost::program_options::options_description miscellaneous_options()
 
 void usage(std::string const& executable_name)
 {
-	std::cout << "Usage: " << executable_name << " [options] SOCKETTYPE [--bind|--connect] ENDPOINT" << std::endl;
-	std::cout << "0mq command line client tool." << std::endl;
-	std::cout << "SOCKETTYPE is one of the supported 0mq socket types." << std::endl;
-	std::cout << "ENDPOINT is any valid 0mq endpoint." << std::endl;
+	std::cerr << "Usage: " << executable_name << " [options] SOCKETTYPE [--bind|--connect] ENDPOINT" << std::endl;
+	std::cerr << "0mq command line client tool." << std::endl;
+	std::cerr << "SOCKETTYPE is one of the supported 0mq socket types." << std::endl;
+	std::cerr << "ENDPOINT is any valid 0mq endpoint." << std::endl;
 }
 
 typedef std::tuple<zmqpp::socket_type, bool, bool, bool> socket_type_data;
@@ -83,18 +86,18 @@ int main(int argc, char const* argv[])
 	}
 	catch(boost::program_options::too_many_positional_options_error& e)
 	{
-		std::cout << "Too many arguments provided." << std::endl;
+		std::cerr << "Too many arguments provided." << std::endl;
 		usage = true;
 	}
 	catch(boost::program_options::unknown_option& e)
 	{
-		std::cout << "Unknown option '" << e.get_option_name() << "'." << std::endl;
+		std::cerr << "Unknown option '" << e.get_option_name() << "'." << std::endl;
 		usage = true;
 	}
 
 	if (vm.count("type") && (socket_types.end() == socket_types.find(vm["type"].as<std::string>())))
 	{
-		std::cout << "Unknown value '" << vm["type"].as<std::string>() << "' provided for 0mq socket type." << std::endl;
+		std::cerr << "Unknown value '" << vm["type"].as<std::string>() << "' provided for 0mq socket type." << std::endl;
 		usage = true;
 	}
 
@@ -103,8 +106,8 @@ int main(int argc, char const* argv[])
 		uint8_t major, minor, patch;
 		zmqpp::zmq_version(major, minor, patch);
 
-		std::cout << BUILD_CLIENT_NAME << " version " << BUILD_VERSION << std::endl;
-		std::cout << "  built against 0mq version " << static_cast<int>(major) << "." << static_cast<int>(minor) << "." << static_cast<int>(patch) << std::endl;
+		std::cerr << BUILD_CLIENT_NAME << " version " << BUILD_VERSION << std::endl;
+		std::cerr << "  built against 0mq version " << static_cast<int>(major) << "." << static_cast<int>(minor) << "." << static_cast<int>(patch) << std::endl;
 
 		return EXIT_SUCCESS;
 	}
@@ -112,35 +115,35 @@ int main(int argc, char const* argv[])
 	if (usage || (0 == vm.count("type")) || vm.count("help") ||
 			((0 == vm.count("connect")) && (0 == vm.count("bind"))))
 	{
-		std::cout << "Usage: " BUILD_CLIENT_NAME " [options] SOCKETTYPE ENDPOINT" << std::endl;
-		std::cout << "0mq command line client tool." << std::endl;
-		std::cout << "SOCKETTYPE is one of the supported 0mq socket types." << std::endl;
+		std::cerr << "Usage: " BUILD_CLIENT_NAME " [options] SOCKETTYPE ENDPOINT" << std::endl;
+		std::cerr << "0mq command line client tool." << std::endl;
+		std::cerr << "SOCKETTYPE is one of the supported 0mq socket types." << std::endl;
 
 		auto it = socket_types.begin();
-		std::cout << "  " << (*it).first;
+		std::cerr << "  " << (*it).first;
 		for(++it; it != socket_types.end(); ++it)
 		{
-			std::cout << ", " << (*it).first;
+			std::cerr << ", " << (*it).first;
 		}
-		std::cout << std::endl;
+		std::cerr << std::endl;
 
-		std::cout << "ENDPOINT is any valid 0mq endpoint." << std::endl;
-		std::cout << std::endl;
+		std::cerr << "ENDPOINT is any valid 0mq endpoint." << std::endl;
+		std::cerr << std::endl;
 
 		if (!vm.count("help"))
 		{
 			return EXIT_FAILURE;
 		}
 
-		std::cout << connection_options() << std::endl;
-		std::cout << miscellaneous_options() << std::endl;
+		std::cerr << connection_options() << std::endl;
+		std::cerr << miscellaneous_options() << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	int standardin = fileno(stdin);
 	if (standardin < 0) // really?
 	{
-		std::cout << "Unable to get standard input, this might be an OS thing, sorry." << std::endl;
+		std::cerr << "Unable to get standard input, this might be an OS thing, sorry." << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -163,14 +166,14 @@ int main(int argc, char const* argv[])
 		std::vector<std::string> endpoints = vm["bind"].as<std::vector<std::string>>();
 		for(size_t i = 0; i < endpoints.size(); ++i)
 		{
-			std::cout << "binding to " << endpoints[i] << std::endl;
+			std::cerr << "binding to " << endpoints[i] << std::endl;
 			try
 			{
 				socket.bind(endpoints[i]);
 			}
 			catch(zmqpp::zmq_internal_exception& e)
 			{
-				std::cout << "failed to bind to endpoint: " << e.what() << std::endl;
+				std::cerr << "failed to bind to endpoint: " << e.what() << std::endl;
 				return EXIT_FAILURE;
 			}
 		}
@@ -181,14 +184,14 @@ int main(int argc, char const* argv[])
 		std::vector<std::string> endpoints = vm["connect"].as<std::vector<std::string>>();
 		for(size_t i = 0; i < endpoints.size(); ++i)
 		{
-			std::cout << "connecting to " << endpoints[i] << std::endl;
+			std::cerr << "connecting to " << endpoints[i] << std::endl;
 			try
 			{
 				socket.connect(endpoints[i]);
 			}
 			catch(zmqpp::zmq_internal_exception& e)
 			{
-				std::cout << "failed to bind to endpoint: " << e.what() << std::endl;
+				std::cerr << "failed to bind to endpoint: " << e.what() << std::endl;
 				return EXIT_FAILURE;
 			}
 		}
@@ -202,23 +205,27 @@ int main(int argc, char const* argv[])
 
 	if (can_send || toggles)
 	{
-		std::cout << "While sending packets is allowed data entered on standard in will be sent to the 0mq socket." << std::endl;
-		std::cout << "messages will be considered terminated by newline." << std::endl;
-		std::cout << std::endl;
+		std::cerr << "While sending packets is allowed data entered on standard in will be sent to the 0mq socket." << std::endl;
+		std::cerr << "messages will be considered terminated by newline." << std::endl;
+		std::cerr << std::endl;
 
 		if (toggles && !can_send)
 		{
-			std::cout << "Sending starts as disabled for this socket type." << std::endl;
-			std::cout << std::endl;
+			std::cerr << "Sending starts as disabled for this socket type." << std::endl;
+			std::cerr << std::endl;
 		}
 	}
 
 	if (multipart)
 	{
-		std::cout << "Multipart messages enabled, newline on an empty line will be considered packet end." << std::endl;
-		std::cout << "The empty part will not be included." << std::endl;
-		std::cout << std::endl;
+		std::cerr << "Multipart messages enabled, newline on an empty line will be considered packet end." << std::endl;
+		std::cerr << "The empty part will not be included." << std::endl;
+		std::cerr << std::endl;
 	}
+
+	bool annotate = (vm.count("annotate") > 0);
+	bool flush = (vm.count("flush") > 0);
+	bool newline = (vm.count("newline") > 0);
 
 	zmqpp::message message;
 	while(true)
@@ -236,14 +243,35 @@ int main(int argc, char const* argv[])
 				{
 					std::string message;
 					socket.receive(message);
-					std::cout << "<<: " << message << std::endl;
+
+					if (annotate)
+					{
+						std::cout << "<<: ";
+					}
+
+					std::cout << message << std::endl;
+
+					if (flush)
+					{
+						std::cout.flush();
+					}
+
 				} while(socket.has_more_parts());
+
+				if (annotate)
+				{
+					std::cout << " --- " << std::endl;
+				}
+				else if (newline)
+				{
+					std::cout << std::endl;
+				}
 
 				if (toggles)
 				{
 					can_recv = false;
 					can_send = true;
-					std::cout << "**: Sending now enabled" << std::endl;
+					std::cerr << "**: Sending now enabled" << std::endl;
 				}
 			}
 
@@ -255,7 +283,12 @@ int main(int argc, char const* argv[])
 				char* result = fgets(buffer.data(), buffer.size(), stdin);
 				if (nullptr == result)
 				{
-					std::cout << "!!: Error in standard input" << std::endl;
+					if (annotate)
+					{
+						std::cerr << "!!: ";
+					}
+
+					std::cerr << "Error in standard input" << std::endl;
 					return EXIT_FAILURE;
 				}
 
@@ -269,19 +302,44 @@ int main(int argc, char const* argv[])
 				{
 					for(size_t i = 0; i < message.parts(); ++i)
 					{
-						std::cout << ">>: " << message.get<std::string>(i) << std::endl;
+						if (annotate)
+						{
+							std::cout << ">>: ";
+						}
+
+						std::cout << message.get<std::string>(i) << std::endl;
+					}
+
+					if (newline)
+					{
+						std::cout << std::endl;
+					}
+					if (flush)
+					{
+						std::cout.flush();
 					}
 
 					if (!socket.send(message, true))
 					{
-						std::cout << "!!: Send failed, socket would have blocked" << std::endl;
+						if (annotate)
+						{
+							std::cerr << "!!: ";
+						}
+
+						std::cerr << "Send failed, socket would have blocked" << std::endl;
 					}
 
 					if (toggles)
 					{
 						can_recv = true;
 						can_send = false;
-						std::cout << "**: Sending now disabled" << std::endl;
+
+						if (annotate)
+						{
+							std::cerr << "**: ";
+						}
+
+						std::cerr << "Sending now disabled" << std::endl;
 					}
 				}
 			}
