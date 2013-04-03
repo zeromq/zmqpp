@@ -26,7 +26,6 @@ boost::program_options::options_description connection_options()
 		("annotate,a", "annotate output with direction")
 		("bind,b", boost::program_options::value<std::vector<std::string>>(), "bind to specified endpoint")
 		("connect,c", boost::program_options::value<std::vector<std::string>>(), "connect to specified endpoint")
-		("flush,f", "flush output frequently")
 		("multipart,m", "enable multipart message sending")
 		("newline,n", "extra newlines")
 		;
@@ -224,7 +223,6 @@ int main(int argc, char const* argv[])
 	}
 
 	bool annotate = (vm.count("annotate") > 0);
-	bool flush = (vm.count("flush") > 0);
 	bool newline = (vm.count("newline") > 0);
 
 	zmqpp::message message;
@@ -250,11 +248,6 @@ int main(int argc, char const* argv[])
 					}
 
 					std::cout << message << std::endl;
-
-					if (flush)
-					{
-						std::cout.flush();
-					}
 
 				} while(socket.has_more_parts());
 
@@ -323,11 +316,6 @@ int main(int argc, char const* argv[])
 							if (newline)
 							{
 								std::cout << std::endl;
-							}
-
-							if (flush)
-							{
-								std::cout.flush();
 							}
 
 							if (!socket.send(message, true))
