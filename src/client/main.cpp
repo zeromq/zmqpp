@@ -274,77 +274,98 @@ int main(int argc, char const* argv[])
 					std::cerr << "**: Sending now enabled" << std::endl;
 				}
 			}
+			else
+			{
+				// no input on socket
+			} // fi (socket)
 
 			if (poller.has_input(standardin))
 			{
 				assert(can_send);
 
 				std::array<char, 512> buffer;
-				char* result = fgets(buffer.data(), buffer.size(), stdin);
-				if (nullptr == result)
 				{
-					if (annotate)
+
+					char* result = fgets(buffer.data(), buffer.size(), stdin);
+
+					if (nullptr == result)
 					{
-						std::cerr << "!!: ";
+						{
+							if (annotate)
+							{
+								std::cerr << "!!: ";
+							}
+
+							std::cerr << "Error in standard input" << std::endl;
+							return EXIT_FAILURE;
+						}
 					}
 
-					std::cerr << "Error in standard input" << std::endl;
-					return EXIT_FAILURE;
-				}
-
-				buffer[strlen(buffer.data()) - 1] = 0;
-				if (!multipart || (strlen(buffer.data()) > 0))
-				{
-					message.add(buffer.data(), strlen(buffer.data()));
-				}
-
-				if (!multipart || (strlen(buffer.data()) == 0))
-				{
-					for(size_t i = 0; i < message.parts(); ++i)
 					{
-						if (annotate)
+						buffer[strlen(buffer.data()) - 1] = 0;
+						if (!multipart || (strlen(buffer.data()) > 0))
 						{
-							std::cout << ">>: ";
+							message.add(buffer.data(), strlen(buffer.data()));
 						}
 
-						std::cout << message.get<std::string>(i) << std::endl;
-					}
-
-					if (newline)
-					{
-						std::cout << std::endl;
-					}
-					if (flush)
-					{
-						std::cout.flush();
-					}
-
-					if (!socket.send(message, true))
-					{
-						if (annotate)
+						if (!multipart || (strlen(buffer.data()) == 0))
 						{
-							std::cerr << "!!: ";
+							for(size_t i = 0; i < message.parts(); ++i)
+							{
+								if (annotate)
+								{
+									std::cout << ">>: ";
+								}
+
+								std::cout << message.get<std::string>(i) << std::endl;
+							}
+
+							if (newline)
+							{
+								std::cout << std::endl;
+							}
+
+							if (flush)
+							{
+								std::cout.flush();
+							}
+
+							if (!socket.send(message, true))
+							{
+								if (annotate)
+								{
+									std::cerr << "!!: ";
+								}
+
+								std::cerr << "Send failed, socket would have blocked" << std::endl;
+							}
+
+							if (toggles)
+							{
+								can_recv = true;
+								can_send = false;
+
+								if (annotate)
+								{
+									std::cerr << "**: ";
+								}
+
+								std::cerr << "Sending now disabled" << std::endl;
+							}
 						}
-
-						std::cerr << "Send failed, socket would have blocked" << std::endl;
 					}
-
-					if (toggles)
-					{
-						can_recv = true;
-						can_send = false;
-
-						if (annotate)
-						{
-							std::cerr << "**: ";
-						}
-
-						std::cerr << "Sending now disabled" << std::endl;
-					}
-				}
+				} // wend
 			}
+			else
+			{
+				// no input on stdin
+			} // fi (standardin)
 		}
-	}
+		else
+		{
+			// nothing polled
+		}
+	} // wend
 
 	return EXIT_SUCCESS;
 }
