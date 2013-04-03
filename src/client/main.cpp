@@ -28,6 +28,8 @@ boost::program_options::options_description connection_options()
 		("connect,c", boost::program_options::value<std::vector<std::string>>(), "connect to specified endpoint")
 		("multipart,m", "enable multipart message sending")
 		("newline,n", "extra newlines")
+		("exit-when-no-input,x", "don't wait for (streamed) input; exit on zero message")
+		("ignore-zeroes,z", "ignore zero-length (empty) messages")
 		;
 
 	return options;
@@ -224,6 +226,8 @@ int main(int argc, char const* argv[])
 
 	bool annotate = (vm.count("annotate") > 0);
 	bool newline = (vm.count("newline") > 0);
+	bool exit_when_no_input = (vm.count("exit-when-no-input") > 0);
+	bool ignore_zeroes = (vm.count("ignore-zeroes") > 0);
 
 	zmqpp::message message;
 	while(true)
@@ -277,12 +281,19 @@ int main(int argc, char const* argv[])
 				assert(can_send);
 
 				std::array<char, 512> buffer;
+				bool first = true;
+				bool break1 = false;
+				bool break2 = false;
+
+				while (true)
 				{
+					break2 = false;
 
 					char* result = fgets(buffer.data(), buffer.size(), stdin);
 
 					if (nullptr == result)
 					{
+						if (first)
 						{
 							if (annotate)
 							{
@@ -292,8 +303,13 @@ int main(int argc, char const* argv[])
 							std::cerr << "Error in standard input" << std::endl;
 							return EXIT_FAILURE;
 						}
+						else
+						{
+							// eof
+							break1 = true; // while
+						}
 					}
-
+					else
 					{
 						buffer[strlen(buffer.data()) - 1] = 0;
 						if (!multipart || (strlen(buffer.data()) > 0))
@@ -318,7 +334,24 @@ int main(int argc, char const* argv[])
 								std::cout << std::endl;
 							}
 
-							if (!socket.send(message, true))
+							if (
+									(ignore_zeroes || exit_when_no_input) &&
+									(0 == message.parts() || (1 == message.parts() && message.get<std::string>(0).empty()))
+								)
+							{
+								if (exit_when_no_input)
+								{
+									break1 = true; // while
+								}
+
+								if (annotate)
+								{
+									std::cerr << "!!: ";
+								}
+
+								std::cerr << "Ignoring zero-length message" << std::endl;
+							}
+							else if (!socket.send(message, true))
 							{
 								if (annotate)
 								{
@@ -342,11 +375,60 @@ int main(int argc, char const* argv[])
 							}
 						}
 					}
+
+					if (break1)
+					{
+						// final send
+						{
+							std::cerr << "Finalisation" << std::endl;
+
+							for(size_t i = 0; i < message.parts(); ++i)
+							{
+								if (annotate)
+								{
+									std::cout << ">>: ";
+								}
+
+								std::cout << message.get<std::string>(i) << std::endl;
+							}
+
+							if (newline)
+							{
+								std::cout << std::endl;
+							}
+
+							if (
+									(0 == message.parts() || (1 == message.parts() && message.get<std::string>(0).empty()))
+								)
+							{
+								std::cerr << "Ignoring final zero-length message" << std::endl;
+							}
+							else if (!socket.send(message, true))
+							{
+								if (annotate)
+								{
+									std::cerr << "!!: ";
+								}
+
+								std::cerr << "Send failed, socket would have blocked" << std::endl;
+							}
+						}
+						break2 = true; // break outer while
+						break;
+					}
+
+					first = false;
 				} // wend
+				if (break2)
+				{
+					break;
+				}
 			}
 			else
 			{
 				// no input on stdin
+				if (exit_when_no_input)
+					break; // while
 			} // fi (standardin)
 		}
 		else
@@ -354,6 +436,8 @@ int main(int argc, char const* argv[])
 			// nothing polled
 		}
 	} // wend
+
+	std::cerr << "Finished" << std::endl;
 
 	return EXIT_SUCCESS;
 }
