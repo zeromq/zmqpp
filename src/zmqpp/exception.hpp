@@ -9,6 +9,7 @@
 #define ZMQPP_EXCEPTION_HPP_
 
 #include <stdexcept>
+#include <string>
 
 #include <zmq.h>
 

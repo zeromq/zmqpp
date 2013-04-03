@@ -167,8 +167,8 @@ private:
 	size_t _read_cursor;
 
 	// Disable implicit copy support, code must request a copy to clone
-	message(message const&) noexcept;
-	message& operator=(message const&) noexcept;
+	message(message const&) noexcept ZMQPP_EXPLICITLY_DELETED;
+	message& operator=(message const&) noexcept ZMQPP_EXPLICITLY_DELETED;
 
 	static void release_callback(void* data, void* hint);
 

@@ -66,7 +66,9 @@ void poller::remove(socket_t const& socket)
 	auto found = _index.find(socket);
 	if (_index.end() == found) { return; }
 
-	_items.erase(_items.begin() + found->second);
+	std::swap(_items[found->second], _items.back());
+	_items.pop_back();
+
 	_index.erase(found);
 }
 
@@ -75,7 +77,9 @@ void poller::remove(int const& descriptor)
 	auto found = _fdindex.find(descriptor);
 	if (_fdindex.end() == found) { return; }
 
-	_items.erase(_items.begin() + found->second);
+	std::swap(_items[found->second], _items.back());
+	_items.pop_back();
+
 	_fdindex.erase(found);
 }
 
