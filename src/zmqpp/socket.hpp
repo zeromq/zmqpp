@@ -393,7 +393,7 @@ public:
 	/*!
 	 * Move constructor
 	 *
-	 * Moves the internals of source to this object, there is no guaranty
+	 * Moves the internals of source to this object, there is no guarantee
 	 * that source will be left in a valid state.
 	 *
 	 * This constructor is noexcept and so will not throw exceptions
@@ -405,7 +405,7 @@ public:
 	/*!
 	 * Move operator
 	 *
-	 * Moves the internals of source to this object, there is no guaranty
+	 * Moves the internals of source to this object, there is no guarantee
 	 * that source will be left in a valid state.
 	 *
 	 * This function is noexcept and so will not throw exceptions
@@ -439,8 +439,8 @@ private:
 	zmq_msg_t _recv_buffer;
 
 	// No copy
-	socket(socket const&) noexcept;
-	socket& operator=(socket const&) noexcept;
+	socket(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
+	socket& operator=(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
 
 	void track_message(message_t const&, uint32_t const&, bool&);
 };

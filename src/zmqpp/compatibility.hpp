@@ -55,6 +55,7 @@
 // Deal with older compilers not supporting C++0x lambda function
 #if __GNUC_MINOR__ < 5
 #define ZMQPP_IGNORE_LAMBDA_FUNCTION_TESTS
+#define ZMQPP_EXPLICITLY_DELETED
 #endif // if __GNUC_MINOR__ < 5
 
 // Deal with older compilers not supporting C++0x nullptr
@@ -69,6 +70,10 @@
 // Generic state, assume a modern compiler
 #ifndef ZMQPP_COMPARABLE_ENUM
 #define ZMQPP_COMPARABLE_ENUM enum class
+#endif
+
+#ifndef ZMQPP_EXPLICITLY_DELETED
+#define ZMQPP_EXPLICITLY_DELETED = delete
 #endif
 
 #endif /* ZMQPP_COMPATIBILITY_HPP_ */
