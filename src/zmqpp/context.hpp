@@ -136,8 +136,8 @@ private:
 	void* _context;
 
 	// No copy - private and not implemented
-	context(context const&);
-	context& operator=(context const&) noexcept;
+	context(context const&) ZMQPP_EXPLICITLY_DELETED;
+	context& operator=(context const&) noexcept ZMQPP_EXPLICITLY_DELETED;
 };
 
 }

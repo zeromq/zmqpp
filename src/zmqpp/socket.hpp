@@ -439,8 +439,8 @@ private:
 	zmq_msg_t _recv_buffer;
 
 	// No copy
-	socket(socket const&) noexcept;
-	socket& operator=(socket const&) noexcept;
+	socket(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
+	socket& operator=(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
 
 	void track_message(message_t const&, uint32_t const&, bool&);
 };
