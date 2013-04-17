@@ -48,7 +48,7 @@ socket::socket(const context& context, socket_type const& type)
 	zmq_msg_init(&_recv_buffer);
 }
 
-socket::socket(const context& context, socket_type const& type, const std::string label)
+socket::socket(const context& context, socket_type const& type, std::string const& label)
 	: _socket(nullptr)
 	, _type(type)
 	, _label(label)

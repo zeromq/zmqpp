@@ -71,7 +71,7 @@ public:
 	 * \param type a valid ::socket_type for the socket
 	 * \param label a human-readable label describing the socket
 	 */
-	socket( context_t const& context, socket_type const& type, const std::string label );
+	socket( context_t const& context, socket_type const& type, std::string const& label );
 
 	/*!
 	 * This will close any socket still open before returning
