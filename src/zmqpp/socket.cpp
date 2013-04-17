@@ -27,10 +27,31 @@ const int max_socket_option_buffer_size = 256;
 const int max_stream_buffer_size = 4096;
 
 
-socket::socket(const context& context, socket_type const& type, char const* label /* = nullptr */)
+socket::socket(const context& context, socket_type const& type)
 	: _socket(nullptr)
 	, _type(type)
-	, _label((label == nullptr) ? "" : label)
+	, _label("")
+	, _recv_buffer()
+{
+	_socket = zmq_socket(context, static_cast<int>(type));
+	if(nullptr == _socket)
+	{
+		std::string exception_message;
+		exception_message += "c'tor";
+		if (!_label.empty())
+		{
+			exception_message += " \"" + _label + "\"";
+		}
+		throw zmq_internal_exception(exception_message);
+	}
+
+	zmq_msg_init(&_recv_buffer);
+}
+
+socket::socket(const context& context, socket_type const& type, const std::string label)
+	: _socket(nullptr)
+	, _type(type)
+	, _label(label)
 	, _recv_buffer()
 {
 	_socket = zmq_socket(context, static_cast<int>(type));
