@@ -416,14 +416,14 @@ void socket::set(socket_option const& option, int64_t const& value)
 	}
 }
 
-void socket::set(socket_option const& option, std::string const& value)
+void socket::set(socket_option const& option, char const* value, size_t const length)
 {
 	switch(option)
 	{
 	case socket_option::identity:
 	case socket_option::subscribe:
 	case socket_option::unsubscribe:
-		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), value.c_str(), value.length()))
+		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), value, length))
 		{
 			throw zmq_internal_exception();
 		}

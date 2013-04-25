@@ -8,6 +8,7 @@
 #ifndef ZMQPP_SOCKET_HPP_
 #define ZMQPP_SOCKET_HPP_
 
+#include <cstring>
 #include <string>
 #include <list>
 
@@ -331,9 +332,26 @@ public:
 	 * Set the value of an option in the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
+	 * \param pointer to raw byte value to set the option to
+	 * \param length the size of the raw byte value
+	 */
+	void set(socket_option const& option, char const* value, size_t const length);
+
+	/*!
+	 * Set the value of an option in the underlaying zmq socket.
+	 *
+	 * \param option a valid ::socket_option
+	 * \param pointer to null terminated cstring value to set the option to
+	 */
+	inline void set(socket_option const& option, char const* value) { set(option, value, strlen(value)); }
+
+	/*!
+	 * Set the value of an option in the underlaying zmq socket.
+	 *
+	 * \param option a valid ::socket_option
 	 * \param value to set the option to
 	 */
-	void set(socket_option const& option, std::string const& value);
+	inline void set(socket_option const& option, std::string const& value) { set(option, value.c_str(), value.length()); }
 
 	/*!
 	 * Get a socket option from the underlaying zmq socket.

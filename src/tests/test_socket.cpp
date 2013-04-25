@@ -123,6 +123,33 @@ BOOST_AUTO_TEST_CASE( multipart_pair )
 	BOOST_CHECK(!omega.has_more_parts());
 }
 
+BOOST_AUTO_TEST_CASE( subscribe_via_option )
+{
+	zmqpp::context context;
+
+	zmqpp::socket publisher(context, zmqpp::socket_type::publish);
+	publisher.bind("inproc://test");
+
+	zmqpp::socket subscriber(context, zmqpp::socket_type::subscribe);
+	subscriber.connect("inproc://test");
+	subscriber.set(zmqpp::socket_option::subscribe, "watch1");
+
+	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("contents0"));
+	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("contents1"));
+
+	wait_for_socket(subscriber);
+
+	std::string message;
+	BOOST_CHECK(subscriber.receive(message));
+	BOOST_CHECK_EQUAL("watch1", message);
+	BOOST_REQUIRE(subscriber.has_more_parts());
+	BOOST_CHECK(subscriber.receive(message));
+	BOOST_CHECK_EQUAL("contents1", message);
+	BOOST_CHECK(!subscriber.has_more_parts());
+}
+
 BOOST_AUTO_TEST_CASE( subscribe_helpers )
 {
 	zmqpp::context context;
