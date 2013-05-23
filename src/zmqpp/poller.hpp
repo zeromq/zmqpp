@@ -177,6 +177,8 @@ private:
 	std::vector<zmq_pollitem_t> _items;
 	std::unordered_map<void *, size_t> _index;
 	std::unordered_map<int, size_t> _fdindex;
+
+	void reindex(size_t const index);
 };
 
 }

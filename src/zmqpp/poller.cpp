@@ -61,15 +61,41 @@ bool poller::has(int const& descriptor)
 	return _fdindex.find(descriptor) != _fdindex.end();
 }
 
+void poller::reindex(size_t const index)
+{
+	if ( nullptr != _items[index].socket )
+	{
+		auto found = _index.find( _items[index].socket );
+		if (_index.end() == found) { throw exception("unable to reindex socket in poller"); }
+		found->second = index;
+	}
+	else
+	{
+		auto found = _fdindex.find( _items[index].fd );
+		if (_fdindex.end() == found) { throw exception("unable to reindex file descriptor in poller"); }
+		found->second = index;
+	}
+}
+
 void poller::remove(socket_t const& socket)
 {
 	auto found = _index.find(socket);
 	if (_index.end() == found) { return; }
 
+	if ( _items.size() - 1 == found->second )
+	{
+		_items.pop_back();
+		_index.erase(found);
+		return;
+	}
+
 	std::swap(_items[found->second], _items.back());
 	_items.pop_back();
 
+	auto index = found->second;
 	_index.erase(found);
+
+	reindex( index );
 }
 
 void poller::remove(int const& descriptor)
@@ -77,10 +103,20 @@ void poller::remove(int const& descriptor)
 	auto found = _fdindex.find(descriptor);
 	if (_fdindex.end() == found) { return; }
 
+	if ( _items.size() - 1 == found->second )
+	{
+		_items.pop_back();
+		_fdindex.erase(found);
+		return;
+	}
+
 	std::swap(_items[found->second], _items.back());
 	_items.pop_back();
 
+	auto index = found->second;
 	_fdindex.erase(found);
+
+	reindex( index );
 }
 
 void poller::check_for(socket const& socket, short const& event)

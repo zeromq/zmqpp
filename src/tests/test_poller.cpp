@@ -154,6 +154,48 @@ BOOST_AUTO_TEST_CASE( ignores_removed_sockets )
 	BOOST_CHECK(!puller1.has_more_parts());
 }
 
+BOOST_AUTO_TEST_CASE( remove_maintains_index )
+{
+	zmqpp::context context;
+
+	zmqpp::socket puller1(context, zmqpp::socket_type::pull);
+	puller1.bind("inproc://test1");
+
+	zmqpp::socket puller2(context, zmqpp::socket_type::pull);
+	puller2.bind("inproc://test2");
+
+	zmqpp::socket puller3(context, zmqpp::socket_type::pull);
+	puller3.bind("inproc://test3");
+
+	zmqpp::socket pusher(context, zmqpp::socket_type::push);
+	pusher.connect("inproc://test1");
+
+	BOOST_CHECK(pusher.send("hello world!"));
+
+	zmqpp::poller poller;
+	poller.add(puller1);
+	poller.add(puller2);
+	poller.add(puller3);
+
+	poller.remove(puller1);
+
+	// removing last puller will die if index has not been updated
+	poller.remove(puller3);
+
+	BOOST_CHECK(!poller.poll(max_poll_timeout));
+
+	BOOST_CHECK_EQUAL(zmqpp::poller::POLL_NONE, poller.events(puller2));
+	BOOST_CHECK(!poller.has_input(puller2));
+	BOOST_CHECK(!poller.has_output(puller2));
+	BOOST_CHECK(!poller.has_error(puller2));
+
+	std::string message;
+	BOOST_CHECK(puller1.receive(message));
+
+	BOOST_CHECK_EQUAL("hello world!", message);
+	BOOST_CHECK(!puller1.has_more_parts());
+}
+
 BOOST_AUTO_TEST_CASE( exceptions_testing_removed_sockets )
 {
 	zmqpp::context context;
@@ -167,7 +209,7 @@ BOOST_AUTO_TEST_CASE( exceptions_testing_removed_sockets )
 	poller.add(pusher);
 	BOOST_CHECK(!poller.events(pusher));
 
-	// Exception when removed
+	// Exception after removed
 	poller.remove(pusher);
 	BOOST_CHECK_THROW(poller.events(pusher), zmqpp::exception);
 }
