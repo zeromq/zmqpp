@@ -25,9 +25,9 @@ AR       = ar
 #
 
 LIBRARY_NAME     = zmqpp
-VERSION_MAJOR    = 2
-VERSION_MINOR    = 2
-VERSION_REVISION = 1
+VERSION_MAJOR    = 3
+VERSION_MINOR    = 0
+VERSION_REVISION = 0
 
 #
 # Paths
