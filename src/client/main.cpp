@@ -232,8 +232,8 @@ int main(int argc, char const* argv[])
 	zmqpp::message message;
 	while(true)
 	{
-		poller.check_for(socket, (can_recv) ? zmqpp::poller::POLL_IN : zmqpp::poller::POLL_NONE);
-		poller.check_for(standardin, (can_send) ? zmqpp::poller::POLL_IN : zmqpp::poller::POLL_NONE);
+		poller.check_for(socket, (can_recv) ? zmqpp::poller::poll_in : zmqpp::poller::poll_none);
+		poller.check_for(standardin, (can_send) ? zmqpp::poller::poll_in : zmqpp::poller::poll_none);
 
 		if(poller.poll())
 		{

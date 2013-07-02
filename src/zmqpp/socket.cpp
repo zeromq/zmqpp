@@ -16,11 +16,11 @@
 namespace zmqpp
 {
 
-const int socket::NORMAL;
-const int socket::DONT_WAIT;
-const int socket::SEND_MORE;
+const int socket::normal;
+const int socket::dont_wait;
+const int socket::send_more;
 #ifdef ZMQ_EXPERIMENTAL_LABELS
-const int socket::SEND_LABEL;
+const int socket::send_label;
 #endif
 
 const int max_socket_option_buffer_size = 256;
@@ -100,9 +100,9 @@ bool socket::send(message& message, bool const& dont_block /* = false */)
 
 	for(size_t i = 0; i < parts; ++i)
 	{
-		int flag = socket::NORMAL;
-		if(dont_block) { flag |= socket::DONT_WAIT; }
-		if(i < (parts - 1)) { flag |= socket::SEND_MORE; }
+		int flag = socket::normal;
+		if(dont_block) { flag |= socket::dont_wait; }
+		if(i < (parts - 1)) { flag |= socket::send_more; }
 
 #if (ZMQ_VERSION_MAJOR > 2)
 		int result = zmq_sendmsg(_socket, &message.raw_msg(i), flag);
@@ -141,7 +141,7 @@ bool socket::receive(message& message, bool const& dont_block /* = false */)
 		throw exception("receiving can only be done to empty messages");
 	}
 
-	int flags = (dont_block) ? socket::DONT_WAIT : socket::NORMAL;
+	int flags = (dont_block) ? socket::dont_wait : socket::normal;
 	bool more = true;
 
 	while(more)
