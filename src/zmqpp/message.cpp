@@ -419,7 +419,7 @@ message& message::operator=(message&& source) noexcept
 	return *this;
 }
 
-message message::copy() const
+message message::copy()
 {
 	message msg;
 	msg.copy(*this);

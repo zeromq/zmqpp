@@ -67,6 +67,16 @@ public:
 
 	void get(std::string& string, size_t const& part) const;
 
+	// Warn: If a pointer type is requested the message (well zmq) still 'owns'
+	// the data and will release it when the message object is freed.
+	template<typename Type>
+	Type get(size_t const& part)
+	{
+		Type value;
+		get(value, part);
+		return value;
+	}
+
 	// Raw get data operations, useful with data structures more than anything else
 	// Warn: The message (well zmq) still 'owns' the data and will release it
 	// when the message object is freed.
@@ -136,7 +146,7 @@ public:
 	message& operator=(message&& source) noexcept;
 
 	// Copy support
-	message copy() const;
+	message copy();
 	void copy(message& source);
 
 	// Used for internal tracking
