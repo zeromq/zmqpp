@@ -14,6 +14,9 @@
 
 #include "compatibility.hpp"
 #include "exception.hpp"
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#include "context_options.hpp"
+#endif
 
 namespace zmqpp
 {
@@ -35,6 +38,7 @@ class context
 {
 public:
 
+#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
 	/*!
 	 * Initialise the 0mq context.
 	 *
@@ -48,9 +52,23 @@ public:
 	 * \param threads an integer argument for the number of required threads. Defaults to 1.
 	 */
 	context(int const& threads = 1)
+#else
+	/*!
+	 * Initialise the 0mq context.
+	 *
+	 * The context is thread safe an may be used anywhere in your application,
+	 * however there is no requirement (other than inproc restrictions) for you
+	 * to do this.
+	 */
+	context()
+#endif
 		: _context(nullptr)
 	{
+#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
 		_context = zmq_init(threads);
+#else
+		_context = zmq_ctx_new();
+#endif
 
 		if (nullptr == _context)
 		{
@@ -61,19 +79,29 @@ public:
 	/*!
 	 * Closes the 0mq context.
 	 *
-	 * Any sockets using this context will throw exceptions if they are still
-	 * in use.
+	 * Any blocking calls other than a socket close will return with an error.
+	 *
+	 * If there are open sockets will block while zmq internal buffers are
+	 * processed up to a limit specified by that sockets linger option.
 	 */
-	~context()
+	~context() noexcept
 	{
 		if (nullptr != _context)
 		{
 
 #ifndef NDEBUG // unused assert variable in release
+#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
 			int result = zmq_term(_context);
+#else
+			int result = zmq_ctx_destroy(_context);
+#endif
 			assert(0 == result);
 #else
+#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
 			zmq_term(_context);
+#else
+			zmq_ctx_destroy(_context);
+#endif
 #endif // NDEBUG
 
 			_context = nullptr;
@@ -83,7 +111,7 @@ public:
 	/*!
 	 * Move supporting constructor.
 	 *
-	 * allows zero-copy move semantics to be used with this class.
+	 * Allows zero-copy move semantics to be used with this class.
 	 *
 	 * \param source a rvalue instance of the object who's internals we wish to steal.
 	 */
@@ -96,7 +124,7 @@ public:
 	/*!
 	 * Move supporting operator.
 	 *
-	 * allows zero-copy move semantics to be used with this class.
+	 * Allows zero-copy move semantics to be used with this class.
 	 *
 	 * \param source an rvalue instance of the context who's internals we wish to steal.
 	 */
@@ -108,6 +136,34 @@ public:
 	}
 
 	/*!
+	 * Terminate the current context.
+	 *
+	 * Any blocking calls other than a socket close will return with an error.
+	 *
+	 * If there are open sockets will block while zmq internal buffers are
+	 * processed up to a limit specified by that sockets linger option.
+	 */
+	void terminate();
+
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	/*!
+	 * Set the value of an option in the underlaying zmq context.
+	 *
+	 * \param option a valid ::context_option
+	 * \param value to set the option to
+	 */
+	void set(context_option const& option, int const& value);
+
+	/*!
+	 * Get a context option from the underlaying zmq context.
+	 *
+	 * \param option a valid ::context_option
+	 * \return context option value
+	 */
+	int get(context_option const& option);
+#endif
+
+	/*!
 	 * Validity checking of the context
 	 *
 	 * Checks if the underlying 0mq context for this instance is valid.
@@ -117,7 +173,7 @@ public:
 	 *
 	 * \return boolean true if the object is valid.
 	 */
-	operator bool() const
+	operator bool() const noexcept
 	{
 		return nullptr != _context;
 	}
@@ -127,7 +183,7 @@ public:
 	 *
 	 * \return void pointer to the underlying 0mq context.
 	 */
-	operator void*() const
+	operator void*() const noexcept
 	{
 		return _context;
 	}
