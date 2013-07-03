@@ -104,10 +104,12 @@ bool socket::send(message& message, bool const& dont_block /* = false */)
 		if(dont_block) { flag |= socket::dont_wait; }
 		if(i < (parts - 1)) { flag |= socket::send_more; }
 
-#if (ZMQ_VERSION_MAJOR > 2)
-		int result = zmq_sendmsg(_socket, &message.raw_msg(i), flag);
+#if (ZMQ_VERSION_MAJOR == 2)
+		int result = zmq_send( _socket, &message.raw_msg(i), flag );
+#elif (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+		int result = zmq_sendmsg( _socket, &message.raw_msg(i), flag );
 #else
-		int result = zmq_send(_socket, &message.raw_msg(i), flag);
+		int result = zmq_msg_send( &message.raw_msg(i), _socket, flag );
 #endif
 
 		if (result < 0)
@@ -146,10 +148,12 @@ bool socket::receive(message& message, bool const& dont_block /* = false */)
 
 	while(more)
 	{
-#if (ZMQ_VERSION_MAJOR > 2)
-		int result = zmq_recvmsg(_socket, &_recv_buffer, flags);
+#if (ZMQ_VERSION_MAJOR == 2)
+		int result = zmq_recv( _socket, &_recv_buffer, flags );
+#elif (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+		int result = zmq_recvmsg( _socket, &_recv_buffer, flags );
 #else
-		int result = zmq_recv(_socket, &_recv_buffer, flags);
+		int result = zmq_msg_recv( &_recv_buffer, _socket, flags );
 #endif
 
 		if(result < 0)
@@ -182,9 +186,11 @@ bool socket::send(std::string const& string, int const& flags /* = NORMAL */)
 bool socket::receive(std::string& string, int const& flags /* = NORMAL */)
 {
 #if (ZMQ_VERSION_MAJOR == 2)
-	int result = zmq_recv(_socket, &_recv_buffer, flags);
+		int result = zmq_recv( _socket, &_recv_buffer, flags );
+#elif (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+		int result = zmq_recvmsg( _socket, &_recv_buffer, flags );
 #else
-	int result = zmq_recvmsg(_socket, &_recv_buffer, flags);
+		int result = zmq_msg_recv( &_recv_buffer, _socket, flags );
 #endif
 
 	if(result >= 0)
@@ -240,9 +246,11 @@ bool socket::send_raw(char const* buffer, int const& length, int const& flags /*
 bool socket::receive_raw(char* buffer, int& length, int const& flags /* = NORMAL */)
 {
 #if (ZMQ_VERSION_MAJOR == 2)
-	int result = zmq_recv(_socket, &_recv_buffer, flags);
+		int result = zmq_recv( _socket, &_recv_buffer, flags );
+#elif (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+		int result = zmq_recvmsg( _socket, &_recv_buffer, flags );
 #else
-	int result = zmq_recvmsg(_socket, &_recv_buffer, flags);
+		int result = zmq_msg_recv( &_recv_buffer, _socket, flags );
 #endif
 
 	if(result >= 0)
