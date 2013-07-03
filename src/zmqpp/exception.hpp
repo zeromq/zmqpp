@@ -42,6 +42,19 @@ public:
 };
 
 /*!
+ * Represents an attempt to use an invalid object.
+ *
+ * Objects may be invalid initially or after a shutdown or close.
+ */
+class invalid_instance : public exception
+{
+public:
+	invalid_instance(std::string const& message)
+		: exception(message)
+	{ }
+};
+
+/*!
  * Represents internal zmq errors.
  *
  * Any error response from the zmq bindings will be wrapped in this error.
