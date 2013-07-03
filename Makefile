@@ -25,9 +25,9 @@ AR       = ar
 #
 
 LIBRARY_NAME     = zmqpp
-VERSION_MAJOR    = 2
-VERSION_MINOR    = 2
-VERSION_REVISION = 1
+VERSION_MAJOR    = 3
+VERSION_MINOR    = 0
+VERSION_REVISION = 0
 
 #
 # Paths
@@ -96,7 +96,7 @@ TEST_LIBS = -L$(BUILD_PATH) \
 
 ifeq ($(CONFIG),loadtest)
 	CONFIG_FLAGS := $(CONFIG_FLAGS) -DLOADTEST
-	TEST_LIBS := $(TEST_LIBS) -lboost_thread
+	TEST_LIBS := $(TEST_LIBS) -lboost_thread -lboost_system
 endif
 
 ALL_LIBRARY_OBJECTS := $(patsubst $(SRC_PATH)/%.cpp, $(OBJECT_PATH)/%.o, $(shell find $(LIBRARY_PATH) -iname '*.cpp'))
@@ -155,7 +155,7 @@ library: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE)
 #
 
 $(LIBRARY_SHARED): $(ALL_LIBRARY_OBJECTS)
-	$(LD) $(LDFLAGS) -shared -rdynamic -Wl,-soname -Wl,$(LIBRARY_SHARED).$(VERSION_MAJOR) -o $(BUILD_PATH)/$@.$(VERSION_MAJOR) $^ $(LIBRARY_LIBS) $(COMMON_LIBS)
+	$(LD) $(LDFLAGS) -shared -rdynamic -o $(BUILD_PATH)/$@.$(VERSION_MAJOR) $^ $(LIBRARY_LIBS) $(COMMON_LIBS)
 
 $(LIBRARY_ARCHIVE): $(ALL_LIBRARY_OBJECTS)
 	$(AR) crf $(BUILD_PATH)/$@ $^

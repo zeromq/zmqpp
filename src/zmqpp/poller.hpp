@@ -27,12 +27,12 @@ typedef socket socket_t;
 class poller
 {
 public:
-	static const long WAIT_FOREVER; /*!< Block forever flag, default setting. */
+	static const long wait_forever; /*!< Block forever flag, default setting. */
 
-	static const short POLL_NONE;   /*!< No polling flags set. */
-	static const short POLL_IN;     /*!< Monitor inbound flag. */
-	static const short POLL_OUT;    /*!< Monitor output flag. */
-	static const short POLL_ERROR;  /*!< Monitor error flag.\n Only for file descriptors. */
+	static const short poll_none;   /*!< No polling flags set. */
+	static const short poll_in;     /*!< Monitor inbound flag. */
+	static const short poll_out;    /*!< Monitor output flag. */
+	static const short poll_error;  /*!< Monitor error flag.\n Only for file descriptors. */
 
 	/*!
 	 * Construct an empty polling model.
@@ -52,7 +52,7 @@ public:
 	 * \param socket the socket to monitor.
 	 * \param event the event flags to monitor on the socket.
 	 */
-	void add(socket_t& socket, short const& event = POLL_IN);
+	void add(socket_t& socket, short const& event = poll_in);
 
 	/*!
 	 * Add a file descriptor to the polling model and set which events to monitor.
@@ -60,7 +60,7 @@ public:
 	 * \param descriptor the file descriptor to monitor.
 	 * \param event the event flags to monitor.
 	 */
-	void add(int const& descriptor, short const& event = POLL_IN | POLL_ERROR );
+	void add(int const& descriptor, short const& event = poll_in | poll_error);
 
 	/*!
 	 * Check if we are monitoring a given socket with this poller.
@@ -119,7 +119,7 @@ public:
 	 * \param timeout milliseconds to timeout.
 	 * \return true if there is an event..
 	 */
-	bool poll(long timeout = WAIT_FOREVER);
+	bool poll(long timeout = wait_forever);
 
 	/*!
 	 * Get the event flags triggered for a socket.
@@ -146,7 +146,7 @@ public:
 	 * \return true if there is input.
 	 */
 	template<typename Watched>
-	bool has_input(Watched const& watchable) const { return events(watchable) & POLL_IN; }
+	bool has_input(Watched const& watchable) const { return events(watchable) & poll_in; }
 
 	/*!
 	 * Check either a file descriptor or socket for output events.
@@ -157,7 +157,7 @@ public:
 	 * \return true if there is output.
 	 */
 	template<typename Watched>
-	bool has_output(Watched const& watchable) const { return events(watchable) & POLL_OUT; }
+	bool has_output(Watched const& watchable) const { return events(watchable) & poll_out; }
 
 	/*!
 	 * Check a file descriptor.
@@ -171,7 +171,7 @@ public:
 	 * \return true if there is an error.
 	 */
 	template<typename Watched>
-	bool has_error(Watched const& watchable) const { return events(watchable) & POLL_ERROR; }
+	bool has_error(Watched const& watchable) const { return events(watchable) & poll_error; }
 
 private:
 	std::vector<zmq_pollitem_t> _items;

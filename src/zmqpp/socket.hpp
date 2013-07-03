@@ -45,15 +45,15 @@ typedef message     message_t;
 class socket
 {
 public:
-	static const int NORMAL     = 0;            /*!< /brief default send type, no flags set */
+	static const int normal     = 0;            /*!< /brief default send type, no flags set */
 #if (ZMQ_VERSION_MAJOR == 2)
-	static const int DONT_WAIT  = ZMQ_NOBLOCK;  /*!< /brief don't block if sending is not currently possible  */
+	static const int dont_wait  = ZMQ_NOBLOCK;  /*!< /brief don't block if sending is not currently possible  */
 #else
-	static const int DONT_WAIT  = ZMQ_DONTWAIT; /*!< /brief don't block if sending is not currently possible  */
+	static const int dont_wait  = ZMQ_DONTWAIT; /*!< /brief don't block if sending is not currently possible  */
 #endif
-	static const int SEND_MORE  = ZMQ_SNDMORE;  /*!< /brief more parts will follow this one */
+	static const int send_more  = ZMQ_SNDMORE;  /*!< /brief more parts will follow this one */
 #ifdef ZMQ_EXPERIMENTAL_LABELS
-	static const int SEND_LABEL = ZMQ_SNDLABEL; /*!< /brief this message part is an internal zmq label */
+	static const int send_label = ZMQ_SNDLABEL; /*!< /brief this message part is an internal zmq label */
 #endif
 
 	/*!
@@ -158,7 +158,7 @@ public:
 	 * \param flags message send flags
 	 * \return true if message part sent, false if it would have blocked
 	 */
-	bool send(std::string const& string, int const& flags = NORMAL);
+	bool send(std::string const& string, int const& flags = normal);
 
 	/*!
 	 * If there is a message ready then get the next part as a string
@@ -170,7 +170,7 @@ public:
 	 * \param flags message receive flags
 	 * \return true if message part received, false if it would have blocked
 	 */
-	bool receive(std::string& string, int const& flags = NORMAL);
+	bool receive(std::string& string, int const& flags = normal);
 
 	/*!
 	 * Sends the byte data pointed to by buffer as the next part of the message.
@@ -183,7 +183,7 @@ public:
 	 * \param flags message send flags
 	 * \return true if message part sent, false if it would have blocked
 	 */
-	bool send_raw(char const* buffer, int const& length, int const& flags = NORMAL);
+	bool send_raw(char const* buffer, int const& length, int const& flags = normal);
 
 	/*!
 	 * \warning If the buffer is not large enough for the message part then the
@@ -200,7 +200,7 @@ public:
 	 * \param flags message receive flags
 	 * \return true if message part received, false if it would have blocked
 	 */
-	bool receive_raw(char* buffer, int& length, int const& flags = NORMAL);
+	bool receive_raw(char* buffer, int& length, int const& flags = normal);
 
 	/*!
 	 *

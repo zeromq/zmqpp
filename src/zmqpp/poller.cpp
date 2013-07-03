@@ -12,11 +12,11 @@
 namespace zmqpp
 {
 
-const long poller::WAIT_FOREVER = -1;
-const short poller::POLL_NONE   = 0;
-const short poller::POLL_IN     = ZMQ_POLLIN;
-const short poller::POLL_OUT    = ZMQ_POLLOUT;
-const short poller::POLL_ERROR  = ZMQ_POLLERR;
+const long poller::wait_forever = -1;
+const short poller::poll_none   = 0;
+const short poller::poll_in     = ZMQ_POLLIN;
+const short poller::poll_out    = ZMQ_POLLOUT;
+const short poller::poll_error  = ZMQ_POLLERR;
 
 poller::poller()
 	: _items()

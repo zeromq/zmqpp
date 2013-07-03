@@ -48,19 +48,24 @@ public:
 	~message();
 
 	size_t parts() const;
-	size_t size(size_t const& part);
-	std::string get(size_t const& part);
+	size_t size(size_t const& part) const;
+	std::string get(size_t const& part) const;
 
-	template<typename Type>
-	void get(Type& value, size_t const& part)
-	{
-		size_t old = _read_cursor;
-		_read_cursor = part;
+	void get(int8_t& integer, size_t const& part) const;
+	void get(int16_t& integer, size_t const& part) const;
+	void get(int32_t& integer, size_t const& part) const;
+	void get(int64_t& integer, size_t const& part) const;
 
-		*this >> value;
+	void get(uint8_t& unsigned_integer, size_t const& part) const;
+	void get(uint16_t& unsigned_integer, size_t const& part) const;
+	void get(uint32_t& unsigned_integer, size_t const& part) const;
+	void get(uint64_t& unsigned_integer, size_t const& part) const;
 
-		_read_cursor = old;
-	}
+	void get(float& floating_point, size_t const& part) const;
+	void get(double& double_precision, size_t const& part) const;
+	void get(bool& boolean, size_t const& part) const;
+
+	void get(std::string& string, size_t const& part) const;
 
 	// Warn: If a pointer type is requested the message (well zmq) still 'owns'
 	// the data and will release it when the message object is freed.
@@ -76,7 +81,7 @@ public:
 	// Warn: The message (well zmq) still 'owns' the data and will release it
 	// when the message object is freed.
 	template<typename Type>
-	void get(Type*& value, size_t const& part)
+	void get(Type*& value, size_t const& part) const
 	{
 		value = static_cast<Type*>(raw_data(part));
 	}
@@ -84,7 +89,7 @@ public:
 	// Warn: The message (well zmq) still 'owns' the data and will release it
 	// when the message object is freed.
 	template<typename Type>
-	void get(Type** value, size_t const& part)
+	void get(Type** value, size_t const& part) const
 	{
 		*value = static_cast<Type*>(raw_data(part));
 	}
@@ -111,21 +116,12 @@ public:
 	// Stream reader style
 	void reset_read_cursor();
 
-	message& operator>>(int8_t& integer);
-	message& operator>>(int16_t& integer);
-	message& operator>>(int32_t& integer);
-	message& operator>>(int64_t& integer);
-
-	message& operator>>(uint8_t& unsigned_integer);
-	message& operator>>(uint16_t& unsigned_integer);
-	message& operator>>(uint32_t& unsigned_integer);
-	message& operator>>(uint64_t& unsigned_integer);
-
-	message& operator>>(float& floating_point);
-	message& operator>>(double& double_precision);
-	message& operator>>(bool& boolean);
-
-	message& operator>>(std::string& string);
+	template<typename Type>
+	message& operator>>(Type& value)
+	{
+		get(value, _read_cursor++);
+		return *this;
+	}
 
 	// Stream writer style - these all use copy styles
 	message& operator<<(int8_t const& integer);
@@ -157,7 +153,7 @@ public:
 	void sent(size_t const& part);
 
 	// Access to raw zmq details
-	void* raw_data(size_t const& part = 0);
+	void const* raw_data(size_t const& part = 0) const;
 	zmq_msg_t& raw_msg(size_t const& part = 0);
 	zmq_msg_t& raw_new_msg();
 

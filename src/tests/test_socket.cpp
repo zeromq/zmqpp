@@ -102,8 +102,8 @@ BOOST_AUTO_TEST_CASE( multipart_pair )
 	zmqpp::socket omega(context, zmqpp::socket_type::pair);
 	omega.connect("inproc://test");
 
-	BOOST_CHECK(alpha.send("hello", zmqpp::socket::SEND_MORE));
-	BOOST_CHECK(alpha.send("world", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(alpha.send("hello", zmqpp::socket::send_more));
+	BOOST_CHECK(alpha.send("world", zmqpp::socket::send_more));
 	BOOST_CHECK(alpha.send("!"));
 
 	wait_for_socket(omega);
@@ -134,9 +134,9 @@ BOOST_AUTO_TEST_CASE( subscribe_via_option )
 	subscriber.connect("inproc://test");
 	subscriber.set(zmqpp::socket_option::subscribe, "watch1");
 
-	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents0"));
-	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents1"));
 
 	wait_for_socket(subscriber);
@@ -162,13 +162,13 @@ BOOST_AUTO_TEST_CASE( subscribe_helpers )
 	subscriber.subscribe("watch1");
 	subscriber.subscribe("watch2");
 
-	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents0"));
-	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents1"));
-	BOOST_CHECK(publisher.send("watch2", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch2", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents2"));
-	BOOST_CHECK(publisher.send("watch3", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch3", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents3"));
 
 	wait_for_socket(subscriber);
@@ -193,11 +193,11 @@ BOOST_AUTO_TEST_CASE( subscribe_helpers )
 	subscriber.unsubscribe("watch1");
 	bubble_subscriptions(subscriber);
 
-	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents0"));
-	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents1"));
-	BOOST_CHECK(publisher.send("watch2", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch2", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents2"));
 
 	wait_for_socket(subscriber);
@@ -223,13 +223,13 @@ BOOST_AUTO_TEST_CASE( subscribe_helpers_multitopic_method )
 	subscriber.connect("inproc://test");
 	subscriber.subscribe(topics.begin(), topics.end());
 
-	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch0", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents0"));
-	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch1", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents1"));
-	BOOST_CHECK(publisher.send("watch2", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch2", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents2"));
-	BOOST_CHECK(publisher.send("watch3", zmqpp::socket::SEND_MORE));
+	BOOST_CHECK(publisher.send("watch3", zmqpp::socket::send_more));
 	BOOST_CHECK(publisher.send("contents3"));
 
 	wait_for_socket(subscriber);

@@ -65,8 +65,10 @@ BOOST_AUTO_TEST_CASE( push_messages_baseline )
 
 #if (ZMQ_VERSION_MAJOR == 2)
 		zmq_recv(puller, &message, 0);
-#else
+#elif (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
 		zmq_recvmsg(puller, &message, 0);
+#else
+		zmq_msg_recv(&message, puller, 0);
 #endif
 
 		BOOST_CHECK_EQUAL(0, strncmp(short_message.data(), static_cast<char*>(zmq_msg_data(&message)), short_message.size()));

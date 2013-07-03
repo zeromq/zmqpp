@@ -54,6 +54,17 @@ enum class socket_option {
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
 	ipv4_only                 = ZMQ_IPV4ONLY,
 #endif
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	delay_attach_on_connect   = ZMQ_DELAY_ATTACH_ON_CONNECT, /*!< Delay buffer attachment until connect complete */
+	last_endpoint             = ZMQ_LAST_ENDPOINT,           /*!< Last bound endpoint - get only */
+	router_mandatory          = ZMQ_ROUTER_MANDATORY,        /*!< Require routable messages - set only */
+	xpub_verbose              = ZMQ_XPUB_VERBOSE,            /*!< Pass on existing subscriptions - set only */
+	tcp_keepalive             = ZMQ_TCP_KEEPALIVE,           /*!< Enable TCP keepalives */
+	tcp_keepalive_idle        = ZMQ_TCP_KEEPALIVE_IDLE,      /*!< TCP keepalive idle count (generally retry count) */
+	tcp_keepalive_count       = ZMQ_TCP_KEEPALIVE_CNT,       /*!< TCP keepalive retry count */
+	tcp_keepalive_interval    = ZMQ_TCP_KEEPALIVE_INTVL,     /*!< TCP keepalive interval */
+	tcp_accept_filter         = ZMQ_TCP_ACCEPT_FILTER,       /*!< Filter inbound connections - set only */
+#endif
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	receive_label             = ZMQ_RCVLABEL,          /*!< Received label part - get only */
 #endif
