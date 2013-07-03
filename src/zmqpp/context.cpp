@@ -13,7 +13,7 @@ namespace zmqpp
 void context::terminate()
 {
 #if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
-	int result = zmq_ctx_term(_context);
+	int result = zmq_term(_context);
 #else
 	int result = zmq_ctx_destroy(_context);
 #endif
