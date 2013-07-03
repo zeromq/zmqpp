@@ -158,6 +158,9 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	CHECK_NOSET(socket, file_descriptor);
 	CHECK_NOSET(socket, events);
 	CHECK_NOSET(socket, type);
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	CHECK_NOSET(socket, last_endpoint);
+#endif
 
 	CHECK_SET(socket, int, linger);
 	CHECK_SET(socket, int, backlog);
@@ -194,6 +197,17 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	CHECK_SET(socket, bool, ipv4_only);
 #endif
 
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	CHECK_SET(socket, bool, delay_attach_on_connect);
+	CHECK_SET(socket, bool, router_mandatory);
+	CHECK_SET(socket, bool, xpub_verbose);
+	// CHECK_SET(socket, int, tcp_keepalive);  --- special case of boolean but with -1?
+	CHECK_SET(socket, int, tcp_keepalive_idle);
+	CHECK_SET(socket, int, tcp_keepalive_count);
+	CHECK_SET(socket, int, tcp_keepalive_interval);
+	// CHECK_SET(socket, std::string, tcp_accept_filter); --- special case required to be an address
+#endif
+
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	CHECK_NOSET(socket, receive_label);
 #endif
@@ -207,6 +221,12 @@ BOOST_AUTO_TEST_CASE( get_socket_options )
 
 	CHECK_NOGET(socket, subscribe);
 	CHECK_NOGET(socket, unsubscribe);
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	CHECK_NOGET(socket, router_mandatory);
+	CHECK_NOGET(socket, xpub_verbose);
+	CHECK_NOGET(socket, tcp_accept_filter);
+#endif
+
 	CHECK_GET(socket, bool, receive_more);
 	CHECK_GET(socket, int, file_descriptor);
 	CHECK_GET(socket, int, events);
@@ -242,6 +262,15 @@ BOOST_AUTO_TEST_CASE( get_socket_options )
 
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
 	CHECK_GET(socket, bool, ipv4_only);
+#endif
+
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	CHECK_GET(socket, std::string, last_endpoint);
+	CHECK_GET(socket, bool, delay_attach_on_connect);
+	CHECK_GET(socket, int, tcp_keepalive);
+	CHECK_GET(socket, int, tcp_keepalive_idle);
+	CHECK_GET(socket, int, tcp_keepalive_count);
+	CHECK_GET(socket, int, tcp_keepalive_interval);
 #endif
 
 #ifdef ZMQ_EXPERIMENTAL_LABELS

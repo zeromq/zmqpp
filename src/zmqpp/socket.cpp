@@ -322,10 +322,26 @@ void socket::set(socket_option const& option, int const& value)
 #if (ZMQ_VERSION_MAJOR == 2)
 	case socket_option::multicast_loopback:
 #endif
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::delay_attach_on_connect:
+	case socket_option::router_mandatory:
+	case socket_option::xpub_verbose:
+#endif
 		if (value == 0) { set(option, false); }
 		else if (value == 1) { set(option, true); }
 		else { throw exception("attempting to set a boolean option with a non 0 or 1 integer"); }
 		break;
+
+	// Default or Boolean
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::tcp_keepalive:
+		if (value < -1 || value > 1) { throw exception("attempting to set a default or boolean option with a non -1, 0 or 1 integer"); }
+		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
+		{
+			throw zmq_internal_exception();
+		}
+		break;
+#endif
 
 	// Integers that require +ve numbers
 #if (ZMQ_VERSION_MAJOR == 2)
@@ -341,16 +357,17 @@ void socket::set(socket_option const& option, int const& value)
 	case socket_option::rate:
 #endif
 		if (value < 0) { throw exception("attempting to set a positive only integer option with a negative integer"); }
-		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
-		{
-			throw zmq_internal_exception();
-		}
-		break;
+		// Integers
 	case socket_option::reconnect_interval:
 	case socket_option::linger:
 	case socket_option::backlog:
 	case socket_option::receive_timeout:
 	case socket_option::send_timeout:
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::tcp_keepalive_idle:
+	case socket_option::tcp_keepalive_count:
+	case socket_option::tcp_keepalive_interval:
+#endif
 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
 		{
 			throw zmq_internal_exception();
@@ -361,7 +378,6 @@ void socket::set(socket_option const& option, int const& value)
 	}
 }
 
-
 void socket::set(socket_option const& option, bool const& value)
 {
 	switch(option)
@@ -371,6 +387,11 @@ void socket::set(socket_option const& option, bool const& value)
 #endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
 	case socket_option::ipv4_only:
+#endif
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::delay_attach_on_connect:
+	case socket_option::router_mandatory:
+	case socket_option::xpub_verbose:
 #endif
 		zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value));
 		break;
@@ -431,6 +452,9 @@ void socket::set(socket_option const& option, char const* value, size_t const le
 	case socket_option::identity:
 	case socket_option::subscribe:
 	case socket_option::unsubscribe:
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::tcp_accept_filter:
+#endif
 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), value, length))
 		{
 			throw zmq_internal_exception();
@@ -440,7 +464,6 @@ void socket::set(socket_option const& option, char const* value, size_t const le
 		throw exception("attempting to set a non string option with a string value");
 	}
 }
-
 
 // Get socket options, multiple versions for easy of use
 void socket::get(socket_option const& option, int& value) const
@@ -477,6 +500,13 @@ void socket::get(socket_option const& option, int& value) const
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
 	case socket_option::ipv4_only:
 #endif
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::delay_attach_on_connect:
+	case socket_option::tcp_keepalive:
+	case socket_option::tcp_keepalive_idle:
+	case socket_option::tcp_keepalive_count:
+	case socket_option::tcp_keepalive_interval:
+#endif
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	case socket_option::receive_label:
 #endif
@@ -511,6 +541,9 @@ void socket::get(socket_option const& option, bool& value) const
 #endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
 	case socket_option::ipv4_only:
+#endif
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::delay_attach_on_connect:
 #endif
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	case socket_option::receive_label:
@@ -583,6 +616,9 @@ void socket::get(socket_option const& option, std::string& value) const
 	switch(option)
 	{
 	case socket_option::identity:
+#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::last_endpoint:
+#endif
 		if(0 != zmq_getsockopt(_socket, static_cast<int>(option), buffer.data(), &size))
 		{
 			throw zmq_internal_exception();
