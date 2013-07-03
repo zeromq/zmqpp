@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE( stream_bool )
 	BOOST_REQUIRE_EQUAL(1, message.parts());
 	BOOST_CHECK_EQUAL(1, message.size(0));
 
-	unsigned char* data = static_cast<unsigned char*>(message.raw_data(0));
+	unsigned char const* data = static_cast<unsigned char const*>(message.raw_data(0));
 	BOOST_CHECK_EQUAL(1, data[0]);
 
 	message >> output_value;
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( stream_int8 )
 	BOOST_REQUIRE_EQUAL(1, message.parts());
 	BOOST_CHECK_EQUAL(1, message.size(0));
 
-	unsigned char* data = static_cast<unsigned char*>(message.raw_data(0));
+	unsigned char const* data = static_cast<unsigned char const*>(message.raw_data(0));
 	BOOST_CHECK_EQUAL(0xD6, data[0]);
 
 	message >> output_value;
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( stream_int16 )
 	BOOST_REQUIRE_EQUAL(1, message.parts());
 	BOOST_CHECK_EQUAL(2, message.size(0));
 
-	unsigned char* data = static_cast<unsigned char*>(message.raw_data(0));
+	unsigned char const* data = static_cast<unsigned char const*>(message.raw_data(0));
 	BOOST_CHECK_EQUAL(0x02, data[0]);
 	BOOST_CHECK_EQUAL(0x00, data[1]);
 
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( stream_int32 )
 	BOOST_REQUIRE_EQUAL(1, message.parts());
 	BOOST_CHECK_EQUAL(4, message.size(0));
 
-	unsigned char* data = static_cast<unsigned char*>(message.raw_data(0));
+	unsigned char const* data = static_cast<unsigned char const*>(message.raw_data(0));
 	BOOST_CHECK_EQUAL(0xFE, data[0]);
 	BOOST_CHECK_EQUAL(0xDC, data[1]);
 	BOOST_CHECK_EQUAL(0xBA, data[2]);
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( stream_int64 )
 	BOOST_REQUIRE_EQUAL(1, message.parts());
 	BOOST_CHECK_EQUAL(8, message.size(0));
 
-	unsigned char* data = static_cast<unsigned char*>(message.raw_data(0));
+	unsigned char const* data = static_cast<unsigned char const*>(message.raw_data(0));
 	BOOST_CHECK_EQUAL(0x00, data[0]);
 	BOOST_CHECK_EQUAL(0x00, data[1]);
 	BOOST_CHECK_EQUAL(0x00, data[2]);
