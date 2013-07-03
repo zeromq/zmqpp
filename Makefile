@@ -96,7 +96,7 @@ TEST_LIBS = -L$(BUILD_PATH) \
 
 ifeq ($(CONFIG),loadtest)
 	CONFIG_FLAGS := $(CONFIG_FLAGS) -DLOADTEST
-	TEST_LIBS := $(TEST_LIBS) -lboost_thread
+	TEST_LIBS := $(TEST_LIBS) -lboost_thread -lboost_system
 endif
 
 ALL_LIBRARY_OBJECTS := $(patsubst $(SRC_PATH)/%.cpp, $(OBJECT_PATH)/%.o, $(shell find $(LIBRARY_PATH) -iname '*.cpp'))
