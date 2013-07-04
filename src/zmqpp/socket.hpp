@@ -85,6 +85,13 @@ public:
 	void bind(endpoint_t const& endpoint);
 
 	/*!
+	 * Unbinds from a previously bound endpoint.
+	 *
+	 * \param endpoint the zmq endpoint to bind to
+	 */
+	void unbind(endpoint_t const& endpoint);
+
+	/*!
 	 * Asynchronously connects to an endpoint.
 	 * If the endpoint is not inproc then zmq will happily keep trying
 	 * to connect until there is something there.
@@ -115,6 +122,31 @@ public:
 		for(InputIterator it = connections_begin; it != connections_end; ++it)
 		{
 			connect(*it);
+		}
+	}
+
+
+	/*!
+	 * Disconnects a previously connected endpoint.
+	 *
+	 * \param endpoint the zmq endpoint to disconnect from
+	 */
+	void disconnect(endpoint_t const& endpoint);
+
+	/*!
+	 * Disconnects from multiple previously connected endpoints.
+	 *
+	 * This is a helper function that wraps the single item disconnect in a loop
+	 *
+	 * \param disconnections_begin the starting iterator for zmq endpoints.
+	 * \param disconnections_end the final iterator for zmq endpoints.
+	 */
+	template<typename InputIterator>
+	void disconnect(InputIterator const& disconnections_begin, InputIterator const& disconnections_end)
+	{
+		for(InputIterator it = disconnections_begin; it != disconnections_end; ++it)
+		{
+			disconnect(*it);
 		}
 	}
 

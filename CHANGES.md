@@ -1,3 +1,8 @@
+Version 3.1.0
+=============
+
+* Support for 3.2 socket disconnect and unbind.
+
 Version 3.0.0
 =============
 
