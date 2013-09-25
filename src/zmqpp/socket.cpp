@@ -422,6 +422,7 @@ void socket::set(socket_option const option, int const value)
 #endif
 
 	// Integers that require +ve numbers
+	case socket_option::backlog:
 #if (ZMQ_VERSION_MAJOR == 2)
 	case socket_option::reconnect_interval_max:
 #else
