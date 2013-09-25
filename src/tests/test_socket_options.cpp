@@ -173,6 +173,7 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	// For some reason -1 not working here
 	//CHECK_SET(socket, int, reconnect_interval);
 	CHECK_SET_POSITIVE(socket, int, reconnect_interval_max);
+	CHECK_SET_POSITIVE(socket, int, backlog);
 #if (ZMQ_VERSION_MAJOR > 2)
 	CHECK_SET_POSITIVE(socket, int, send_buffer_size);
 	CHECK_SET_POSITIVE(socket, int, receive_buffer_size);
