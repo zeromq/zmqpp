@@ -27,15 +27,15 @@ void try_set(zmqpp::socket& socket, zmqpp::socket_option const& option, CheckTyp
 	try
 	{
 		socket.set(option, value);
-		BOOST_CHECK_MESSAGE(typeid(CheckType) == typeid(WantedType), "expected exception setting option " << option_name << " against type '" << value_type << "'");
+		BOOST_CHECK_MESSAGE(typeid(CheckType) == typeid(WantedType), "expected exception setting option '" << option_name << "' against type '" << value_type << "'");
 	}
 	catch(zmqpp::zmq_internal_exception const& e)
 	{
-		BOOST_CHECK_MESSAGE(false, "threw internal exception " << e.zmq_error() << " '" << e.what() << "' setting option " << option_name << " against type '" << value_type << "'");
+		BOOST_CHECK_MESSAGE(false, "threw internal exception " << e.zmq_error() << " '" << e.what() << "' setting option '" << option_name << "' against type '" << value_type << "'");
 	}
 	catch(zmqpp::exception const& e)
 	{
-		BOOST_CHECK_MESSAGE(typeid(CheckType) != typeid(WantedType), "threw unexpected exception '" << e.what() << "' setting option " << option_name << " against type '" << value_type << "'");
+		BOOST_CHECK_MESSAGE(typeid(CheckType) != typeid(WantedType), "threw unexpected exception '" << e.what() << "' setting option '" << option_name << "' against type '" << value_type << "'");
 	}
 }
 
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 #endif
 
 	CHECK_SET(socket, int, linger);
-	CHECK_SET(socket, int, backlog);
+	CHECK_SET_POSITIVE(socket, int, backlog);
 	CHECK_SET(socket, int, receive_timeout);
 	CHECK_SET(socket, int, send_timeout);
 	CHECK_SET(socket, uint64_t, affinity);
