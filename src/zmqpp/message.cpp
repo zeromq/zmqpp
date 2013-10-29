@@ -409,6 +409,8 @@ message& message::operator<<(std::string const& string)
 }
 
 message::message(message&& source) noexcept
+	: _parts()
+	, _read_cursor(0)
 {
 	std::swap(_parts, source._parts);
 }

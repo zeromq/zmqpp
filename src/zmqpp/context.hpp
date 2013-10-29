@@ -116,8 +116,8 @@ public:
 	 * \param source a rvalue instance of the object who's internals we wish to steal.
 	 */
 	context(context&& source) noexcept
+		: _context(source._context)
 	{
-		_context = source._context;
 		source._context = nullptr;
 	}
 
@@ -130,8 +130,7 @@ public:
 	 */
 	context& operator=(context&& source) noexcept
 	{
-		_context = source._context;
-		source._context = nullptr;
+		std::swap( _context, source._context );
 		return *this;
 	}
 
