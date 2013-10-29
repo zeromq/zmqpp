@@ -661,16 +661,20 @@ socket::socket(socket&& source) noexcept
 	zmq_msg_init(&_recv_buffer);
 	zmq_msg_move(&_recv_buffer, &source._recv_buffer);
 
-	// Clean up source a little
+	// Clean up source a little, we will handle the deinit, it doesn't need to
 	source._socket = nullptr;
 }
 
 socket& socket::operator=(socket&& source) noexcept
 {
-	_socket = source._socket;
-	source._socket = nullptr;
+	std::swap(_socket, source._socket);
 
 	_type = source._type; // just clone?
+
+	// we steal the zmq_msg_t from the valid socket, we only init our own because it's cheap
+	// and zmq_msg_move does a valid check
+	zmq_msg_init(&_recv_buffer);
+	zmq_msg_move(&_recv_buffer, &source._recv_buffer);
 
 	return *this;
 }
