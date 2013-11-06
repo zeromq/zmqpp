@@ -102,8 +102,6 @@ void socket::disconnect(endpoint_t const& endpoint)
 	if (0 != result)
 	{
 		throw zmq_internal_exception();
-	}
-}
 #endif
 
 void socket::close()
@@ -436,7 +434,6 @@ void socket::set(socket_option const option, int const value)
 	case socket_option::multicast_hops:
 	case socket_option::rate:
 #endif
-	case socket_option::backlog:
 		if (value < 0) { throw exception("attempting to set a positive only integer option with a negative integer"); }
 		// Integers
 	case socket_option::reconnect_interval:
