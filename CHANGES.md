@@ -1,3 +1,13 @@
+Version 3.2.0
+=============
+
+* Reworked client application, this is techically breaking but its only the
+  the client so noone should care. Multipart support that works with linux
+  pipes is now the default.
+* Added a new -d detailed verbose option, the only reason it is not -vv is
+  lack of boost option support. This provides diagnostic infomation.
+* Added -s to support single part messages, incase anyone actually used that.
+
 Version 3.1.0
 =============
 
