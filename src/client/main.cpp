@@ -240,12 +240,21 @@ int main(int argc, char const* argv[])
 
 					if( !socket.send( message, true ) )
 					{
-						if( options.annotate ) {	std::cerr << "!!: "; }
+						if( options.detailed )
+						{
+							if( options.annotate ) { std::cerr << "**: "; }
+							std::cerr << "Output blocking, waiting to send" << std::endl;
+						}
 
-						std::cerr << "Send failed, socket would have blocked" << std::endl;
+						if( !socket.send( message ) )
+						{
+							if( options.annotate ) {	std::cerr << "!!: "; }
 
-						zmqpp::message tmp;
-						std::swap( tmp, message );
+							std::cerr << "Send failed, socket would have blocked" << std::endl;
+
+							zmqpp::message tmp;
+							std::swap( tmp, message );
+						}
 					}
 
 					if (toggles)
