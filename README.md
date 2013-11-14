@@ -1,18 +1,35 @@
 Introduction
 ============
 
-This C++ binding is a 'high-level' library that hides most of the c-style
-interface core 0mq provides. It consists of a number of header and source
-files all residing in the zmq directory, these files are provided under the
-MIT license (see LICENCE for details).
+Library / Bindings
+------------------
+
+This C++ binding for 0mq/zmq is a 'high-level' library that hides most of the
+c-style interface core 0mq provides. It consists of a number of header and
+source files all residing in the zmq directory, these files are provided under
+the MIT license (see LICENCE for details).
 
 They can either be included directly into any 0mq using project or used as a
 library. A really basic Makefile is provided for this purpose and will generate
 both shared and static libraries.
 
-There is a number of unittests covering the code but in no way should the tests
-be considered complete.
+There are a number of unit tests covering the code but in no way should the
+tests be considered complete.
 
+Command-Line Client
+-------------------
+
+There is also a command line client that can be used to test or even bridge
+zmq connections. The client is built on top of the libzmqpp bindings.
+
+Feature Requests
+================
+
+If there is any missing features from the current versions of ZeroMQ that you
+wish to use please raise an issue against this project, or even a pull request.
+
+Generally I've only added things as I need them but I'm always happy to improve
+the feature set as people require.
 
 Documentation
 =============
@@ -32,21 +49,23 @@ libzmqpp
 ========
 
 There is a Makefile provided which will build, test and install the binding on
-a GNU Linux system. I have not tested it on anything other than Ubuntu 11.04
-and Centos 5.5.
+a GNU Linux system. I have not tested it on anything other than Ubuntu since
+11.04 and Centos 5 and 6.
 
 The install process will only install headers and the shared object to the
 system. The archive will remain in the build directory.
 
 The tests for the binding (make check) require the boost unittest framework to
 have been installed however these do not need to be built or run to install
-the library.
+the library itself.
 
 Requirements
 ------------
 
 ZeroMQ 2.2.x or later
-C++0x compliant compiler (g++ 4.6.x, g++ 4.4.x with compatability.hpp)
+C++0x compliant compiler
+
+The command line client and the tests also require libboost.
 
 
 Installation
@@ -92,28 +111,35 @@ Usage
 
 The client is a command line tool that can be used to listen or send to 0mq
 sockets. Its very basic so don't expect anything clever. zmqpp --help will list
-details about the five possible flags it can take;
+details about the possible flags it can take;
 
     Usage: zmqpp [options] SOCKETTYPE ENDPOINT
     0mq command line client tool.
     SOCKETTYPE is one of the supported 0mq socket types.
       pub, pull, push, rep, req, sub
     ENDPOINT is any valid 0mq endpoint.
-    
+
     Connection Options:
-      -b [ --bind ] arg     bind to specified endpoint
-      -c [ --connect ] arg  connect to specified endpoint
-      -m [ --multipart ]    enable multipart message sending
+      -a [ --annotate ]            annotate output with direction
+      -b [ --bind ] arg            bind to specified endpoint
+      -c [ --connect ] arg         connect to specified endpoint
+      -d [ --detailed ]            increased level of information displayed
+      -x [ --exit-when-no-input ]  don't wait for (streamed) input; exit on zero 
+                                   message
+      -s [ --singlepart ]          treat each line as a new message
+      -v [ --verbose ]             display output sent over socket to stderr
 
     Miscellaneous Options:
       --version             display version
       --help                show this help page
 
 Multiple uses of -c or -b are allowed to connect or bind to multiple endpoints,
-if neither is specified the connect is assumed for endpoint ENDPOINT. Multipart
-messages are for sending only, received messages always support multiple parts.
+if neither is specified the connect is assumed for endpoint ENDPOINT.
 
 For send capable sockets entering text on standard in and pressing return will
-send, if multipart is enabled then the message is only sent on an empty return
-otherwise message parts are generated.
+create a message part, with an empty part (double newline) marking the end of a
+message. If singlepart is enabled then the message is sent after each newline
+on the input stream.
 
+The default flags will allow you to pipe data from one instance of zmqpp to
+another and so bridge between zmq sockets.
