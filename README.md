@@ -143,3 +143,12 @@ on the input stream.
 
 The default flags will allow you to pipe data from one instance of zmqpp to
 another and so bridge between zmq sockets.
+
+
+Licensing
+=========
+
+Both the library and the associated command line client are released under the
+LGPL v3 with an exception for static linking.
+
+Please see COPYING.LESSER for full details.
