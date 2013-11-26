@@ -55,7 +55,12 @@ enum class socket_option {
 	ipv4_only                 = ZMQ_IPV4ONLY,
 #endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MINOR == 2)
 	delay_attach_on_connect   = ZMQ_DELAY_ATTACH_ON_CONNECT, /*!< Delay buffer attachment until connect complete */
+#else
+	//  ZMQ_DELAY_ATTACH_ON_CONNECT is renamed in ZeroMQ starting 3.3.x
+	immediate                 = ZMQ_IMMEDIATE,               /*!< Block message sending until connect complete */
+#endif
 	last_endpoint             = ZMQ_LAST_ENDPOINT,           /*!< Last bound endpoint - get only */
 	router_mandatory          = ZMQ_ROUTER_MANDATORY,        /*!< Require routable messages - set only */
 	xpub_verbose              = ZMQ_XPUB_VERBOSE,            /*!< Pass on existing subscriptions - set only */
