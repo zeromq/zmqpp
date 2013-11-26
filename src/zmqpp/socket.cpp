@@ -343,7 +343,11 @@ void socket::set(socket_option const& option, int const& value)
 	case socket_option::multicast_loopback:
 #endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MINOR == 2)
 	case socket_option::delay_attach_on_connect:
+#else
+	case socket_option::immediate:
+#endif
 	case socket_option::router_mandatory:
 	case socket_option::xpub_verbose:
 #endif
@@ -409,12 +413,22 @@ void socket::set(socket_option const& option, bool const& value)
 	case socket_option::ipv4_only:
 #endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MINOR == 2)
 	case socket_option::delay_attach_on_connect:
+#else
+	case socket_option::immediate:
+#endif
 	case socket_option::router_mandatory:
 	case socket_option::xpub_verbose:
 #endif
-		zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value));
+	{
+		int ivalue = value ? 1 : 0;
+		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &ivalue, sizeof(ivalue)))
+		{
+			throw zmq_internal_exception();
+		}
 		break;
+	}
 	default:
 		throw exception("attempting to set a non boolean option with a boolean value");
 	}
@@ -521,7 +535,11 @@ void socket::get(socket_option const& option, int& value) const
 	case socket_option::ipv4_only:
 #endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MINOR == 2)
 	case socket_option::delay_attach_on_connect:
+#else
+	case socket_option::immediate:
+#endif
 	case socket_option::tcp_keepalive:
 	case socket_option::tcp_keepalive_idle:
 	case socket_option::tcp_keepalive_count:
@@ -563,7 +581,11 @@ void socket::get(socket_option const& option, bool& value) const
 	case socket_option::ipv4_only:
 #endif
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MINOR == 2)
 	case socket_option::delay_attach_on_connect:
+#else
+	case socket_option::immediate:
+#endif
 #endif
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	case socket_option::receive_label:

@@ -198,9 +198,11 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 #endif
 
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MINOR == 2)
 	CHECK_SET(socket, bool, delay_attach_on_connect);
-	CHECK_SET(socket, bool, router_mandatory);
-	CHECK_SET(socket, bool, xpub_verbose);
+#else
+	CHECK_SET(socket, bool, immediate);
+#endif
 	// CHECK_SET(socket, int, tcp_keepalive);  --- special case of boolean but with -1?
 	CHECK_SET(socket, int, tcp_keepalive_idle);
 	CHECK_SET(socket, int, tcp_keepalive_count);
@@ -265,8 +267,12 @@ BOOST_AUTO_TEST_CASE( get_socket_options )
 #endif
 
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
-	CHECK_GET(socket, std::string, last_endpoint);
+#if (ZMQ_VERSION_MINOR == 2)
 	CHECK_GET(socket, bool, delay_attach_on_connect);
+#else
+	CHECK_GET(socket, bool, immediate);
+#endif
+	CHECK_GET(socket, std::string, last_endpoint);
 	CHECK_GET(socket, int, tcp_keepalive);
 	CHECK_GET(socket, int, tcp_keepalive_idle);
 	CHECK_GET(socket, int, tcp_keepalive_count);
