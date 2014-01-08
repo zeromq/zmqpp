@@ -309,6 +309,31 @@ BOOST_AUTO_TEST_CASE( receiving_messages )
 	BOOST_CHECK(!puller.has_more_parts());
 }
 
+BOOST_AUTO_TEST_CASE( receive_over_old_messages )
+{
+	zmqpp::context context;
+
+	zmqpp::socket pusher( context, zmqpp::socket_type::push );
+	pusher.bind( "inproc://test" );
+
+	zmqpp::socket puller( context, zmqpp::socket_type::pull );
+	puller.connect( "inproc://test");
+
+	pusher.send( "first message" );
+	pusher.send( "second message" );
+
+	wait_for_socket( puller );
+
+	zmqpp::message message;
+	BOOST_CHECK( puller.receive( message ) );
+	BOOST_REQUIRE_EQUAL( 1, message.parts() );
+	BOOST_CHECK_EQUAL( "first message", message.get(0) );
+
+	BOOST_CHECK( puller.receive( message ) );
+	BOOST_REQUIRE_EQUAL( 1, message.parts() );
+	BOOST_CHECK_EQUAL( "second message", message.get(0) );
+}
+
 BOOST_AUTO_TEST_CASE( cleanup_safe_with_pending_data )
 {
 	zmqpp::context context;

@@ -160,7 +160,9 @@ bool socket::receive(message& message, bool const& dont_block /* = false */)
 {
 	if (message.parts() > 0)
 	{
-		throw exception("receiving can only be done to empty messages");
+		// swap and discard old message
+		zmqpp::message local;
+		std::swap(local, message);
 	}
 
 	int flags = (dont_block) ? socket::dont_wait : socket::normal;
