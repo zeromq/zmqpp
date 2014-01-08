@@ -183,7 +183,7 @@ bool socket::receive(message& message, bool const& dont_block /* = false */)
 				return false;
 			}
 
-			assert(EAGAIN == zmq_errno());
+			assert(EAGAIN != zmq_errno());
 
 			throw zmq_internal_exception();
 		}
