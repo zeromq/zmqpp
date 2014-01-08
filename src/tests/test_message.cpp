@@ -6,6 +6,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include <cstdlib>
+#include <iostream>
+
+#include <boost/lexical_cast.hpp>
 
 #include "zmqpp/exception.hpp"
 #include "zmqpp/message.hpp"
@@ -211,6 +214,26 @@ BOOST_AUTO_TEST_CASE( output_stream_resetable )
 	message >> second;
 
 	BOOST_CHECK_EQUAL("test part", second);
+}
+
+BOOST_AUTO_TEST_CASE( many_part_queue_check )
+{
+	std::array<std::string, 200> parts;
+	for( size_t i = 0; i < parts.size(); ++i )
+	{
+		parts[i] = "message frame " + boost::lexical_cast<std::string>( i + 1 );
+	}
+
+	zmqpp::message message;
+	for( size_t loop = 0; loop < parts.size(); ++loop )
+	{
+		message << parts[loop];
+
+		for( size_t i = 0; i <= loop; ++i )
+		{
+			BOOST_REQUIRE_MESSAGE( parts[i].compare( message.get(i) ) == 0, "invalid frame " << i << " on loop " << loop << ": '" << message.get(i) << "' != '" << parts[i] << "'" );
+		}
+	}
 }
 
 #ifdef ZMQPP_NON_CONST_STREAM_OPERATORS_MOVE

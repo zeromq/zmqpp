@@ -19,6 +19,8 @@ namespace zmqpp
  */
 struct zmq_msg_wrapper
 {
+	zmq_msg_wrapper() : sent( false ) { }
+
 	bool sent;
 	zmq_msg_t msg;
 };
@@ -101,24 +103,7 @@ zmq_msg_t& message::raw_msg(size_t const& part /* = 0 */)
 
 zmq_msg_t& message::raw_new_msg()
 {
-	parts_type tmp(_parts.size() + 1);
-
-	for(size_t i = 0; i < _parts.size(); ++i)
-	{
-		zmq_msg_t& dest = tmp[i].msg;
-		if( 0 != zmq_msg_init(&dest) )
-		{
-			throw zmq_internal_exception();
-		}
-
-		zmq_msg_t& src = _parts[i].msg;
-		if( 0 != zmq_msg_move(&dest, &src) )
-		{
-			throw zmq_internal_exception();
-		}
-	}
-
-	std::swap(tmp, _parts);
+	expand_frame_queue();
 
 	zmq_msg_t& msg = _parts.back().msg;
 	if( 0 != zmq_msg_init(&msg) )
@@ -138,24 +123,7 @@ std::string message::get(size_t const& part /* = 0 */) const
 // Move operators will take ownership of message parts without copying
 void message::move(void* part, size_t& size, release_function const& release)
 {
-	parts_type tmp(_parts.size() + 1);
-
-	for(size_t i = 0; i < _parts.size(); ++i)
-	{
-		zmq_msg_t& dest = tmp[i].msg;
-		if( 0 != zmq_msg_init(&dest) )
-		{
-			throw zmq_internal_exception();
-		}
-
-		zmq_msg_t& src = _parts[i].msg;
-		if( 0 != zmq_msg_move(&dest, &src) )
-		{
-			throw zmq_internal_exception();
-		}
-	}
-
-	std::swap(tmp, _parts);
+	expand_frame_queue();
 
 	callback_releaser* hint = new callback_releaser();
 	hint->func = release;
@@ -169,24 +137,7 @@ void message::move(void* part, size_t& size, release_function const& release)
 
 void message::add(void const* part, size_t const& size)
 {
-	parts_type tmp(_parts.size() + 1);
-
-	for(size_t i = 0; i < _parts.size(); ++i)
-	{
-		zmq_msg_t& dest = tmp[i].msg;
-		if( 0 != zmq_msg_init(&dest) )
-		{
-			throw zmq_internal_exception();
-		}
-
-		zmq_msg_t& src = _parts[i].msg;
-		if( 0 != zmq_msg_move(&dest, &src) )
-		{
-			throw zmq_internal_exception();
-		}
-	}
-
-	std::swap(tmp, _parts);
+	expand_frame_queue();
 
 	zmq_msg_t& msg = _parts.back().msg;
 
@@ -455,6 +406,37 @@ void message::sent(size_t const& part)
 	// sanity check
 	assert(!_parts[part].sent);
 	_parts[part].sent = true;
+}
+
+void message::expand_frame_queue()
+{
+	if ( _parts.size() + 1 <= _parts.capacity() )
+	{
+		_parts.push_back( zmq_msg_wrapper() );
+		return;
+	}
+
+	// If we are going to break capacity we need to manually zmq_msg_move the messages
+	// TODO: consider altering frame structure so it can't be copied and the move operators handle zmq
+
+	parts_type tmp( _parts.size() + 1 );
+
+	for( size_t i = 0; i < _parts.size(); ++i )
+	{
+		zmq_msg_t& dest = tmp[i].msg;
+		if( 0 != zmq_msg_init(&dest) )
+		{
+			throw zmq_internal_exception();
+		}
+
+		zmq_msg_t& src = _parts[i].msg;
+		if( 0 != zmq_msg_move(&dest, &src) )
+		{
+			throw zmq_internal_exception();
+		}
+	}
+
+	std::swap(tmp, _parts);
 }
 
 // Note that these releasers are not thread safe, the only safety is provided by

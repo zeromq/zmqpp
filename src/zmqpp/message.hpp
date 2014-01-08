@@ -162,6 +162,8 @@ private:
 	parts_type _parts;
 	size_t _read_cursor;
 
+	void expand_frame_queue();
+
 	// Disable implicit copy support, code must request a copy to clone
 	message(message const&) noexcept ZMQPP_EXPLICITLY_DELETED;
 	message& operator=(message const&) noexcept ZMQPP_EXPLICITLY_DELETED;
