@@ -9,7 +9,6 @@
 #define ZMQPP_MESSAGE_HPP_
 
 #include <functional>
-#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -17,10 +16,10 @@
 #include <zmq.h>
 
 #include "compatibility.hpp"
+#include "frame.hpp"
 
 namespace zmqpp
 {
-struct zmq_msg_wrapper;
 
 /*!
  * \brief a zmq message with optional multipart support
@@ -146,8 +145,8 @@ public:
 	message& operator=(message&& source) noexcept;
 
 	// Copy support
-	message copy();
-	void copy(message& source);
+	message copy() const;
+	void copy(message const& source);
 
 	// Used for internal tracking
 	void sent(size_t const& part);
@@ -156,9 +155,10 @@ public:
 	void const* raw_data(size_t const& part = 0) const;
 	zmq_msg_t& raw_msg(size_t const& part = 0);
 	zmq_msg_t& raw_new_msg();
+	zmq_msg_t& raw_new_msg(size_t const reserve_data_size);
 
 private:
-	typedef std::vector<zmq_msg_wrapper> parts_type;
+	typedef std::vector<frame> parts_type;
 	parts_type _parts;
 	size_t _read_cursor;
 
