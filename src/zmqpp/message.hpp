@@ -155,6 +155,7 @@ public:
 	void const* raw_data(size_t const& part = 0) const;
 	zmq_msg_t& raw_msg(size_t const& part = 0);
 	zmq_msg_t& raw_new_msg();
+	zmq_msg_t& raw_new_msg(size_t const reserve_data_size);
 
 private:
 	typedef std::vector<frame> parts_type;

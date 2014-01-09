@@ -81,6 +81,13 @@ zmq_msg_t& message::raw_new_msg()
 	return _parts.back().msg();
 }
 
+zmq_msg_t& message::raw_new_msg(size_t const reserve_data_size)
+{
+	_parts.push_back( frame(reserve_data_size) );
+
+	return _parts.back().msg();
+}
+
 std::string message::get(size_t const& part /* = 0 */) const
 {
 	return std::string(static_cast<char const*>(raw_data(part)), size(part));

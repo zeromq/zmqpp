@@ -25,6 +25,7 @@ class frame
 {
 public:
 	frame();
+	frame(size_t const& size);
 	frame(void const* part, size_t const& size);
 	frame(void* part, size_t& size, zmq_free_fn *ffn, void *hint);
 
@@ -46,9 +47,6 @@ public:
 private:
 	bool _sent;
 	zmq_msg_t _msg;
-
-	// Private constructor for copy use only
-	frame(size_t const& size);
 
 	// Disable implicit copy support, code must request a copy to clone
 	frame(frame const&) noexcept ZMQPP_EXPLICITLY_DELETED;

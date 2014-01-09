@@ -218,10 +218,11 @@ BOOST_AUTO_TEST_CASE( output_stream_resetable )
 
 BOOST_AUTO_TEST_CASE( many_part_queue_check )
 {
-	std::array<std::string, 200> parts;
-	for( size_t i = 0; i < parts.size(); ++i )
+	std::array<std::string, 150> parts;
+	for( size_t i = 0; i < parts.size(); i += 2 )
 	{
 		parts[i] = "message frame " + boost::lexical_cast<std::string>( i + 1 );
+		parts[i + 1] = "this part is a much longer test frame, message frame " + boost::lexical_cast<std::string>( i + 2 );
 	}
 
 	zmqpp::message message;
@@ -234,6 +235,17 @@ BOOST_AUTO_TEST_CASE( many_part_queue_check )
 			BOOST_REQUIRE_MESSAGE( parts[i].compare( message.get(i) ) == 0, "invalid frame " << i << " on loop " << loop << ": '" << message.get(i) << "' != '" << parts[i] << "'" );
 		}
 	}
+}
+
+BOOST_AUTO_TEST_CASE( reserve_zmq_frame )
+{
+	zmqpp::message message;
+	zmq_msg_t& raw = message.raw_new_msg( strlen("hello world") );
+	void* data = zmq_msg_data( &raw );
+	memcpy( data, "hello world", strlen("hello world") );
+
+	BOOST_REQUIRE_EQUAL( 1, message.parts() );
+	BOOST_CHECK_EQUAL( "hello world", message.get(0) );
 }
 
 #ifdef ZMQPP_NON_CONST_STREAM_OPERATORS_MOVE
