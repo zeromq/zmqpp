@@ -316,6 +316,102 @@ message& message::operator<<(std::string const& string)
 	return *this;
 }
 
+void message::push_front(void const* part, size_t const& size)
+{
+	_parts.push_front( frame(part, size) );
+}
+
+void message::push_front(int8_t const& integer)
+{
+	push_front(&integer, sizeof(int8_t));
+}
+
+void message::push_front(int16_t const& integer)
+{
+	uint16_t network_order = htons(static_cast<uint16_t>(integer));
+	push_front(&network_order, sizeof(uint16_t));
+}
+
+void message::push_front(int32_t const& integer)
+{
+	uint32_t network_order = htonl(static_cast<uint32_t>(integer));
+	push_front(&network_order, sizeof(uint32_t));
+}
+
+void message::push_front(int64_t const& integer)
+{
+	uint64_t network_order = htonll(static_cast<uint64_t>(integer));
+	push_front(&network_order, sizeof(uint64_t));
+}
+
+
+void message::push_front(uint8_t const& unsigned_integer)
+{
+	push_front(&unsigned_integer, sizeof(uint8_t));
+}
+
+void message::push_front(uint16_t const& unsigned_integer)
+{
+	uint16_t network_order = htons(unsigned_integer);
+	push_front(&network_order, sizeof(uint16_t));
+}
+
+void message::push_front(uint32_t const& unsigned_integer)
+{
+	uint32_t network_order = htonl(unsigned_integer);
+	push_front(&network_order, sizeof(uint32_t));
+}
+
+void message::push_front(uint64_t const& unsigned_integer)
+{
+	uint64_t network_order = htonll(unsigned_integer);
+	push_front(&network_order, sizeof(uint64_t));
+}
+
+void message::push_front(float const& floating_point)
+{
+	assert(sizeof(float) == 4);
+
+	uint32_t const host_order = *reinterpret_cast<uint32_t const*>(&floating_point);
+	uint32_t network_order = htonl(host_order);
+	push_front(&network_order, sizeof(uint32_t));
+}
+
+void message::push_front(double const& double_precision)
+{
+	assert(sizeof(double) == 8);
+
+	uint64_t const host_order = *reinterpret_cast<uint64_t const*>(&double_precision);
+	uint64_t network_order = htonll(host_order);
+	push_front(&network_order, sizeof(uint64_t));
+}
+
+void message::push_front(bool const& boolean)
+{
+	uint8_t byte = (boolean) ? 1 : 0;
+	push_front(&byte, sizeof(uint8_t));
+}
+
+void message::push_front(char const* c_string)
+{
+	push_front(c_string, strlen(c_string));
+}
+
+void message::push_front(std::string const& string)
+{
+	push_front(string.data(), string.size());
+}
+
+void message::pop_front()
+{
+	_parts.pop_front();
+}
+
+void message::pop_back()
+{
+	_parts.pop_back();
+}
+
 message::message(message&& source) noexcept
 	: _parts()
 	, _read_cursor(0)
