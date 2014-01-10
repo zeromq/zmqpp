@@ -318,7 +318,7 @@ message& message::operator<<(std::string const& string)
 
 void message::push_front(void const* part, size_t const& size)
 {
-	_parts.push_front( frame(part, size) );
+	_parts.emplace( _parts.begin(), part, size );
 }
 
 void message::push_front(int8_t const& integer)
@@ -404,7 +404,7 @@ void message::push_front(std::string const& string)
 
 void message::pop_front()
 {
-	_parts.pop_front();
+	_parts.erase( _parts.begin() );
 }
 
 void message::pop_back()

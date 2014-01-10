@@ -8,10 +8,10 @@
 #ifndef ZMQPP_MESSAGE_HPP_
 #define ZMQPP_MESSAGE_HPP_
 
-#include <deque>
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include <zmq.h>
 
@@ -196,7 +196,7 @@ public:
 	zmq_msg_t& raw_new_msg(size_t const reserve_data_size);
 
 private:
-	typedef std::deque<frame> parts_type;
+	typedef std::vector<frame> parts_type;
 	parts_type _parts;
 	size_t _read_cursor;
 
