@@ -31,6 +31,16 @@ wish to use please raise an issue against this project, or even a pull request.
 Generally I've only added things as I need them but I'm always happy to improve
 the feature set as people require.
 
+Contributing
+============
+
+Contribution to this binding is welcome and it is suggested using pull requests
+in github that will then be reviewed and merged or commented on. The full
+contribution is outlined on the zmq site (http://zeromq.org/docs:contributing)
+
+Please feel free to add yourself to the AUTHORS file in an alphanumerically
+sorted way before you raise the pull request.
+
 Documentation
 =============
 
@@ -143,7 +153,6 @@ on the input stream.
 
 The default flags will allow you to pipe data from one instance of zmqpp to
 another and so bridge between zmq sockets.
-
 
 Licensing
 =========
