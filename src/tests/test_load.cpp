@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE( push_messages_baseline )
 	void* puller = zmq_socket(context, ZMQ_PULL);
 	BOOST_REQUIRE_MESSAGE(0 == zmq_bind(puller, "tcp://*:5555"), "bind: " << zmq_strerror(zmq_errno()));
 
-	auto pusher_func = [messages, &pusher](void) {
+	auto pusher_func = [&pusher](void) {
 		auto remaining = messages;
 
 		do
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( push_messages )
 	zmqpp::socket puller(context, zmqpp::socket_type::pull);
 	puller.bind("tcp://*:55555");
 
-	auto pusher_func = [messages, &pusher](void) {
+	auto pusher_func = [&pusher](void) {
 		auto remaining = messages;
 		zmqpp::message message;
 

@@ -140,6 +140,44 @@ public:
 	message& operator<<(char const* c_string);
 	message& operator<<(std::string const& string);
 
+	// Queue manipulation
+	void push_front(void const* part, size_t const& size);
+
+	// TODO: unify conversion of types with the stream operators
+	void push_front(int8_t const& integer);
+	void push_front(int16_t const& integer);
+	void push_front(int32_t const& integer);
+	void push_front(int64_t const& integer);
+
+	void push_front(uint8_t const& unsigned_integer);
+	void push_front(uint16_t const& unsigned_integer);
+	void push_front(uint32_t const& unsigned_integer);
+	void push_front(uint64_t const& unsigned_integer);
+
+	void push_front(float const& floating_point);
+	void push_front(double const& double_precision);
+	void push_front(bool const& boolean);
+
+	void push_front(char const* c_string);
+	void push_front(std::string const& string);
+
+	void pop_front();
+
+	void push_back(void const* part, size_t const& size)
+	{
+		add( part, size );
+	}
+
+	template<typename Type>
+	void push_back(Type const& part)
+	{
+		*this << part;
+	}
+
+	void pop_back();
+
+	void remove(size_t const& part);
+
 	// Move supporting
 	message(message&& source) noexcept;
 	message& operator=(message&& source) noexcept;

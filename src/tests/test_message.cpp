@@ -248,6 +248,91 @@ BOOST_AUTO_TEST_CASE( reserve_zmq_frame )
 	BOOST_CHECK_EQUAL( "hello world", message.get(0) );
 }
 
+BOOST_AUTO_TEST_CASE( push_end_of_frame_queue )
+{
+	std::array<std::string, 2> parts = {
+		"test frame 1",
+		"a much much longer test frame 2 to go over the small message size limitation"
+	};
+
+	zmqpp::message message;
+	message.push_back( parts[0] );
+	message.push_back( parts[1] );
+
+	BOOST_REQUIRE_EQUAL( parts.size(), message.parts() );
+	for( size_t i = 0; i < parts.size(); ++i )
+	{
+		BOOST_CHECK_EQUAL( parts[i].size(), message.size(i) );
+		BOOST_CHECK_EQUAL( parts[i], message.get(i) );
+	}
+}
+
+BOOST_AUTO_TEST_CASE( pop_end_of_frame_queue )
+{
+	std::array<std::string, 3> parts = {
+		"a long test frame 1 to go over the small message size limitation",
+		"another frame 2",
+		"some final frame 3"
+	};
+
+	zmqpp::message message;
+	message << parts[0] << parts[1] << parts[2];
+
+	BOOST_REQUIRE_EQUAL( parts.size(), message.parts() );
+
+	message.pop_back();
+	BOOST_REQUIRE_EQUAL( parts.size() - 1, message.parts() );
+	for( size_t i = 0; i < parts.size() - 1; ++i )
+	{
+		BOOST_CHECK_EQUAL( parts[i].size(), message.size(i) );
+		BOOST_CHECK_EQUAL( parts[i], message.get(i) );
+	}
+}
+
+BOOST_AUTO_TEST_CASE( push_front_of_frame_queue )
+{
+	std::array<std::string, 3> parts = {
+		"a long test frame 1 to go over the small message size limitation",
+		"another frame 2",
+		"some final frame 3"
+	};
+
+	zmqpp::message message;
+	message << parts[1] << parts[2];
+
+	BOOST_REQUIRE_EQUAL( parts.size() - 1, message.parts() );
+
+	message.push_front( parts[0] );
+	BOOST_REQUIRE_EQUAL( parts.size(), message.parts() );
+	for( size_t i = 0; i < parts.size(); ++i )
+	{
+		BOOST_CHECK_EQUAL( parts[i].size(), message.size(i) );
+		BOOST_CHECK_EQUAL( parts[i], message.get(i) );
+	}
+}
+
+BOOST_AUTO_TEST_CASE( pop_front_of_frame_queue )
+{
+	std::array<std::string, 3> parts = {
+		"a long test frame 1 to go over the small message size limitation",
+		"another frame 2",
+		"some final frame 3"
+	};
+
+	zmqpp::message message;
+	message << parts[0] << parts[1] << parts[2];
+
+	BOOST_REQUIRE_EQUAL( parts.size(), message.parts() );
+
+	message.pop_front();
+	BOOST_REQUIRE_EQUAL( parts.size() - 1, message.parts() );
+	for( size_t i = 0; i < parts.size() - 1; ++i )
+	{
+		BOOST_CHECK_EQUAL( parts[i + 1].size(), message.size(i) );
+		BOOST_CHECK_EQUAL( parts[i + 1], message.get(i) );
+	}
+}
+
 #ifdef ZMQPP_NON_CONST_STREAM_OPERATORS_MOVE
 BOOST_AUTO_TEST_CASE( stream_move_input_string )
 {
