@@ -185,6 +185,14 @@ bool socket::receive(message& message, bool const& dont_block /* = false */)
 				return false;
 			}
 
+			// If we have an interrupt but it's not on the first part then we
+			// know we can safely pull out the rest of the message as it will
+			// not be blocking
+			if((message.parts() > 0) && (EINTR == zmq_errno()))
+			{
+				continue;
+			}
+
 			assert(EAGAIN != zmq_errno());
 
 			throw zmq_internal_exception();
