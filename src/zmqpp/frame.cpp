@@ -5,6 +5,7 @@
  * \author Ben Gray (\@benjamg)
  */
 
+#include <cassert>
 #include <cstring>
 
 #include "exception.hpp"
