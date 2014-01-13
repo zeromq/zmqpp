@@ -1,3 +1,10 @@
+Development
+===========
+
+* Added options to pop from/push to front of a message, this adds a new frame
+  before the current ones.
+* Added matching but redundent pop from/push to the end of the message.
+
 Version 3.2.0
 =============
 

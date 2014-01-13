@@ -449,7 +449,7 @@ void message::copy(message const& source)
 void message::sent(size_t const& part)
 {
 	// sanity check
-	assert(!_parts[part].sent);
+	assert(!_parts[part].is_sent());
 	_parts[part].mark_sent();
 }
 
