@@ -146,6 +146,11 @@ bool poller::poll(long timeout /* = WAIT_FOREVER */)
 	int result = zmq_poll(_items.data(), _items.size(), timeout);
 	if (result < 0)
 	{
+		if(EINTR == zmq_errno())
+		{
+			return false;
+		}
+
 		throw zmq_internal_exception();
 	}
 
