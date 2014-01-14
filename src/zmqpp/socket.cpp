@@ -118,10 +118,11 @@ bool socket::send(message& message, bool const& dont_block /* = false */)
 		throw std::invalid_argument("sending requires messages have at least one part");
 	}
 
+	bool dont_wait = dont_block;
 	for(size_t i = 0; i < parts; ++i)
 	{
 		int flag = socket::normal;
-		if(dont_block) { flag |= socket::dont_wait; }
+		if(dont_wait) { flag |= socket::dont_wait; }
 		if(i < (parts - 1)) { flag |= socket::send_more; }
 
 #if (ZMQ_VERSION_MAJOR == 2)
@@ -139,6 +140,20 @@ bool socket::send(message& message, bool const& dont_block /* = false */)
 			if((0 == i) && (EAGAIN == zmq_errno()))
 			{
 				return false;
+			}
+
+			if(EINTR == zmq_errno())
+			{
+				if (0 == message.parts())
+				{
+					return false;
+				}
+
+				// If we have an interrupt but it's not on the first part then we
+				// know we can safely send out the rest of the message as we can
+				// enforce that it won't wait on a blocking action
+				dont_wait = true;
+				continue;
 			}
 
 			// sanity checking
@@ -185,11 +200,16 @@ bool socket::receive(message& message, bool const& dont_block /* = false */)
 				return false;
 			}
 
-			// If we have an interrupt but it's not on the first part then we
-			// know we can safely pull out the rest of the message as it will
-			// not be blocking
-			if((message.parts() > 0) && (EINTR == zmq_errno()))
+			if(EINTR == zmq_errno())
 			{
+				if (0 == message.parts())
+				{
+					return false;
+				}
+
+				// If we have an interrupt but it's not on the first part then we
+				// know we can safely pull out the rest of the message as it will
+				// not be blocking
 				continue;
 			}
 
