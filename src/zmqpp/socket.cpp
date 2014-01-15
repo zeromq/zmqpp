@@ -26,7 +26,7 @@ const int socket::send_label;
 const int max_socket_option_buffer_size = 256;
 const int max_stream_buffer_size = 4096;
 
-socket::socket(const context& context, socket_type const& type)
+socket::socket(const context& context, socket_type const type)
 	: _socket(nullptr)
 	, _type(type)
 	, _recv_buffer()
@@ -110,7 +110,7 @@ void socket::close()
 	_socket = nullptr;
 }
 
-bool socket::send(message& message, bool const& dont_block /* = false */)
+bool socket::send(message& message, bool const dont_block /* = false */)
 {
 	size_t parts = message.parts();
 	if (parts == 0)
@@ -171,7 +171,7 @@ bool socket::send(message& message, bool const& dont_block /* = false */)
 	return true;
 }
 
-bool socket::receive(message& message, bool const& dont_block /* = false */)
+bool socket::receive(message& message, bool const dont_block /* = false */)
 {
 	if (message.parts() > 0)
 	{
@@ -228,12 +228,12 @@ bool socket::receive(message& message, bool const& dont_block /* = false */)
 }
 
 
-bool socket::send(std::string const& string, int const& flags /* = NORMAL */)
+bool socket::send(std::string const& string, int const flags /* = NORMAL */)
 {
 	return send_raw(string.data(), string.size(), flags);
 }
 
-bool socket::receive(std::string& string, int const& flags /* = NORMAL */)
+bool socket::receive(std::string& string, int const flags /* = NORMAL */)
 {
 #if (ZMQ_VERSION_MAJOR == 2)
 		int result = zmq_recv( _socket, &_recv_buffer, flags );
@@ -260,7 +260,7 @@ bool socket::receive(std::string& string, int const& flags /* = NORMAL */)
 }
 
 
-bool socket::send_raw(char const* buffer, int const& length, int const& flags /* = NORMAL */)
+bool socket::send_raw(char const* buffer, int const length, int const flags /* = NORMAL */)
 {
 #if (ZMQ_VERSION_MAJOR == 2)
     zmq_msg_t msg;
@@ -293,7 +293,7 @@ bool socket::send_raw(char const* buffer, int const& length, int const& flags /*
 	throw zmq_internal_exception();
 }
 
-bool socket::receive_raw(char* buffer, int& length, int const& flags /* = NORMAL */)
+bool socket::receive_raw(char* buffer, int& length, int const flags /* = NORMAL */)
 {
 #if (ZMQ_VERSION_MAJOR == 2)
 		int result = zmq_recv( _socket, &_recv_buffer, flags );
@@ -338,7 +338,7 @@ bool socket::has_more_parts() const
 
 
 // Set socket options for different types of option
-void socket::set(socket_option const& option, int const& value)
+void socket::set(socket_option const option, int const value)
 {
 	switch(option)
 	{
@@ -432,7 +432,7 @@ void socket::set(socket_option const& option, int const& value)
 	}
 }
 
-void socket::set(socket_option const& option, bool const& value)
+void socket::set(socket_option const option, bool const value)
 {
 	switch(option)
 	{
@@ -464,7 +464,7 @@ void socket::set(socket_option const& option, bool const& value)
 	}
 }
 
-void socket::set(socket_option const& option, uint64_t const& value)
+void socket::set(socket_option const option, uint64_t const value)
 {
 	switch(option)
 	{
@@ -485,7 +485,7 @@ void socket::set(socket_option const& option, uint64_t const& value)
 	}
 }
 
-void socket::set(socket_option const& option, int64_t const& value)
+void socket::set(socket_option const option, int64_t const value)
 {
 	switch(option)
 	{
@@ -509,7 +509,7 @@ void socket::set(socket_option const& option, int64_t const& value)
 	}
 }
 
-void socket::set(socket_option const& option, char const* value, size_t const length)
+void socket::set(socket_option const option, char const* value, size_t const length)
 {
 	switch(option)
 	{
@@ -530,7 +530,7 @@ void socket::set(socket_option const& option, char const* value, size_t const le
 }
 
 // Get socket options, multiple versions for easy of use
-void socket::get(socket_option const& option, int& value) const
+void socket::get(socket_option const option, int& value) const
 {
 	size_t value_size = sizeof(int);
 
@@ -591,7 +591,7 @@ void socket::get(socket_option const& option, int& value) const
 	}
 }
 
-void socket::get(socket_option const& option, bool& value) const
+void socket::get(socket_option const option, bool& value) const
 {
 #if (ZMQ_VERSION_MAJOR == 2)
 	int64_t int_value = 0;
@@ -632,7 +632,7 @@ void socket::get(socket_option const& option, bool& value) const
 	}
 }
 
-void socket::get(socket_option const& option, uint64_t& value) const
+void socket::get(socket_option const option, uint64_t& value) const
 {
 	size_t value_size = sizeof(uint64_t);
 
@@ -654,7 +654,7 @@ void socket::get(socket_option const& option, uint64_t& value) const
 	}
 }
 
-void socket::get(socket_option const& option, int64_t& value) const
+void socket::get(socket_option const option, int64_t& value) const
 {
 	size_t value_size = sizeof(int64_t);
 
@@ -680,7 +680,7 @@ void socket::get(socket_option const& option, int64_t& value) const
 	}
 }
 
-void socket::get(socket_option const& option, std::string& value) const
+void socket::get(socket_option const option, std::string& value) const
 {
 	static std::array<char, max_socket_option_buffer_size> buffer;
 	size_t size = max_socket_option_buffer_size;
@@ -743,7 +743,7 @@ socket::operator void*() const
 	return _socket;
 }
 
-void socket::track_message(message const& /* message */, uint32_t const& parts, bool& should_delete)
+void socket::track_message(message const& /* message */, uint32_t const parts, bool& should_delete)
 {
 	if (parts == 0)
 	{

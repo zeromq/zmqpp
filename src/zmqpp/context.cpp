@@ -26,7 +26,7 @@ void context::terminate()
 }
 
 #if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
-void context::set(context_option const& option, int const& value)
+void context::set(context_option const option, int const value)
 {
 	if (nullptr == _context) { throw invalid_instance("context is invalid"); }
 
@@ -36,7 +36,7 @@ void context::set(context_option const& option, int const& value)
 	}
 }
 
-int context::get(context_option const& option)
+int context::get(context_option const option)
 {
 	if (nullptr == _context) { throw invalid_instance("context is invalid"); }
 

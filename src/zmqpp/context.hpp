@@ -135,7 +135,7 @@ public:
 	 * \param option a valid ::context_option
 	 * \param value to set the option to
 	 */
-	void set(context_option const& option, int const& value);
+	void set(context_option const option, int const value);
 
 	/*!
 	 * Get a context option from the underlaying zmq context.
@@ -143,7 +143,7 @@ public:
 	 * \param option a valid ::context_option
 	 * \return context option value
 	 */
-	int get(context_option const& option);
+	int get(context_option const option);
 #endif
 
 	/*!
