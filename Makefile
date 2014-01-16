@@ -131,7 +131,7 @@ install:
 	if [ -f $(BUILD_PATH)/$(CLIENT_TARGET) ]; then install -m 755 $(BUILD_PATH)/$(CLIENT_TARGET) $(BINDIR); fi
 	$(LDCONFIG)
 	@echo "use make installcheck to test the install"
-	
+
 installcheck: $(TESTS_TARGET)
 	$(BUILD_PATH)/$(TESTS_TARGET)
 
@@ -143,7 +143,7 @@ uninstall:
 	rm -f $(BINDIR)/$(CLIENT_TARGET)
 
 clean:
-	rm -rf $(BUILD_PATH)
+	rm -rf build/*
 	rm -rf docs
 
 client: $(CLIENT_TARGET)
