@@ -11,8 +11,6 @@
 #include <array>
 
 /** \todo cross-platform version of including headers. */
-// We get ieee-754 standard floats from here
-#include <ieee754.h>
 // We get htons and htonl from here
 #include <netinet/in.h>
 
