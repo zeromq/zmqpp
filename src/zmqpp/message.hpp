@@ -12,6 +12,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 
 #include <zmq.h>
 
@@ -46,6 +47,13 @@ public:
 	message();
 	~message();
 
+    template <typename T, typename ...Args>
+    message(T const &part, Args &&...args)
+        : message()
+    {
+        add(part, std::forward<Args>(args)...);
+    }
+
 	size_t parts() const;
 	size_t size(size_t const& part) const;
 	std::string get(size_t const& part) const;
@@ -76,6 +84,21 @@ public:
 		return value;
 	}
 
+    template<int part=0, typename T, typename ...Args>
+    void extract(T &nextpart, Args &...args)
+    {
+        assert(part < parts());
+        get(nextpart,part);
+        extract<part+1>(args...);
+    }
+
+    template<int part=0, typename T>
+    void extract(T &nextpart)
+    {
+        assert(part < parts());
+        get(nextpart,part);
+    }
+
 	// Raw get data operations, useful with data structures more than anything else
 	// Warn: The message (well zmq) still 'owns' the data and will release it
 	// when the message object is freed.
@@ -105,6 +128,13 @@ public:
 
 	// Copy operators will take copies of any data
 	void add(void const* part, size_t const& size);
+
+    template<typename Type, typename ...Args>
+    void add(Type const& part, Args &&...args)
+    {
+        *this << part;
+        add(std::forward<Args>(args)...);
+    }
 
 	template<typename Type>
 	void add(Type const& part)
