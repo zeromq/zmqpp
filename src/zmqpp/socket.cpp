@@ -251,7 +251,7 @@ bool socket::receive(std::string& string, int const& flags /* = NORMAL */)
 		return true;
 	}
 
-	if (EAGAIN == zmq_errno())
+	if (EAGAIN == zmq_errno() || EINTR == zmq_errno())
 	{
 		return false;
 	}
@@ -285,7 +285,7 @@ bool socket::send_raw(char const* buffer, int const& length, int const& flags /*
     zmq_msg_close(&msg);
 #endif
 
-	if (EAGAIN == zmq_errno())
+	if (EAGAIN == zmq_errno() || EINTR == zmq_errno())
 	{
 		return false;
 	}
@@ -311,7 +311,7 @@ bool socket::receive_raw(char* buffer, int& length, int const& flags /* = NORMAL
 		return true;
 	}
 
-	if (EAGAIN == zmq_errno())
+	if (EAGAIN == zmq_errno() || EINTR == zmq_errno())
 	{
 		return false;
 	}

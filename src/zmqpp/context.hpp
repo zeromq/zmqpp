@@ -88,23 +88,7 @@ public:
 	{
 		if (nullptr != _context)
 		{
-
-#ifndef NDEBUG // unused assert variable in release
-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
-			int result = zmq_term(_context);
-#else
-			int result = zmq_ctx_destroy(_context);
-#endif
-			assert(0 == result);
-#else
-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
-			zmq_term(_context);
-#else
-			zmq_ctx_destroy(_context);
-#endif
-#endif // NDEBUG
-
-			_context = nullptr;
+			terminate();
 		}
 	}
 
