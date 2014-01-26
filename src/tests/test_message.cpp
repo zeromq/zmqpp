@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <array>
 
 #include <boost/lexical_cast.hpp>
 
@@ -250,10 +251,10 @@ BOOST_AUTO_TEST_CASE( reserve_zmq_frame )
 
 BOOST_AUTO_TEST_CASE( push_end_of_frame_queue )
 {
-	std::array<std::string, 2> parts = {
+	std::array<std::string, 2> parts = {{
 		"test frame 1",
 		"a much much longer test frame 2 to go over the small message size limitation"
-	};
+	}};
 
 	zmqpp::message message;
 	message.push_back( parts[0] );
@@ -269,11 +270,11 @@ BOOST_AUTO_TEST_CASE( push_end_of_frame_queue )
 
 BOOST_AUTO_TEST_CASE( pop_end_of_frame_queue )
 {
-	std::array<std::string, 3> parts = {
+	std::array<std::string, 3> parts = {{
 		"a long test frame 1 to go over the small message size limitation",
 		"another frame 2",
 		"some final frame 3"
-	};
+	}};
 
 	zmqpp::message message;
 	message << parts[0] << parts[1] << parts[2];
@@ -291,11 +292,11 @@ BOOST_AUTO_TEST_CASE( pop_end_of_frame_queue )
 
 BOOST_AUTO_TEST_CASE( push_front_of_frame_queue )
 {
-	std::array<std::string, 3> parts = {
+	std::array<std::string, 3> parts = {{
 		"a long test frame 1 to go over the small message size limitation",
 		"another frame 2",
 		"some final frame 3"
-	};
+	}};
 
 	zmqpp::message message;
 	message << parts[1] << parts[2];
@@ -313,11 +314,11 @@ BOOST_AUTO_TEST_CASE( push_front_of_frame_queue )
 
 BOOST_AUTO_TEST_CASE( pop_front_of_frame_queue )
 {
-	std::array<std::string, 3> parts = {
+	std::array<std::string, 3> parts = {{
 		"a long test frame 1 to go over the small message size limitation",
 		"another frame 2",
 		"some final frame 3"
-	};
+	}};
 
 	zmqpp::message message;
 	message << parts[0] << parts[1] << parts[2];
