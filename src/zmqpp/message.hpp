@@ -127,7 +127,7 @@ public:
 	}
 
 	// Copy operators will take copies of any data
-	void add(void const* part, size_t const& size);
+	void add(void const* part, size_t const size);
 
     template<typename Type, typename ...Args>
     void add(Type const& part, Args &&...args)
