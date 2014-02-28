@@ -127,14 +127,19 @@ public:
 	}
 
 	// Copy operators will take copies of any data
-	void add(void const* part, size_t const size);
+	template<typename Type>
+	void add(Type *part, size_t const size)
+	{
+		_parts.push_back( frame( part, size ) );
+	};
 
-    template<typename Type, typename ...Args>
-    void add(Type const& part, Args &&...args)
-    {
-        *this << part;
-        add(std::forward<Args>(args)...);
-    }
+
+	template<typename Type, typename ...Args>
+	void add(Type const& part, Args &&...args)
+	{
+		*this << part;
+		add(std::forward<Args>(args)...);
+	}
 
 	template<typename Type>
 	void add(Type const& part)
