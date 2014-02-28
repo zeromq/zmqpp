@@ -8,8 +8,6 @@
 #ifndef ZMQPP_MESSAGE_HPP_
 #define ZMQPP_MESSAGE_HPP_
 
-#include <iostream>
-
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -146,7 +144,7 @@ public:
     template<typename Type>
 	void add(Type const& part)
 	{
-		*this << part;
+    	*this << part;
 	}
 
 	// Stream reader style
