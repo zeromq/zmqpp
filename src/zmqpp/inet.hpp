@@ -8,8 +8,6 @@
 #ifndef ZMQPP_INET_HPP_
 #define ZMQPP_INET_HPP_
 
-#include <array>
-
 /** \todo cross-platform version of including headers. */
 // We get htons and htonl from here
 #include <netinet/in.h>
