@@ -106,6 +106,110 @@ BOOST_AUTO_TEST_CASE( copy_part )
 
 	free(data);
 }
+BOOST_AUTO_TEST_CASE( add_const_void )
+{
+	size_t data_size = strlen("tests");
+	void* data = malloc(data_size);
+	memset(data, 0, data_size);
+	memcpy(data, "tests", data_size);
+
+
+	zmqpp::message* msg = new zmqpp::message();
+
+	msg->add((void const*)data, data_size);
+
+	BOOST_REQUIRE_EQUAL(1, msg->parts());
+	BOOST_CHECK_EQUAL(strlen("tests"), msg->size(0));
+	BOOST_CHECK_EQUAL("tests", msg->get(0));
+
+	delete msg;
+
+	BOOST_CHECK_EQUAL("tests", std::string(static_cast<char*>(data), data_size));
+
+	free(data);
+}
+BOOST_AUTO_TEST_CASE( add_char_star )
+{
+	char data[] = "tests";
+
+	zmqpp::message* msg = new zmqpp::message();
+
+	msg->add((char *)data, strlen(data));
+
+	BOOST_REQUIRE_EQUAL(1, msg->parts());
+	BOOST_CHECK_EQUAL(strlen("tests"), msg->size(0));
+	BOOST_CHECK_EQUAL("tests", msg->get(0));
+
+	delete msg;
+
+	BOOST_CHECK_EQUAL("tests", std::string(static_cast<char*>(data),  strlen(data)));
+}
+
+BOOST_AUTO_TEST_CASE( add_const_char_star )
+{
+	char data[] = "tests";
+
+	zmqpp::message* msg = new zmqpp::message();
+
+	msg->add((char const *)data, strlen(data));
+
+	BOOST_REQUIRE_EQUAL(1, msg->parts());
+	BOOST_CHECK_EQUAL(strlen("tests"), msg->size(0));
+	BOOST_CHECK_EQUAL("tests", msg->get(0));
+
+	delete msg;
+
+	BOOST_CHECK_EQUAL("tests", std::string(static_cast<char*>(data),  strlen(data)));
+
+}
+
+BOOST_AUTO_TEST_CASE( add_char_literal_and_size_t )
+{
+
+	zmqpp::message* msg = new zmqpp::message();
+
+	msg->add("tests", strlen("tests"));
+
+	BOOST_REQUIRE_EQUAL(1, msg->parts());
+	BOOST_CHECK_EQUAL(strlen("tests"), msg->size(0));
+	BOOST_CHECK_EQUAL("tests", msg->get(0));
+
+	delete msg;
+
+}
+BOOST_AUTO_TEST_CASE( add_char_literal_and_number )
+{
+
+	zmqpp::message* msg = new zmqpp::message();
+
+	msg->add("tests", 45);
+
+	BOOST_REQUIRE_EQUAL(2, msg->parts());
+	BOOST_CHECK_EQUAL(strlen("tests"), msg->size(0));
+	BOOST_CHECK_EQUAL("tests", msg->get(0));
+
+	BOOST_REQUIRE_EQUAL(sizeof(int), msg->size(1));
+	BOOST_CHECK_EQUAL(45, msg->get<int>(1));
+
+
+	delete msg;
+
+}
+BOOST_AUTO_TEST_CASE( add_number )
+{
+
+	zmqpp::message* msg = new zmqpp::message();
+
+	msg->add(66);
+
+	BOOST_REQUIRE_EQUAL(1, msg->parts());
+	BOOST_REQUIRE_EQUAL(sizeof(int), msg->size(0));
+	BOOST_CHECK_EQUAL(66, msg->get<int>(0));
+
+
+	delete msg;
+
+}
 
 BOOST_AUTO_TEST_CASE( copy_part_string )
 {

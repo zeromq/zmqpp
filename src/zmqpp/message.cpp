@@ -103,11 +103,6 @@ void message::move(void* part, size_t& size, release_function const& release)
 	_parts.push_back( frame( part, size, &message::release_callback, hint ) );
 }
 
-void message::add(void const* part, size_t const size)
-{
-	_parts.push_back( frame( part, size ) );
-}
-
 // Stream reader style
 void message::reset_read_cursor()
 {
