@@ -22,7 +22,16 @@ frame::frame()
 	}
 }
 
-frame::frame(void const* part, size_t const& size)
+frame::frame(size_t const size)
+	: _sent( false )
+{
+	if( 0 != zmq_msg_init_size( &_msg, size ) )
+	{
+		throw zmq_internal_exception();
+	}
+}
+
+frame::frame(void const* part, size_t const size)
 	: _sent( false )
 {
 	if( 0 != zmq_msg_init_size( &_msg, size ) )
@@ -34,7 +43,7 @@ frame::frame(void const* part, size_t const& size)
 	memcpy( msg_data, part, size );
 }
 
-frame::frame(void* part, size_t& size, zmq_free_fn *ffn, void *hint)
+frame::frame(void* part, size_t const size, zmq_free_fn *ffn, void *hint)
 	: _sent( false )
 {
 	if( 0 != zmq_msg_init_data( &_msg, part, size, ffn, hint ) )
@@ -81,15 +90,6 @@ frame frame::copy() const
 	}
 
 	return other;
-}
-
-frame::frame(size_t const& size)
-	: _sent( false )
-{
-	if( 0 != zmq_msg_init_size( &_msg, size ) )
-	{
-		throw zmq_internal_exception();
-	}
 }
 
 } // namespace zmqpp

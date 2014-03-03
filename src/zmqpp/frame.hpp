@@ -25,9 +25,9 @@ class frame
 {
 public:
 	frame();
-	frame(size_t const& size);
-	frame(void const* part, size_t const& size);
-	frame(void* part, size_t& size, zmq_free_fn *ffn, void *hint);
+	frame(size_t const size);
+	frame(void const* part, size_t const size);
+	frame(void* part, size_t const size, zmq_free_fn *ffn, void *hint);
 
 	~frame();
 

@@ -44,7 +44,7 @@ size_t message::parts() const
  * so accurately represent the intent of these calls.
  */
 
-size_t message::size(size_t const& part /* = 0 */) const
+size_t message::size(size_t const part /* = 0 */) const
 {
 	if(part >= _parts.size())
 	{
@@ -54,7 +54,7 @@ size_t message::size(size_t const& part /* = 0 */) const
 	return _parts[part].size();
 }
 
-void const* message::raw_data(size_t const& part /* = 0 */) const
+void const* message::raw_data(size_t const part /* = 0 */) const
 {
 	if(part >= _parts.size())
 	{
@@ -64,7 +64,7 @@ void const* message::raw_data(size_t const& part /* = 0 */) const
 	return _parts[part].data();
 }
 
-zmq_msg_t& message::raw_msg(size_t const& part /* = 0 */)
+zmq_msg_t& message::raw_msg(size_t const part /* = 0 */)
 {
 	if(part >= _parts.size())
 	{
@@ -88,14 +88,14 @@ zmq_msg_t& message::raw_new_msg(size_t const reserve_data_size)
 	return _parts.back().msg();
 }
 
-std::string message::get(size_t const& part /* = 0 */) const
+std::string message::get(size_t const part /* = 0 */) const
 {
 	return std::string(static_cast<char const*>(raw_data(part)), size(part));
 }
 
 
 // Move operators will take ownership of message parts without copying
-void message::move(void* part, size_t& size, release_function const& release)
+void message::move(void* part, size_t const size, release_function const& release)
 {
 	callback_releaser* hint = new callback_releaser();
 	hint->func = release;
@@ -109,7 +109,7 @@ void message::reset_read_cursor()
 	_read_cursor = 0;
 }
 
-void message::get(int8_t& integer, size_t const& part) const
+void message::get(int8_t& integer, size_t const part) const
 {
 	assert(sizeof(int8_t) == size(part));
 
@@ -117,7 +117,7 @@ void message::get(int8_t& integer, size_t const& part) const
 	integer = *byte;
 }
 
-void message::get(int16_t& integer, size_t const& part) const
+void message::get(int16_t& integer, size_t const part) const
 {
 	assert(sizeof(int16_t) == size(part));
 
@@ -125,7 +125,7 @@ void message::get(int16_t& integer, size_t const& part) const
 	integer = static_cast<int16_t>(ntohs(*network_order));
 }
 
-void message::get(int32_t& integer, size_t const& part) const
+void message::get(int32_t& integer, size_t const part) const
 {
 	assert(sizeof(int32_t) == size(part));
 
@@ -133,7 +133,7 @@ void message::get(int32_t& integer, size_t const& part) const
 	integer = static_cast<int32_t>(htonl(*network_order));
 }
 
-void message::get(int64_t& integer, size_t const& part) const
+void message::get(int64_t& integer, size_t const part) const
 {
 	assert(sizeof(int64_t) == size(part));
 
@@ -141,7 +141,7 @@ void message::get(int64_t& integer, size_t const& part) const
 	integer = static_cast<int64_t>(htonll(*network_order));
 }
 
-void message::get(uint8_t& unsigned_integer, size_t const& part) const
+void message::get(uint8_t& unsigned_integer, size_t const part) const
 {
 	assert(sizeof(uint8_t) == size(part));
 
@@ -149,7 +149,7 @@ void message::get(uint8_t& unsigned_integer, size_t const& part) const
 	unsigned_integer = *byte;
 }
 
-void message::get(uint16_t& unsigned_integer, size_t const& part) const
+void message::get(uint16_t& unsigned_integer, size_t const part) const
 {
 	assert(sizeof(uint16_t) == size(part));
 
@@ -157,7 +157,7 @@ void message::get(uint16_t& unsigned_integer, size_t const& part) const
 	unsigned_integer = ntohs(*network_order);
 }
 
-void message::get(uint32_t& unsigned_integer, size_t const& part) const
+void message::get(uint32_t& unsigned_integer, size_t const part) const
 {
 	assert(sizeof(uint32_t) == size(part));
 
@@ -165,7 +165,7 @@ void message::get(uint32_t& unsigned_integer, size_t const& part) const
 	unsigned_integer = ntohl(*network_order);
 }
 
-void message::get(uint64_t& unsigned_integer, size_t const& part) const
+void message::get(uint64_t& unsigned_integer, size_t const part) const
 {
 	assert(sizeof(uint64_t) == size(part));
 
@@ -173,27 +173,23 @@ void message::get(uint64_t& unsigned_integer, size_t const& part) const
 	unsigned_integer = ntohll(*network_order);
 }
 
-void message::get(float& floating_point, size_t const& part) const
+void message::get(float& floating_point, size_t const part) const
 {
-	assert(sizeof(uint32_t) == size(part));
+	assert(sizeof(float) == size(part));
 
-	uint32_t const* network_order = static_cast<uint32_t const*>(raw_data(part));
-	uint32_t host_order = ntohl(*network_order);
-	float* temp = reinterpret_cast<float*>(&host_order);
-	floating_point = *temp;
+	float const* network_order = static_cast<float const*>(raw_data(part));
+	floating_point = ntohf(*network_order);
 }
 
-void message::get(double& double_precision, size_t const& part) const
+void message::get(double& double_precision, size_t const part) const
 {
-	assert(sizeof(uint64_t) == size(part));
+	assert(sizeof(double) == size(part));
 
-	uint64_t const* network_order = static_cast<uint64_t const*>(raw_data(part));
-	uint64_t host_order = ntohll(*network_order);
-	double* temp = reinterpret_cast<double*>(&host_order);
-	double_precision = *temp;
+	double const* network_order = static_cast<double const*>(raw_data(part));
+	double_precision = ntohd(*network_order);
 }
 
-void message::get(bool& boolean, size_t const& part) const
+void message::get(bool& boolean, size_t const part) const
 {
 	assert(sizeof(uint8_t) == size(part));
 
@@ -201,20 +197,20 @@ void message::get(bool& boolean, size_t const& part) const
 	boolean = (*byte != 0);
 }
 
-void message::get(std::string& string, size_t const& part) const
+void message::get(std::string& string, size_t const part) const
 {
 	string.assign( get(part) );
 }
 
 
 // Stream writer style - these all use copy styles
-message& message::operator<<(int8_t const& integer)
+message& message::operator<<(int8_t const integer)
 {
         add(reinterpret_cast<void const*>(&integer), sizeof(int8_t));
 	return *this;
 }
 
-message& message::operator<<(int16_t const& integer)
+message& message::operator<<(int16_t const integer)
 {
 	uint16_t network_order = htons(static_cast<uint16_t>(integer));
 	add(reinterpret_cast<void const*>(&network_order), sizeof(uint16_t));
@@ -222,7 +218,7 @@ message& message::operator<<(int16_t const& integer)
 	return *this;
 }
 
-message& message::operator<<(int32_t const& integer)
+message& message::operator<<(int32_t const integer)
 {
 	uint32_t network_order = htonl(static_cast<uint32_t>(integer));
 	add(reinterpret_cast<void const*>(&network_order), sizeof(uint32_t));
@@ -230,7 +226,7 @@ message& message::operator<<(int32_t const& integer)
 	return *this;
 }
 
-message& message::operator<<(int64_t const& integer)
+message& message::operator<<(int64_t const integer)
 {
 	uint64_t network_order = htonll(static_cast<uint64_t>(integer));
 	add(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
@@ -239,13 +235,13 @@ message& message::operator<<(int64_t const& integer)
 }
 
 
-message& message::operator<<(uint8_t const& unsigned_integer)
+message& message::operator<<(uint8_t const unsigned_integer)
 {
         add(reinterpret_cast<void const*>(&unsigned_integer), sizeof(uint8_t));
 	return *this;
 }
 
-message& message::operator<<(uint16_t const& unsigned_integer)
+message& message::operator<<(uint16_t const unsigned_integer)
 {
 	uint16_t network_order = htons(unsigned_integer);
 	add(reinterpret_cast<void const*>(&network_order), sizeof(uint16_t));
@@ -253,7 +249,7 @@ message& message::operator<<(uint16_t const& unsigned_integer)
 	return *this;
 }
 
-message& message::operator<<(uint32_t const& unsigned_integer)
+message& message::operator<<(uint32_t const unsigned_integer)
 {
 	uint32_t network_order = htonl(unsigned_integer);
 	add(reinterpret_cast<void const*>(&network_order), sizeof(uint32_t));
@@ -261,7 +257,7 @@ message& message::operator<<(uint32_t const& unsigned_integer)
 	return *this;
 }
 
-message& message::operator<<(uint64_t const& unsigned_integer)
+message& message::operator<<(uint64_t const unsigned_integer)
 {
 	uint64_t network_order = htonll(unsigned_integer);
 	add(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
@@ -269,29 +265,27 @@ message& message::operator<<(uint64_t const& unsigned_integer)
 	return *this;
 }
 
-message& message::operator<<(float const& floating_point)
+message& message::operator<<(float const floating_point)
 {
 	assert(sizeof(float) == 4);
 
-	uint32_t const host_order = *reinterpret_cast<uint32_t const*>(&floating_point);
-	uint32_t network_order = htonl(host_order);
-	add(reinterpret_cast<void const*>(&network_order), sizeof(uint32_t));
+	float network_order = htonf(floating_point);
+	add(&network_order, sizeof(float));
 
 	return *this;
 }
 
-message& message::operator<<(double const& double_precision)
+message& message::operator<<(double const double_precision)
 {
 	assert(sizeof(double) == 8);
 
-	uint64_t const host_order = *reinterpret_cast<uint64_t const*>(&double_precision);
-	uint64_t network_order = htonll(host_order);
-	add(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
+	double network_order = htond(double_precision);
+	add(&network_order, sizeof(double));
 
 	return *this;
 }
 
-message& message::operator<<(bool const& boolean)
+message& message::operator<<(bool const boolean)
 {
 	uint8_t byte = (boolean) ? 1 : 0;
 	add(reinterpret_cast<void const*>(&byte), sizeof(uint8_t));
@@ -311,77 +305,75 @@ message& message::operator<<(std::string const& string)
 	return *this;
 }
 
-void message::push_front(void const* part, size_t const& size)
+void message::push_front(void const* part, size_t const size)
 {
 	_parts.emplace( _parts.begin(), part, size );
 }
 
-void message::push_front(int8_t const& integer)
+void message::push_front(int8_t const integer)
 {
 	push_front(&integer, sizeof(int8_t));
 }
 
-void message::push_front(int16_t const& integer)
+void message::push_front(int16_t const integer)
 {
 	uint16_t network_order = htons(static_cast<uint16_t>(integer));
 	push_front(&network_order, sizeof(uint16_t));
 }
 
-void message::push_front(int32_t const& integer)
+void message::push_front(int32_t const integer)
 {
 	uint32_t network_order = htonl(static_cast<uint32_t>(integer));
 	push_front(&network_order, sizeof(uint32_t));
 }
 
-void message::push_front(int64_t const& integer)
+void message::push_front(int64_t const integer)
 {
 	uint64_t network_order = htonll(static_cast<uint64_t>(integer));
 	push_front(&network_order, sizeof(uint64_t));
 }
 
 
-void message::push_front(uint8_t const& unsigned_integer)
+void message::push_front(uint8_t const unsigned_integer)
 {
 	push_front(&unsigned_integer, sizeof(uint8_t));
 }
 
-void message::push_front(uint16_t const& unsigned_integer)
+void message::push_front(uint16_t const unsigned_integer)
 {
 	uint16_t network_order = htons(unsigned_integer);
 	push_front(&network_order, sizeof(uint16_t));
 }
 
-void message::push_front(uint32_t const& unsigned_integer)
+void message::push_front(uint32_t const unsigned_integer)
 {
 	uint32_t network_order = htonl(unsigned_integer);
 	push_front(&network_order, sizeof(uint32_t));
 }
 
-void message::push_front(uint64_t const& unsigned_integer)
+void message::push_front(uint64_t const unsigned_integer)
 {
 	uint64_t network_order = htonll(unsigned_integer);
 	push_front(&network_order, sizeof(uint64_t));
 }
 
-void message::push_front(float const& floating_point)
+void message::push_front(float const floating_point)
 {
 	assert(sizeof(float) == 4);
 
-	uint32_t const host_order = *reinterpret_cast<uint32_t const*>(&floating_point);
-	uint32_t network_order = htonl(host_order);
-	push_front(&network_order, sizeof(uint32_t));
+	float network_order = htonf(floating_point);
+	push_front(&network_order, sizeof(float));
 }
 
-void message::push_front(double const& double_precision)
+void message::push_front(double const double_precision)
 {
 	assert(sizeof(double) == 8);
 
-	uint64_t const host_order = *reinterpret_cast<uint64_t const*>(&double_precision);
-	uint64_t network_order = htonll(host_order);
-	push_front(&network_order, sizeof(uint64_t));
+	double network_order = htond(double_precision);
+	push_front(&network_order, sizeof(double));
 }
 
-void message::push_front(bool const& boolean)
+void message::push_front(bool const boolean)
 {
 	uint8_t byte = (boolean) ? 1 : 0;
 	push_front(&byte, sizeof(uint8_t));
@@ -441,7 +433,7 @@ void message::copy(message const& source)
 }
 
 // Used for internal tracking
-void message::sent(size_t const& part)
+void message::sent(size_t const part)
 {
 	// sanity check
 	assert(!_parts[part].is_sent());

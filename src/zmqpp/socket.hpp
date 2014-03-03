@@ -62,7 +62,7 @@ public:
 	 * \param context the zmq context under which the socket will live
 	 * \param type a valid ::socket_type for the socket
 	 */
-	socket(context_t const& context, socket_type const& type);
+	socket(context_t const& context, socket_type const type);
 
 	/*!
 	 * This will close any socket still open before returning
@@ -166,7 +166,7 @@ public:
 	 * \param dont_block boolean to dictate if we wait while sending.
 	 * \return true if message sent, false if it would have blocked
 	 */
-	bool send(message_t& message, bool const& dont_block = false);
+	bool send(message_t& message, bool const dont_block = false);
 
 	/*!
 	 * Gets a message from the connection, this may be a multipart message.
@@ -178,7 +178,7 @@ public:
 	 * \param dont_block boolean to dictate if we wait for data.
 	 * \return true if message sent, false if it would have blocked
 	 */
-	bool receive(message_t& message, bool const& dont_block = false);
+	bool receive(message_t& message, bool const dont_block = false);
 
 	/*!
 	 * Sends the byte data held by the string as the next message part.
@@ -190,7 +190,7 @@ public:
 	 * \param flags message send flags
 	 * \return true if message part sent, false if it would have blocked
 	 */
-	bool send(std::string const& string, int const& flags = normal);
+	bool send(std::string const& string, int const flags = normal);
 
 	/*!
 	 * If there is a message ready then get the next part as a string
@@ -202,7 +202,7 @@ public:
 	 * \param flags message receive flags
 	 * \return true if message part received, false if it would have blocked
 	 */
-	bool receive(std::string& string, int const& flags = normal);
+	bool receive(std::string& string, int const flags = normal);
 
 	/*!
 	 * Sends the byte data pointed to by buffer as the next part of the message.
@@ -215,7 +215,7 @@ public:
 	 * \param flags message send flags
 	 * \return true if message part sent, false if it would have blocked
 	 */
-	bool send_raw(char const* buffer, int const& length, int const& flags = normal);
+	bool send_raw(char const* buffer, int const length, int const flags = normal);
 
 	/*!
 	 * \warning If the buffer is not large enough for the message part then the
@@ -232,7 +232,7 @@ public:
 	 * \param flags message receive flags
 	 * \return true if message part received, false if it would have blocked
 	 */
-	bool receive_raw(char* buffer, int& length, int const& flags = normal);
+	bool receive_raw(char* buffer, int& length, int const flags = normal);
 
 	/*!
 	 *
@@ -332,7 +332,7 @@ public:
 	 * \param option a valid ::socket_option
 	 * \param value to set the option to
 	 */
-	void set(socket_option const& option, int const& value);
+	void set(socket_option const option, int const value);
 
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
@@ -342,7 +342,7 @@ public:
 	 * \param option a valid ::socket_option
 	 * \param value to set the option to
 	 */
-	void set(socket_option const& option, bool const& value);
+	void set(socket_option const option, bool const value);
 
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
@@ -350,7 +350,7 @@ public:
 	 * \param option a valid ::socket_option
 	 * \param value to set the option to
 	 */
-	void set(socket_option const& option, uint64_t const& value);
+	void set(socket_option const option, uint64_t const value);
 
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
@@ -358,7 +358,7 @@ public:
 	 * \param option a valid ::socket_option
 	 * \param value to set the option to
 	 */
-	void set(socket_option const& option, int64_t const& value);
+	void set(socket_option const option, int64_t const value);
 
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
@@ -367,7 +367,7 @@ public:
 	 * \param pointer to raw byte value to set the option to
 	 * \param length the size of the raw byte value
 	 */
-	void set(socket_option const& option, char const* value, size_t const length);
+	void set(socket_option const option, char const* value, size_t const length);
 
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
@@ -375,7 +375,7 @@ public:
 	 * \param option a valid ::socket_option
 	 * \param pointer to null terminated cstring value to set the option to
 	 */
-	inline void set(socket_option const& option, char const* value) { set(option, value, strlen(value)); }
+	inline void set(socket_option const option, char const* value) { set(option, value, strlen(value)); }
 
 	/*!
 	 * Set the value of an option in the underlaying zmq socket.
@@ -383,7 +383,7 @@ public:
 	 * \param option a valid ::socket_option
 	 * \param value to set the option to
 	 */
-	inline void set(socket_option const& option, std::string const& value) { set(option, value.c_str(), value.length()); }
+	inline void set(socket_option const option, std::string const value) { set(option, value.c_str(), value.length()); }
 
 	/*!
 	 * Get a socket option from the underlaying zmq socket.
@@ -391,7 +391,7 @@ public:
 	 * \param option a valid ::socket_option
 	 * \param value referenced int to return value in
 	 */
-	void get(socket_option const& option, int& value) const;
+	void get(socket_option const option, int& value) const;
 
 	/*!
 	 * Get a socket option from the underlaying zmq socket.
@@ -399,7 +399,7 @@ public:
 	 * \param option a valid ::socket_option
 	 * \param value referenced bool to return value in
 	 */
-	void get(socket_option const& option, bool& value) const;
+	void get(socket_option const option, bool& value) const;
 
 	/*!
 	 * Get a socket option from the underlaying zmq socket.
@@ -407,7 +407,7 @@ public:
 	 * \param option a valid ::socket_option
 	 * \param value referenced uint64_t to return value in
 	 */
-	void get(socket_option const& option, uint64_t& value) const;
+	void get(socket_option const option, uint64_t& value) const;
 
 	/*!
 	 * Get a socket option from the underlaying zmq socket.
@@ -415,7 +415,7 @@ public:
 	 * \param option a valid ::socket_option
 	 * \param value referenced uint64_t to return value in
 	 */
-	void get(socket_option const& option, int64_t& value) const;
+	void get(socket_option const option, int64_t& value) const;
 
 	/*!
 	 * Get a socket option from the underlaying zmq socket.
@@ -423,7 +423,7 @@ public:
 	 * \param option a valid ::socket_option
 	 * \param value referenced std::string to return value in
 	 */
-	void get(socket_option const& option, std::string& value) const;
+	void get(socket_option const option, std::string& value) const;
 
 	/*!
 	 * For those that don't want to get into a referenced value this templated method
@@ -433,7 +433,7 @@ public:
 	 * \return socket option value
 	 */
 	template<typename Type>
-	Type get(socket_option const& option) const
+	Type get(socket_option const option) const
 	{
 		Type value = Type();
 		get(option, value);
@@ -492,7 +492,7 @@ private:
 	socket(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
 	socket& operator=(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
 
-	void track_message(message_t const&, uint32_t const&, bool&);
+	void track_message(message_t const&, uint32_t const, bool&);
 };
 
 }
