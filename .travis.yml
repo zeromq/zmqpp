@@ -1,0 +1,19 @@
+# Zmqpp
+
+language: cpp
+
+before_script:
+  # Requirements
+  - sudo apt-get install libboost-all-dev
+
+  # Perform regression test build against ZeroMQ v4.x
+  - git clone git://github.com/zeromq/zeromq4-x.git
+  - cd zeromq4-x
+  - ./autogen.sh
+  - ./configure && make
+  - sudo make install
+  - sudo ldconfig
+  - cd ..
+
+script:
+  - make check
