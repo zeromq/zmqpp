@@ -47,9 +47,9 @@ Documentation
 Most of the code is now commented with doxygen style tags, and a basic
 configuration file to generate them is in the root directory.
 
-To build the documentation with doxygen then use;
+To build the documentation with doxygen use
 
-    doxygen zmqpp.doxygen.conf
+    cd docs; doxygen zmqpp.doxygen.conf
 
 And the resulting html or latex docs will be in the docs/html or docs/latex
 directories.
