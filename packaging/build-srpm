@@ -1,0 +1,55 @@
+#!/bin/bash
+
+PKG_NAME=zmqpp
+t=`dirname ${BASH_SOURCE}`
+PKG_VERSION=`cat ${t}/../CHANGES.md  | grep ^Version | head -n 1 | awk -F" " '{print $2}'`
+PKG_RELEASE=`git log --pretty="%ai" -n 1 | tr -d ':' | tr ' \-+:' '....'  | cut -c1-17`
+PKG_RELEASE=${PKG_RELEASE}.git`git log --pretty="%h" -n 1`
+OUTPUT_DIRECTORY=
+
+syntax() {
+    echo "build-srpm -o [output directory]"
+}
+
+while getopts "o:" o; do
+    case "${o}" in
+        o)
+        OUTPUT_DIRECTORY=${OPTARG}
+            ;;
+        *)
+            syntax
+            exit 1
+            ;;
+    esac
+done
+
+if [ -z "$OUTPUT_DIRECTORY" ] ; then
+    echo error: no output directory specified
+    echo
+    syntax
+    exit 1
+fi
+
+if [ ! -d ${OUTPUT_DIRECTORY} ] ; then
+    echo "error: output directory doesn't exist"
+    exit 1
+fi
+
+TARGET_DIR=`mktemp --tmpdir -d XXXXXXrpm-packaging`
+
+_prepare_srpm() {
+    mkdir -p ${TARGET_DIR}/SPECS || return 1
+    mkdir -p ${TARGET_DIR}/SOURCES || return 1
+    git archive --format tar.gz --prefix=${PKG_NAME}-${PKG_VERSION}/ HEAD > \
+	${TARGET_DIR}/SOURCES/${PKG_NAME}-${PKG_VERSION}.tar.gz || return 1
+    cat ${t}/${PKG_NAME}.spec | sed s/PKG_VERSION/${PKG_VERSION}/g \
+       | sed s/PKG_RELEASE/${PKG_RELEASE}/g > ${TARGET_DIR}/SPECS/${PKG_NAME}.spec || return 1
+    rpmbuild -bs --define "_topdir ${TARGET_DIR}" ${TARGET_DIR}/SPECS/${PKG_NAME}.spec || return 1
+    return 0
+}
+
+if _prepare_srpm; then
+    cp -a ${TARGET_DIR}/SRPMS/* ${OUTPUT_DIRECTORY}
+fi
+
+rm -rf ${TARGET_DIR}
