@@ -8,6 +8,7 @@
 #ifndef ZMQPP_MESSAGE_HPP_
 #define ZMQPP_MESSAGE_HPP_
 
+#include <cassert>
 #include <functional>
 #include <string>
 #include <unordered_map>
