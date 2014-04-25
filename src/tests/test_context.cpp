@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE( validaty )
 
 BOOST_AUTO_TEST_CASE( throws_exception )
 {
-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+#if (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
 	BOOST_CHECK_THROW(new zmqpp::context(-1), zmqpp::zmq_internal_exception);
 #else
 	zmqpp::context context;
