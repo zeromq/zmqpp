@@ -264,7 +264,7 @@ bool socket::receive(std::string& string, int const flags /* = NORMAL */)
 }
 
 
-bool socket::send_raw(char const* buffer, int const length, int const flags /* = NORMAL */)
+bool socket::send_raw(char const* buffer, size_t const length, int const flags /* = NORMAL */)
 {
 #if (ZMQ_VERSION_MAJOR == 2)
     zmq_msg_t msg;
