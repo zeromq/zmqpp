@@ -215,7 +215,7 @@ public:
 	 * \param flags message send flags
 	 * \return true if message part sent, false if it would have blocked
 	 */
-	bool send_raw(char const* buffer, int const length, int const flags = normal);
+	bool send_raw(char const* buffer, size_t const length, int const flags = normal);
 
 	/*!
 	 * \warning If the buffer is not large enough for the message part then the
