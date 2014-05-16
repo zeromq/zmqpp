@@ -137,6 +137,30 @@ void poller::remove(int const descriptor)
 	reindex( index );
 }
 
+void poller::remove(const zmq_pollitem_t &item)
+{
+    if (nullptr == item.socket)
+      return remove(item.fd);
+    
+    auto found = _index.find(item.socket);
+    if (_index.end() == found) { return; }
+    
+    if ( _items.size() - 1 == found->second )
+      {
+	_items.pop_back();
+	_index.erase(found);
+	return;
+      }
+    
+    std::swap(_items[found->second], _items.back());
+    _items.pop_back();
+    
+    auto index = found->second;
+    _index.erase(found);
+    
+    reindex( index );
+}
+
 void poller::check_for(socket const& socket, short const event)
 {
 	auto found = _index.find(socket);

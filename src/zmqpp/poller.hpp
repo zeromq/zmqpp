@@ -112,6 +112,13 @@ public:
 	void remove(int const descriptor);
 
 	/*!
+	 * Stop monitoring a zmq_pollitem_t
+	 *
+	 * \param item the pollitem to stop monitoring.
+	 */
+	void remove(const zmq_pollitem_t &item);
+
+	/*!
 	 * Update the monitored event flags for a given socket.
 	 *
 	 * \param socket the socket to update event flags.
