@@ -36,7 +36,7 @@ namespace zmqpp
          * Any sockets will need to be closed separately.
          */
         ~reactor();
-
+	
         /*!
          * Add a socket to the reactor, providing a handler that will be called when the monitored events occur.
          *
@@ -148,7 +148,17 @@ namespace zmqpp
 
     private:
         std::vector<PollItemCallablePair> items_;
-        poller poller_;
+        std::vector<const socket_t *> sockRemoveLater_;
+        std::vector<int> fdRemoveLater_;
+      
+      /**
+       * Flush the fdRemoveLater_ and sockRemoveLater_ vector, effectively removing
+       * the item for the reactor and poller.
+       */
+      void flush_remove_later();
+
+      poller poller_;
+      bool dispatching_;
     };
 
 }
