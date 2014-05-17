@@ -12,7 +12,8 @@
 namespace zmqpp
 {
 
-    reactor::reactor()
+    reactor::reactor() :
+    dispatching_(false)
     {
 
     }
@@ -52,6 +53,11 @@ namespace zmqpp
 
     void reactor::remove(socket_t const& socket)
     {
+        if (dispatching_)
+        {
+            sockRemoveLater_.push_back(&socket);
+            return;
+        }
         items_.erase(std::remove_if(items_.begin(), items_.end(), [&socket](const PollItemCallablePair & pair) -> bool
         {
             const zmq_pollitem_t &item = pair.first;
@@ -66,6 +72,11 @@ namespace zmqpp
 
     void reactor::remove(int const descriptor)
     {
+        if (dispatching_)
+        {
+            fdRemoveLater_.push_back(descriptor);
+            return;
+        }
         items_.erase(std::remove_if(items_.begin(), items_.end(), [descriptor](const PollItemCallablePair & pair) -> bool
         {
             const zmq_pollitem_t &item = pair.first;
@@ -92,6 +103,7 @@ namespace zmqpp
     {
         if (poller_.poll(timeout))
         {
+            dispatching_ = true;
             for (const PollItemCallablePair &pair : items_)
             {
                 const zmq_pollitem_t &pollitem = pair.first;
@@ -99,6 +111,8 @@ namespace zmqpp
                 if (poller_.has_input(pollitem) || poller_.has_error(pollitem) || poller_.has_output(pollitem))
                     pair.second();
             }
+            dispatching_ = false;
+            flush_remove_later();
             return true;
         }
         return false;
@@ -122,6 +136,16 @@ namespace zmqpp
     const poller& reactor::get_poller() const
     {
         return poller_;
+    }
+
+    void reactor::flush_remove_later()
+    {
+        for (int fd : fdRemoveLater_)
+            remove(fd);
+        for (const socket_t *sock : sockRemoveLater_)
+            remove(*sock);
+        fdRemoveLater_.clear();
+        sockRemoveLater_.clear();
     }
 
 }
