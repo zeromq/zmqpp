@@ -13,6 +13,7 @@
 #include "zmqpp/context.hpp"
 #include "zmqpp/socket.hpp"
 #include "zmqpp/message.hpp"
+#include "zmqpp/signal.hpp"
 
 BOOST_AUTO_TEST_SUITE( socket )
 
@@ -379,6 +380,53 @@ BOOST_AUTO_TEST_CASE( multitarget_puller )
 	BOOST_CHECK_EQUAL("hello world!", message);
 	BOOST_CHECK(puller.receive(message));
 	BOOST_CHECK_EQUAL("a test message", message);
+}
+
+
+BOOST_AUTO_TEST_CASE( test_receive_send_signals )
+{
+    zmqpp::context ctx;
+    zmqpp::socket p1(ctx, zmqpp::socket_type::pair);
+    zmqpp::socket p2(ctx, zmqpp::socket_type::pair);
+    
+    p1.bind("inproc://test");
+    p2.connect("inproc://test");
+    
+    p1.send(zmqpp::signal::test);
+    p1.send("....");
+    p1.send(zmqpp::signal::stop);
+
+    zmqpp::signal s;
+    std::string str;
+    
+    p2.receive(s);
+    BOOST_CHECK_EQUAL(zmqpp::signal::test, s);
+    p2.receive(str);
+    p2.send(zmqpp::signal::test);
+    p2.receive(s);
+    BOOST_CHECK_EQUAL(zmqpp::signal::stop, s);
+    
+    p1.receive(s);
+    BOOST_CHECK_EQUAL(zmqpp::signal::test, s);
+}
+
+BOOST_AUTO_TEST_CASE( test_wait )
+{
+    zmqpp::context ctx;
+    zmqpp::socket p1(ctx, zmqpp::socket_type::pair);
+    zmqpp::socket p2(ctx, zmqpp::socket_type::pair);
+    
+    p1.bind("inproc://test");
+    p2.connect("inproc://test");
+    
+    p1.send(zmqpp::signal::test);
+    p1.send("....");
+    p1.send("___");
+    p1.send(zmqpp::signal::stop);
+
+    // test wait(): the non signal message must be discarded.
+    BOOST_CHECK_EQUAL(zmqpp::signal::test, p2.wait());
+    BOOST_CHECK_EQUAL(zmqpp::signal::stop, p2.wait());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -141,6 +141,15 @@ void message::get(int64_t& integer, size_t const part) const
 	integer = static_cast<int64_t>(zmqpp::htonll(*network_order));
 }
 
+void message::get(signal &sig, size_t const part) const
+{
+    assert(sizeof(signal) == size(part));
+    int64_t v;
+    get(v, part);
+    
+    sig = static_cast<signal>(v);
+}
+
 void message::get(uint8_t& unsigned_integer, size_t const part) const
 {
 	assert(sizeof(uint8_t) == size(part));
@@ -234,6 +243,10 @@ message& message::operator<<(int64_t const integer)
 	return *this;
 }
 
+message &message::operator<<(signal const sig)
+{
+    return (*this) << static_cast<int64_t>(sig);
+}
 
 message& message::operator<<(uint8_t const unsigned_integer)
 {
@@ -333,6 +346,10 @@ void message::push_front(int64_t const integer)
 	push_front(&network_order, sizeof(uint64_t));
 }
 
+void message::push_front(signal const sig)
+{
+    push_front(static_cast<int64_t>(sig));
+}
 
 void message::push_front(uint8_t const unsigned_integer)
 {
@@ -449,6 +466,18 @@ void message::release_callback(void* data, void* hint)
 	releaser->func(data);
 
 	delete releaser;
+}
+
+bool message::is_signal() const
+{
+    if (parts() == 1 && size(0) == sizeof(signal))
+    {
+        signal s;
+        get(s, 0);
+        if ((static_cast<int64_t>(s) >> 8) == static_cast<int64_t>(signal::header))
+            return true;
+    }
+    return false;
 }
 
 }
