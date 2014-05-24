@@ -114,6 +114,24 @@ void socket::close()
 	_socket = nullptr;
 }
 
+bool socket::send(zmqpp::signal sig, int const flags)
+{
+    message msg(sig);
+    return send(msg, flags);
+}
+
+bool socket::receive(zmqpp::signal &sig, int const flags)
+{
+    message msg;
+    bool ret = receive(msg, normal);
+    if (ret)
+    {
+        assert(msg.is_signal());
+        msg.get(sig, 0);
+    }
+    return ret;
+}
+
 bool socket::send(message& message, bool const dont_block /* = false */)
 {
 	size_t parts = message.parts();
@@ -753,6 +771,23 @@ void socket::track_message(message const& /* message */, uint32_t const parts, b
 	{
 		should_delete = true;
 	}
+}
+
+
+signal socket::wait()
+{
+    while (true)
+    {
+        message msg;
+        receive(msg);
+        
+        if (msg.is_signal())
+        {
+            signal sig;
+            msg.get(sig, 0);
+            return sig;
+        }
+    }
 }
 
 }

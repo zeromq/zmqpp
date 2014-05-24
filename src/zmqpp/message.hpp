@@ -18,6 +18,7 @@
 
 #include "compatibility.hpp"
 #include "frame.hpp"
+#include "signal.hpp"
 
 namespace zmqpp
 {
@@ -61,7 +62,8 @@ public:
 	void get(int8_t& integer, size_t const part) const;
 	void get(int16_t& integer, size_t const part) const;
 	void get(int32_t& integer, size_t const part) const;
-	void get(int64_t& integer, size_t const part) const;
+	void get(int64_t& integer, size_t const part) const;	
+	void get(signal& sig, size_t const part) const;
 
 	void get(uint8_t& unsigned_integer, size_t const part) const;
 	void get(uint16_t& unsigned_integer, size_t const part) const;
@@ -162,6 +164,7 @@ public:
 	message& operator<<(int16_t const integer);
 	message& operator<<(int32_t const integer);
 	message& operator<<(int64_t const integer);
+	message& operator<<(signal const sig);
 
 	message& operator<<(uint8_t const unsigned_integer);
 	message& operator<<(uint16_t const unsigned_integer);
@@ -183,6 +186,7 @@ public:
 	void push_front(int16_t const integer);
 	void push_front(int32_t const integer);
 	void push_front(int64_t const integer);
+	void push_front(signal const sig);
 
 	void push_front(uint8_t const unsigned_integer);
 	void push_front(uint16_t const unsigned_integer);
@@ -229,6 +233,14 @@ public:
 	zmq_msg_t& raw_msg(size_t const part = 0);
 	zmq_msg_t& raw_new_msg();
 	zmq_msg_t& raw_new_msg(size_t const reserve_data_size);
+	
+	/**
+	 * Check if the message is a signal.
+	 * If the message has 1 part, has the correct size and if the 7 first bytes match
+	 * the signal header we consider the message a signal.
+	 * @return true if the message is a signal, false otherwise
+	 */
+	bool is_signal() const;
 
 private:
 	typedef std::vector<frame> parts_type;

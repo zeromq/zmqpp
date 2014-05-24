@@ -54,6 +54,20 @@ public:
 	{ }
 };
 
+    /**
+     * Represents a failed zmqpp::actor initialization.
+     */
+    class actor_initialization_exception : public exception
+    {
+    public:
+
+	actor_initialization_exception() :
+	exception("Actor Initialization Exception")
+	{
+	}
+
+    };
+
 /*!
  * Represents internal zmq errors.
  *
