@@ -72,6 +72,7 @@ void socket::bind(endpoint_t const& endpoint)
 	}
 }
 
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 void socket::unbind(endpoint_t const& endpoint)
 {
 	int result = zmq_unbind(_socket, endpoint.c_str());
@@ -81,6 +82,7 @@ void socket::unbind(endpoint_t const& endpoint)
 		throw zmq_internal_exception();
 	}
 }
+#endif
 
 void socket::connect(endpoint_t const& endpoint)
 {
@@ -92,6 +94,7 @@ void socket::connect(endpoint_t const& endpoint)
 	}
 }
 
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 void socket::disconnect(endpoint_t const& endpoint)
 {
 	int result = zmq_disconnect(_socket, endpoint.c_str());
@@ -101,6 +104,7 @@ void socket::disconnect(endpoint_t const& endpoint)
 		throw zmq_internal_exception();
 	}
 }
+#endif
 
 void socket::close()
 {
