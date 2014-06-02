@@ -85,12 +85,14 @@ public:
 	 */
 	void bind(endpoint_t const& endpoint);
 
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	/*!
 	 * Unbinds from a previously bound endpoint.
 	 *
 	 * \param endpoint the zmq endpoint to bind to
 	 */
 	void unbind(endpoint_t const& endpoint);
+#endif
 
 	/*!
 	 * Asynchronously connects to an endpoint.
@@ -132,6 +134,7 @@ public:
 	 *
 	 * \param endpoint the zmq endpoint to disconnect from
 	 */
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	void disconnect(endpoint_t const& endpoint);
 
 	/*!
@@ -150,6 +153,7 @@ public:
 			disconnect(*it);
 		}
 	}
+#endif
 
 	/*!
 	 * Closes the internal zmq socket and marks this instance
