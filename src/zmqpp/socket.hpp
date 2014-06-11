@@ -208,10 +208,10 @@ public:
 	 * \return true if message part received, false if it would have blocked
 	 */
 	bool receive(std::string& string, int const flags = normal);
-	
+
 	/**
 	 * Sends a signal over the socket.
-	 * 
+	 *
 	 * If the socket::DONT_WAIT flag and we are unable to add a new message to
 	 * socket then this function will return false.
 	 * @param sig signal to send.
@@ -232,7 +232,7 @@ public:
 	 * \return true if signal received, false if it would have blocked
 	 */
 	bool receive(signal &sig, int const flags = normal);
-	
+
 	/*!
 	 * Sends the byte data pointed to by buffer as the next part of the message.
 	 *
@@ -261,7 +261,7 @@ public:
 	 * \param flags message receive flags
 	 * \return true if message part received, false if it would have blocked
 	 */
-	bool receive_raw(char* buffer, int& length, int const flags = normal);
+	bool receive_raw(char* buffer, size_t& length, int const flags = normal);
 
 	/*!
 	 *
@@ -472,12 +472,12 @@ public:
 	/**
 	 * Wait on signal, this is useful to coordinate thread.
 	 * Block until a signal is received, and returns the received signal.
-	 * 
+	 *
 	 * Discard everything until something that looks like a signal is received.
 	 * @return the signal.
 	 */
 	signal wait();
-	
+
 	/*!
 	 * Move constructor
 	 *
