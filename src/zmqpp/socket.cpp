@@ -319,7 +319,7 @@ bool socket::send_raw(char const* buffer, size_t const length, int const flags /
 	throw zmq_internal_exception();
 }
 
-bool socket::receive_raw(char* buffer, int& length, int const flags /* = NORMAL */)
+bool socket::receive_raw(char* buffer, size_t& length, int const flags /* = NORMAL */)
 {
 #if (ZMQ_VERSION_MAJOR == 2)
 		int result = zmq_recv( _socket, &_recv_buffer, flags );
@@ -784,7 +784,7 @@ signal socket::wait()
     {
         message msg;
         receive(msg);
-        
+
         if (msg.is_signal())
         {
             signal sig;
