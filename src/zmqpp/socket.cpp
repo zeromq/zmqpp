@@ -127,7 +127,7 @@ bool socket::send(zmqpp::signal sig, int const flags)
 bool socket::receive(zmqpp::signal &sig, int const flags)
 {
     message msg;
-    bool ret = receive(msg, normal);
+    bool ret = receive(msg, flags);
     if (ret)
     {
         assert(msg.is_signal());
