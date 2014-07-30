@@ -429,15 +429,34 @@ BOOST_AUTO_TEST_CASE( test_wait )
     BOOST_CHECK_EQUAL(zmqpp::signal::stop, p2.wait());
 }
 
+BOOST_AUTO_TEST_CASE( test_signal_block_noblock )
+{
+    zmqpp::context ctx;
+    zmqpp::socket p1(ctx, zmqpp::socket_type::pair);
+    zmqpp::socket p2(ctx, zmqpp::socket_type::pair);
+
+    p1.bind("inproc://test");
+
+    BOOST_CHECK_EQUAL(false, p1.send(zmqpp::signal::test, true)); //noblock
+    //p1.send(zmqpp::signal::test); // would block indefinitely
+    p2.connect("inproc://test");
+
+    zmqpp::signal sig;
+    BOOST_CHECK_EQUAL(false, p1.receive(sig, true)); //noblock
+    p1.send(zmqpp::signal::test);
+    BOOST_CHECK_EQUAL(true, p2.receive(sig, true)); //noblock
+}
+
+#ifndef TRAVIS_CI_BUILD //do not run when building on travis-ci (this cause oom error and kill the test process)
 BOOST_AUTO_TEST_CASE( sending_large_messages_string )
 {
 	zmqpp::context context;
 
 	zmqpp::socket pusher(context, zmqpp::socket_type::push);
-	pusher.bind("tcp://127.0.0.1:5567");
+	pusher.bind("inproc://test");
 
 	zmqpp::socket puller(context, zmqpp::socket_type::pull);
-	puller.connect("tcp://127.0.0.1:5567");
+	puller.connect("inproc://test");
 
 	std::string message;
     const size_t bytes_to_send = static_cast<size_t>(2.1 * 1024 * 1024 * 1024);
@@ -463,5 +482,7 @@ BOOST_AUTO_TEST_CASE( sending_large_messages_string )
 	BOOST_CHECK_EQUAL(0, message.compare(received_message));
 	BOOST_CHECK(!puller.has_more_parts());
 }
+
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()

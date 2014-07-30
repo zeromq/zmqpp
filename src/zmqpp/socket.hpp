@@ -212,26 +212,27 @@ public:
 	/**
 	 * Sends a signal over the socket.
 	 *
-	 * If the socket::DONT_WAIT flag and we are unable to add a new message to
-	 * socket then this function will return false.
+	 * If dont_block is true and we are unable to send the signal e then this
+	 * function will return false.
+	 *
 	 * @param sig signal to send.
 	 * @param flags message send flags
 	 * @return true if message part sent, false if it would have blocked
 	 */
-	bool send(signal sig, int const flags = normal);
+	bool send(signal sig, bool dont_block = false);
 
 
     	/*!
 	 * If there is a message ready then we read a signal from it.
 	 *
-	 * If the socket::DONT_WAIT flag and there is no message ready to receive
-	 * then this function will return false.
+	 * If dont_block is true and we are unable to send the signal then this
+	 * function will return false.
 	 *
 	 * \param sig signal to receive into
 	 * \param flags message receive flags
 	 * \return true if signal received, false if it would have blocked
 	 */
-	bool receive(signal &sig, int const flags = normal);
+	bool receive(signal &sig, bool dont_block = false);
 
 	/*!
 	 * Sends the byte data pointed to by buffer as the next part of the message.

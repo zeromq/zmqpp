@@ -16,7 +16,7 @@ INCLUDEDIR = $(DESTDIR)$(PREFIX)/include
 # Tools
 #
 
-CXX      = g++
+#CXX      = g++
 LD       = $(CXX)
 AR       = ar
 
@@ -71,7 +71,7 @@ ifneq (,$(findstring $(CONFIG),release loadtest))
 	CONFIG_FLAGS = -O3 -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNO_DEBUG_LOG -DNO_TRACE_LOG -DNDEBUG
 endif
 
-COMMON_FLAGS = -MMD -std=c++0x -pipe -Wall -fPIC \
+COMMON_FLAGS = -MMD -std=c++11 -pipe -Wall -fPIC \
 	-DBUILD_ENV=$(CONFIG) \
 	-DBUILD_VERSION='"$(APP_VERSION)"' \
 	-DBUILD_VERSION_MAJOR=$(VERSION_MAJOR) \
