@@ -118,16 +118,16 @@ void socket::close()
 	_socket = nullptr;
 }
 
-bool socket::send(zmqpp::signal sig, int const flags)
+bool socket::send(zmqpp::signal sig, bool dont_block/* = false */)
 {
     message msg(sig);
-    return send(msg, flags);
+    return send(msg, dont_block);
 }
 
-bool socket::receive(zmqpp::signal &sig, int const flags)
+  bool socket::receive(zmqpp::signal &sig, bool dont_block /* = false */)
 {
     message msg;
-    bool ret = receive(msg, normal);
+    bool ret = receive(msg, dont_block);
     if (ret)
     {
         assert(msg.is_signal());

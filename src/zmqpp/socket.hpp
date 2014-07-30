@@ -218,7 +218,7 @@ public:
 	 * @param flags message send flags
 	 * @return true if message part sent, false if it would have blocked
 	 */
-	bool send(signal sig, int const flags = normal);
+	bool send(signal sig, bool dont_block = false);
 
 
     	/*!
@@ -231,7 +231,7 @@ public:
 	 * \param flags message receive flags
 	 * \return true if signal received, false if it would have blocked
 	 */
-	bool receive(signal &sig, int const flags = normal);
+	bool receive(signal &sig, bool dont_block = false);
 
 	/*!
 	 * Sends the byte data pointed to by buffer as the next part of the message.
