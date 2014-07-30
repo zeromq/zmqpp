@@ -212,8 +212,9 @@ public:
 	/**
 	 * Sends a signal over the socket.
 	 *
-	 * If the socket::DONT_WAIT flag and we are unable to add a new message to
-	 * socket then this function will return false.
+	 * If dont_block is true and we are unable to send the signal e then this
+	 * function will return false.
+	 *
 	 * @param sig signal to send.
 	 * @param flags message send flags
 	 * @return true if message part sent, false if it would have blocked
@@ -224,8 +225,8 @@ public:
     	/*!
 	 * If there is a message ready then we read a signal from it.
 	 *
-	 * If the socket::DONT_WAIT flag and there is no message ready to receive
-	 * then this function will return false.
+	 * If dont_block is true and we are unable to send the signal then this
+	 * function will return false.
 	 *
 	 * \param sig signal to receive into
 	 * \param flags message receive flags

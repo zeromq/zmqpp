@@ -82,7 +82,6 @@ COMMON_FLAGS = -MMD -std=c++11 -pipe -Wall -fPIC \
 	-DBUILD_CLIENT_NAME='"$(CLIENT_TARGET)"' \
 	-I$(SRC_PATH)
 
-#COMMON_LIBS = -L=/mnt/raid0/zmq/libzmq/build/lib/ -Wl,-rpath=/mnt/raid0/zmq/libzmq/build/lib/ -lzmq
 COMMON_LIBS = -lzmq
 
 LIBRARY_LIBS =  
