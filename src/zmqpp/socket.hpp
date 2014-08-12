@@ -18,6 +18,7 @@
 
 #include "socket_types.hpp"
 #include "socket_options.hpp"
+#include "signal.hpp"
 
 namespace zmqpp
 {
@@ -45,15 +46,15 @@ typedef message     message_t;
 class socket
 {
 public:
-	static const int normal     = 0;            /*!< /brief default send type, no flags set */
+	static const int normal;                    /*!< /brief default send type, no flags set */
 #if (ZMQ_VERSION_MAJOR == 2)
-	static const int dont_wait  = ZMQ_NOBLOCK;  /*!< /brief don't block if sending is not currently possible  */
+	static const int dont_wait;				    /*!< /brief don't block if sending is not currently possible  */
 #else
-	static const int dont_wait  = ZMQ_DONTWAIT; /*!< /brief don't block if sending is not currently possible  */
+	static const int dont_wait;					/*!< /brief don't block if sending is not currently possible  */
 #endif
-	static const int send_more  = ZMQ_SNDMORE;  /*!< /brief more parts will follow this one */
+	static const int send_more;					/*!< /brief more parts will follow this one */
 #ifdef ZMQ_EXPERIMENTAL_LABELS
-	static const int send_label = ZMQ_SNDLABEL; /*!< /brief this message part is an internal zmq label */
+	static const int send_label;				/*!< /brief this message part is an internal zmq label */
 #endif
 
 	/*!
@@ -100,12 +101,14 @@ public:
 	 */
 	void bind(endpoint_t const& endpoint);
 
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	/*!
 	 * Unbinds from a previously bound endpoint.
 	 *
 	 * \param endpoint the zmq endpoint to bind to
 	 */
 	void unbind(endpoint_t const& endpoint);
+#endif
 
 	/*!
 	 * Asynchronously connects to an endpoint.
@@ -147,6 +150,7 @@ public:
 	 *
 	 * \param endpoint the zmq endpoint to disconnect from
 	 */
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	void disconnect(endpoint_t const& endpoint);
 
 	/*!
@@ -165,6 +169,7 @@ public:
 			disconnect(*it);
 		}
 	}
+#endif
 
 	/*!
 	 * Closes the internal zmq socket and marks this instance
@@ -220,6 +225,31 @@ public:
 	 */
 	bool receive(std::string& string, int const flags = normal);
 
+	/**
+	 * Sends a signal over the socket.
+	 *
+	 * If dont_block is true and we are unable to send the signal e then this
+	 * function will return false.
+	 *
+	 * @param sig signal to send.
+	 * @param flags message send flags
+	 * @return true if message part sent, false if it would have blocked
+	 */
+	bool send(signal sig, bool dont_block = false);
+
+
+    	/*!
+	 * If there is a message ready then we read a signal from it.
+	 *
+	 * If dont_block is true and we are unable to send the signal then this
+	 * function will return false.
+	 *
+	 * \param sig signal to receive into
+	 * \param flags message receive flags
+	 * \return true if signal received, false if it would have blocked
+	 */
+	bool receive(signal &sig, bool dont_block = false);
+
 	/*!
 	 * Sends the byte data pointed to by buffer as the next part of the message.
 	 *
@@ -231,7 +261,7 @@ public:
 	 * \param flags message send flags
 	 * \return true if message part sent, false if it would have blocked
 	 */
-	bool send_raw(char const* buffer, int const length, int const flags = normal);
+	bool send_raw(char const* buffer, size_t const length, int const flags = normal);
 
 	/*!
 	 * \warning If the buffer is not large enough for the message part then the
@@ -248,7 +278,7 @@ public:
 	 * \param flags message receive flags
 	 * \return true if message part received, false if it would have blocked
 	 */
-	bool receive_raw(char* buffer, int& length, int const flags = normal);
+	bool receive_raw(char* buffer, size_t& length, int const flags = normal);
 
 	/*!
 	 *
@@ -456,6 +486,15 @@ public:
 		return value;
 	}
 
+	/**
+	 * Wait on signal, this is useful to coordinate thread.
+	 * Block until a signal is received, and returns the received signal.
+	 *
+	 * Discard everything until something that looks like a signal is received.
+	 * @return the signal.
+	 */
+	signal wait();
+
 	/*!
 	 * Move constructor
 	 *
@@ -466,7 +505,7 @@ public:
 	 *
 	 * \param source target socket to steal internals from
 	 */
-	socket(socket&& source) noexcept;
+	socket(socket&& source) NOEXCEPT;
 
 	/*!
 	 * Move operator
@@ -479,7 +518,7 @@ public:
 	 * \param source target socket to steal internals from
 	 * \return socket reference to this
 	 */
-	socket& operator=(socket&& source) noexcept;
+	socket& operator=(socket&& source) NOEXCEPT;
 
 	/*!
 	 * Check the socket is still valid
@@ -506,8 +545,8 @@ private:
 	zmq_msg_t _recv_buffer;
 
 	// No copy
-	socket(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
-	socket& operator=(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
+	socket(socket const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+	socket& operator=(socket const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 
 	void track_message(message_t const&, uint32_t const, bool&);
 };

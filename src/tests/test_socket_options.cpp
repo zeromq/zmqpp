@@ -99,7 +99,7 @@ void check_set(zmqpp::socket& socket, zmqpp::socket_option const& option, std::s
 	// Unsigned 64bit integer
 	try_set<uint64_t, Type>(socket, option, 1, option_name, "unsigned 64bit integer");
 
-#if (ZMQ_VERSION_MAJOR == 2) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+#if (ZMQ_VERSION_MAJOR == 2) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
 	// 64bit integer
 	try_set<int64_t, Type>(socket, option, 1, option_name, "signed 64bit integer");
 #endif
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	CHECK_NOSET(socket, file_descriptor);
 	CHECK_NOSET(socket, events);
 	CHECK_NOSET(socket, type);
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	CHECK_NOSET(socket, last_endpoint);
 #endif
 
@@ -194,11 +194,11 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	CHECK_SET(socket, uint64_t, high_water_mark);
 #endif
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
 	CHECK_SET(socket, bool, ipv4_only);
 #endif
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 #if (ZMQ_VERSION_MINOR == 2)
 	CHECK_SET(socket, bool, delay_attach_on_connect);
 #else
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE( get_socket_options )
 
 	CHECK_NOGET(socket, subscribe);
 	CHECK_NOGET(socket, unsubscribe);
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	CHECK_NOGET(socket, router_mandatory);
 	CHECK_NOGET(socket, xpub_verbose);
 	CHECK_NOGET(socket, tcp_accept_filter);
@@ -263,11 +263,11 @@ BOOST_AUTO_TEST_CASE( get_socket_options )
 	CHECK_GET(socket, uint64_t, high_water_mark);
 #endif
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
 	CHECK_GET(socket, bool, ipv4_only);
 #endif
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 #if (ZMQ_VERSION_MINOR == 2)
 	CHECK_GET(socket, bool, delay_attach_on_connect);
 #else

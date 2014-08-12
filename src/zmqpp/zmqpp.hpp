@@ -45,7 +45,7 @@
  * \def ZMQPP_VERSION_REVISION
  * zmqpp version revision number
  */
-#define	ZMQPP_VERSION_REVISION 0
+#define	ZMQPP_VERSION_REVISION 1
 
 #include <zmq.h>
 

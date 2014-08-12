@@ -5,12 +5,14 @@
 
 #include "zmqpp.hpp"
 
+#define STRINGIZE(val) #val
+
 namespace zmqpp
 {
 
 std::string version()
 {
-	return BUILD_VERSION;
+	return STRINGIZE(ZMQPP_VERSION_MAJOR) "." STRINGIZE(ZMQPP_VERSION_MINOR) "." STRINGIZE(ZMQPP_VERSION_REVISION);
 }
 
 void version(uint8_t& major, uint8_t& minor, uint8_t& revision)
