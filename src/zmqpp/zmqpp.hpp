@@ -32,21 +32,20 @@
 
 /**
  * \def ZMQPP_VERSION_MAJOR
- * zmqpp major version number, generated at compile time
+ * zmqpp major version number
  */
-#define	ZMQPP_VERSION_MAJOR BUILD_VERSION_MAJOR
+#define	ZMQPP_VERSION_MAJOR 4
 
 /**
  * \def ZMQPP_VERSION_MINOR
- * zmqpp minor version number, generated at compile time
+ * zmqpp minor version number
  */
-#define	ZMQPP_VERSION_MINOR BUILD_VERSION_MINOR
-
+#define	ZMQPP_VERSION_MINOR 1
 /**
  * \def ZMQPP_VERSION_REVISION
- * zmqpp version revision number, generated at compile time
+ * zmqpp version revision number
  */
-#define	ZMQPP_VERSION_REVISION BUILD_VERSION_REVISION
+#define	ZMQPP_VERSION_REVISION 1
 
 #include <zmq.h>
 

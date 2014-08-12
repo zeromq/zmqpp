@@ -93,42 +93,6 @@ BOOST_AUTO_TEST_CASE( simple_pull_push )
 	BOOST_CHECK(!puller.has_more_parts());
 }
 
-BOOST_AUTO_TEST_CASE( seperate_pull_push_disconnect )
-{
-	zmqpp::context pull_context;
-	zmqpp::socket puller(pull_context, zmqpp::socket_type::pull);
-	puller.set(zmqpp::socket_option::receive_high_water_mark, 5);
-	puller.bind("tcp://*:65400");
-
-	zmqpp::context push_context;
-	zmqpp::socket pusher(push_context, zmqpp::socket_type::push);
-	pusher.set( zmqpp::socket_option::immediate, true );
-	pusher.set(zmqpp::socket_option::send_high_water_mark, 5);
-	pusher.connect("tcp://localhost:65400");
-
-	{
-		BOOST_CHECK(pusher.send("hello world!"));
-		wait_for_socket(puller);
-		std::string message;
-		BOOST_CHECK(puller.receive(message));
-
-		zmqpp::context temp_context;
-		zmqpp::socket temp_socket( temp_context, zmqpp::socket_type::pull );
-		puller.set(zmqpp::socket_option::receive_high_water_mark, 5);
-
-		std::swap(temp_context, pull_context);
-		std::swap(temp_socket, puller);
-	}
-
-	sleep(5);
-	pusher.disconnect("tcp://localhost:65400");
-	sleep(5);
-	puller.bind("tcp://*:65400");
-	sleep(5);
-
-	BOOST_CHECK(pusher.send("hello world!"));
-}
-
 BOOST_AUTO_TEST_CASE( multipart_pair )
 {
 	zmqpp::context context;
@@ -495,7 +459,7 @@ BOOST_AUTO_TEST_CASE( sending_large_messages_string )
 	puller.connect("inproc://test");
 
 	std::string message;
-    const size_t bytes_to_send = static_cast<size_t>(2.1 * 1024 * 1024 * 1024);
+    const size_t bytes_to_send = static_cast<size_t>(1024 * 1024 * 1024);
     message.reserve(bytes_to_send);
     for (size_t i = 0; i < bytes_to_send; i++)
     {
@@ -518,7 +482,6 @@ BOOST_AUTO_TEST_CASE( sending_large_messages_string )
 	BOOST_CHECK_EQUAL(0, message.compare(received_message));
 	BOOST_CHECK(!puller.has_more_parts());
 }
-
 #endif
 
 BOOST_AUTO_TEST_SUITE_END()
