@@ -102,6 +102,8 @@ void socket::disconnect(endpoint_t const& endpoint)
 	if (0 != result)
 	{
 		throw zmq_internal_exception();
+	}
+}
 #endif
 
 void socket::close()

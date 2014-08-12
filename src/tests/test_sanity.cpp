@@ -36,11 +36,9 @@ BOOST_AUTO_TEST_CASE( correct_zmqpp_version )
 	uint8_t major, minor, patch;
 	zmqpp::version(major, minor, patch);
 
-	BOOST_CHECK_EQUAL( BUILD_VERSION_MAJOR, major );
-	BOOST_CHECK_EQUAL( BUILD_VERSION_MINOR, minor );
-	BOOST_CHECK_EQUAL( BUILD_VERSION_REVISION, patch );
-
-	BOOST_CHECK_EQUAL( BUILD_VERSION, zmqpp::version() );
+	BOOST_CHECK_EQUAL( ZMQPP_VERSION_MAJOR, major );
+	BOOST_CHECK_EQUAL( ZMQPP_VERSION_MINOR, minor );
+	BOOST_CHECK_EQUAL( ZMQPP_VERSION_REVISION, patch );
 }
 
 BOOST_AUTO_TEST_CASE( same_zmq_version_as_built_against )

@@ -49,7 +49,7 @@ configuration file to generate them is in the root directory.
 
 To build the documentation with doxygen use
 
-    cd docs; doxygen zmqpp.doxygen.conf
+    doxygen zmqpp.doxygen.conf
 
 And the resulting html or latex docs will be in the docs/html or docs/latex
 directories.
