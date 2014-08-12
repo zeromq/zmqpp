@@ -459,7 +459,7 @@ BOOST_AUTO_TEST_CASE( sending_large_messages_string )
 	puller.connect("inproc://test");
 
 	std::string message;
-    const size_t bytes_to_send = static_cast<size_t>(2.1 * 1024 * 1024 * 1024);
+    const size_t bytes_to_send = static_cast<size_t>(1024 * 1024 * 1024);
     message.reserve(bytes_to_send);
     for (size_t i = 0; i < bytes_to_send; i++)
     {
@@ -482,7 +482,6 @@ BOOST_AUTO_TEST_CASE( sending_large_messages_string )
 	BOOST_CHECK_EQUAL(0, message.compare(received_message));
 	BOOST_CHECK(!puller.has_more_parts());
 }
-
 #endif
 
 BOOST_AUTO_TEST_SUITE_END()
