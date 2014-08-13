@@ -14,6 +14,10 @@ BOOST_AUTO_TEST_CASE(test_encode)
 
   res = zmqpp::z85::encode(data_source, sizeof(data_source));
   BOOST_CHECK_EQUAL(res, "HelloWorld");
+
+  std::string src(reinterpret_cast<char *>(data_source), sizeof(data_source));
+  res = zmqpp::z85::encode(src);
+  BOOST_CHECK_EQUAL(res, "HelloWorld");
 }
 
 BOOST_AUTO_TEST_CASE(test_decode)
