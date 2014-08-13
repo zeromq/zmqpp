@@ -16,6 +16,7 @@
 
 #include "compatibility.hpp"
 
+#include "socket_mechanisms.hpp"
 #include "socket_types.hpp"
 #include "socket_options.hpp"
 #include "signal.hpp"
@@ -39,7 +40,8 @@ typedef message     message_t;
  * The routing is handled by zmq based on the type set.
  *
  * The bound side of an inproc connection must occur first and inproc can only
- * connect to other inproc sockets of the same context.
+ * connect to other inproc sockets of the same context. This has been solved in
+ * 0mq 4.0 or later and is not a requirement of inproc.
  *
  * This class is c++0x move supporting and cannot be copied.
  */
