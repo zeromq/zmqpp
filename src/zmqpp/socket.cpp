@@ -822,6 +822,17 @@ void socket::track_message(message const& /* message */, uint32_t const parts, b
 	}
 }
 
+#if (ZMQ_VERSION_MAJOR >= 4)
+void socket::monitor(endpoint_t const monitor_endpoint, int events_required)
+{
+	int result = zmq_socket_monitor( _socket, monitor_endpoint.c_str(), events_required );
+
+	if (0 != result)
+	{
+		throw zmq_internal_exception();
+	}
+}
+#endif
 
 signal socket::wait()
 {
