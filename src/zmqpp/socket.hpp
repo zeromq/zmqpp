@@ -16,6 +16,7 @@
 
 #include "compatibility.hpp"
 
+#include "socket_mechanisms.hpp"
 #include "socket_types.hpp"
 #include "socket_options.hpp"
 #include "signal.hpp"
@@ -30,6 +31,24 @@ typedef std::string endpoint_t;
 typedef context     context_t;
 typedef message     message_t;
 
+#if (ZMQ_VERSION_MAJOR >= 4)
+namespace event
+{
+	const int connected        = ZMQ_EVENT_CONNECTED;       /*<! connection established */
+	const int connect_delayed  = ZMQ_EVENT_CONNECT_DELAYED; /*<! synchronous connect failed, it's being polled */
+	const int connect_retried  = ZMQ_EVENT_CONNECT_RETRIED; /*<! asynchronous connect / reconnection attempt */
+	const int listening        = ZMQ_EVENT_LISTENING;       /*<! socket bound to an address, ready to accept connections */
+	const int bind_failed      = ZMQ_EVENT_BIND_FAILED;     /*<! socket could not bind to an address */
+	const int accepted         = ZMQ_EVENT_ACCEPTED;        /*<! connection accepted to bound interface */
+	const int accept_failed    = ZMQ_EVENT_ACCEPT_FAILED;   /*<! could not accept client connection */
+	const int closed           = ZMQ_EVENT_CLOSED;          /*<! connection closed */
+	const int close_failed     = ZMQ_EVENT_CLOSE_FAILED;    /*<! connection couldn't be closed */
+	const int disconnected     = ZMQ_EVENT_DISCONNECTED;    /*<! broken session */
+
+	const int all              = ZMQ_EVENT_ALL;             /*<! all event flags */
+}
+#endif
+
 /*!
  * The socket class represents the zmq sockets.
  *
@@ -39,7 +58,8 @@ typedef message     message_t;
  * The routing is handled by zmq based on the type set.
  *
  * The bound side of an inproc connection must occur first and inproc can only
- * connect to other inproc sockets of the same context.
+ * connect to other inproc sockets of the same context. This has been solved in
+ * 0mq 4.0 or later and is not a requirement of inproc.
  *
  * This class is c++0x move supporting and cannot be copied.
  */
@@ -370,7 +390,7 @@ public:
 	 * \since 2.0.0 (built against 0mq version 3.1.x or later)
 	 *
 	 * \param option a valid ::socket_option
-	 * \param value to set the option to
+	 * \param value to set the optionbool to
 	 */
 	void set(socket_option const option, bool const value);
 
@@ -470,12 +490,24 @@ public:
 		return value;
 	}
 
-	/**
+#if (ZMQ_VERSION_MAJOR >= 4)
+	/*!
+	 * Attach a monitor to this socket that will send events over inproc to the
+	 * specified endpoint. The monitor will bind on the endpoint given and will
+	 * be of type PAIR but not read from the stream.
+	 *
+	 * \param monitor_endpoint the valid inproc endpoint to bind to.
+	 * \param events_required a bit mask of required events.
+	 */
+	void monitor(endpoint_t const monitor_endpoint, int events_required);
+#endif
+
+	/*!
 	 * Wait on signal, this is useful to coordinate thread.
 	 * Block until a signal is received, and returns the received signal.
 	 *
 	 * Discard everything until something that looks like a signal is received.
-	 * @return the signal.
+	 * \return the signal.
 	 */
 	signal wait();
 

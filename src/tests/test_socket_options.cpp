@@ -173,6 +173,7 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	// For some reason -1 not working here
 	//CHECK_SET(socket, int, reconnect_interval);
 	CHECK_SET_POSITIVE(socket, int, reconnect_interval_max);
+	CHECK_SET_POSITIVE(socket, int, backlog);
 #if (ZMQ_VERSION_MAJOR > 2)
 	CHECK_SET_POSITIVE(socket, int, send_buffer_size);
 	CHECK_SET_POSITIVE(socket, int, receive_buffer_size);
@@ -210,10 +211,55 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	// CHECK_SET(socket, std::string, tcp_accept_filter); --- special case required to be an address
 #endif
 
+#if (ZMQ_VERSION_MAJOR >= 4)
+	CHECK_SET(socket, bool, ipv6);
+	CHECK_NOSET(socket, mechanism);
+	CHECK_SET(socket, std::string, plain_password);
+	CHECK_SET(socket, bool, plain_server);
+	CHECK_SET(socket, std::string, plain_username);
+	CHECK_SET(socket, std::string, zap_domain);
+	CHECK_SET(socket, bool, conflate);
+#endif
+
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	CHECK_NOSET(socket, receive_label);
 #endif
 }
+
+#if (ZMQ_VERSION_MAJOR >= 4)
+BOOST_AUTO_TEST_CASE( set_socket_options_tcp_only )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::subscribe);
+	socket.bind("tcp://*:54321");
+
+// TODO: reenable once I have curve key generation working to test against
+//	CHECK_SET(socket, std::string, curve_public_key);
+//	CHECK_SET(socket, std::string, curve_secret_key);
+//	CHECK_SET(socket, std::string, curve_server_key);
+//	CHECK_SET(socket, bool, curve_server);
+}
+
+BOOST_AUTO_TEST_CASE( set_socket_options_router_types )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::router);
+	socket.bind("inproc://test");
+
+	CHECK_SET(socket, bool, router_raw);
+	CHECK_SET(socket, bool, probe_router);
+}
+
+BOOST_AUTO_TEST_CASE( set_socket_options_request_types )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::request);
+	socket.bind("inproc://test");
+
+	CHECK_SET(socket, bool, request_correlate);
+	CHECK_SET(socket, bool, request_relaxed);
+}
+#endif
 
 BOOST_AUTO_TEST_CASE( get_socket_options )
 {
@@ -279,9 +325,37 @@ BOOST_AUTO_TEST_CASE( get_socket_options )
 	CHECK_GET(socket, int, tcp_keepalive_interval);
 #endif
 
+#if (ZMQ_VERSION_MAJOR >= 4)
+	CHECK_GET(socket, bool, ipv6);
+	CHECK_GET(socket, int, mechanism);
+	CHECK_GET(socket, std::string, plain_password);
+	CHECK_GET(socket, bool, plain_server);
+	CHECK_GET(socket, std::string, plain_username);
+	CHECK_GET(socket, std::string, zap_domain);
+	CHECK_NOGET(socket, conflate);
+	CHECK_NOGET(socket, probe_router);
+	CHECK_NOGET(socket, request_correlate);
+	CHECK_NOGET(socket, request_relaxed);
+	CHECK_NOGET(socket, router_raw);
+#endif
+
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	CHECK_GET(socket, bool, receive_label);
 #endif
 }
 
+#if (ZMQ_VERSION_MAJOR >= 4)
+BOOST_AUTO_TEST_CASE( get_socket_options_tcp_only )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::subscribe);
+	socket.bind("tcp://*:54321");
+
+// TODO: reenable once I have curve key generation working to test against
+//	CHECK_GET(socket, std::string, curve_public_key);
+//	CHECK_GET(socket, std::string, curve_secret_key);
+//	CHECK_GET(socket, std::string, curve_server_key);
+//  CHECK_NOGET(socket, curve_server);
+}
+#endif
 BOOST_AUTO_TEST_SUITE_END()

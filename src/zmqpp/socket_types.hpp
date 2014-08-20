@@ -128,6 +128,13 @@ enum class socket_type {
 	 */
 	xreply     = ZMQ_XREP,
 
+	/*!
+	 * One to many - fair-queued incoming, targeted outgoing.\n
+	 * Connect to non-0mq sockets.\n
+	 * Messages sent must consist of a identity target and a single data frame.
+	 */
+	stream     = ZMQ_STREAM,
+
 	// To match for people who prefer the shorter versions
 	pub        = ZMQ_PUB,    /*!< version of ::publish to match zmq name convention */
 	sub        = ZMQ_SUB,    /*!< version of ::subscribe to match zmq name convention */

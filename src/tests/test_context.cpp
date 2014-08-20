@@ -28,8 +28,8 @@ BOOST_AUTO_TEST_CASE( move_supporting )
 BOOST_AUTO_TEST_CASE( defaults )
 {
 	zmqpp::context context;
-	BOOST_CHECK_EQUAL(context.get(zmqpp::context_option::io_threads), ZMQ_IO_THREADS_DFLT);
-	BOOST_CHECK_EQUAL(context.get(zmqpp::context_option::max_sockets), ZMQ_MAX_SOCKETS_DFLT);
+	BOOST_CHECK_GE(context.get(zmqpp::context_option::io_threads), ZMQ_IO_THREADS_DFLT);
+	BOOST_CHECK_GE(context.get(zmqpp::context_option::max_sockets), ZMQ_MAX_SOCKETS_DFLT);
 }
 
 BOOST_AUTO_TEST_CASE( validaty )

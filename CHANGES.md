@@ -1,18 +1,73 @@
 Development
 ===========
 
+Version 4.1.1
+=============
+
+Breaking
+--------
+
+* Removed message::add(pointer, size_t) as there were situations it conflicts
+  with the new easier to use templated add. This has been replaced with a
+  message::add_raw(pointer, size_t) method.
+
+Other changes
+-------------
+
 * Added options to pop from/push to front of a message, this adds a new frame
   before the current ones.
-* Added matching but redundent pop from/push to the end of the message.
+* Added matching but redundant pop from/push to the end of the message.
+* Support for remaining 0mq 3.2 and 4.0 socket options.
+  * socket_option::conflate keep only one message in queues, ignores high water
+    mark options. Only supports single part messages.
+  * socket_option::curve_public_key set curve long term public key. This must
+    be set on CURVE client sockets. You can provide the key as 32 binary bytes, 
+    or as a 40-character string encoded in the Z85 encoding format.
+  * socket_option::curve_secret_key set curve long term secret key. This must 
+    be set on both CURVE client and server sockets. You can provide the key as  
+    32 binary bytes, or as a 40-character string encoded in the Z85 encoding 
+    format.
+  * socket_option::curve_server_key set the long term server key. This must
+    be set on CURVE client sockets. You can provide the key as 32 binary bytes, 
+    or as a 40-character string encoded in the Z85 encoding format.
+  * socket_option::curve_server defines if the socket will at as a server for 
+    CURVE security. 
+  * socket_option::ipv6 replacing the now deprecated ipv4only option, enables 
+    support for ipv6.
+  * socket_option::mechanism query the socket to find the current security 
+    mechanism, if any.
+  * socket_option::plain_password Sets the password for outgoing connections
+    over TCP or IPC.
+  * socket_option::plain_server defines whether the socket will act as server
+    for PLAIN security.
+  * socket_option::plain_username Sets the username for outgoing connections
+    over TCP or IPC.
+  * socket_option::probe_router Tell a router to automatically end an empty
+    message when a new connection is made or accepted. You may set this on REQ,
+    DEALER, or ROUTER sockets connected to a ROUTER socket.
+  * socket_option::request_correlate Tell a REQ socket to prefix outgoing
+    messages with an extra frame containing a request id.
+  * socket_option::request_relaxed trigger reconnect on send instead of forcing
+    a wait for previous reply.
+  * socket_option::router_raw Don't apply 0mq framing to message, allowing talk
+    to non-0mq sockets.
+  * socket_option::zap_domain Domain value for ZAP (ZMQ RFC 27) authentication.
+* Support for 4.0 context option.
+  * context_option::ipv6 replacing the now deprecated ipv4only option, enables 
+    support for ipv6.
+* Basic wrapper of socket monitor, socket class now has a monitor function that
+  setups the inproc monitor socket against it.
+* Basic curve support. Allowing generation of keys via more c++ style interfaces
+  as well as decoding and encoding z85 formatted data.
 
 Version 3.2.0
 =============
 
-* Reworked client application, this is techically breaking but its only the
+* Reworked client application, this is technically breaking but its only the
   the client so noone should care. Multipart support that works with linux
   pipes is now the default.
 * Added a new -d detailed verbose option, the only reason it is not -vv is
-  lack of boost option support. This provides diagnostic infomation.
+  lack of boost option support. This provides diagnostic information.
 * Added -s to support single part messages, incase anyone actually used that.
 
 Version 3.1.0
