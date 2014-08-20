@@ -21,12 +21,6 @@ struct keypair
 
 keypair generate_keypair();
 
-}
-
-bool decode_z85(uint8_t* dest, std::string src);
-
-bool encode_z85(std::string& dest, uint8_t* src, size_t src_size);
-
-}
+} }
 
 #endif /* ZMQPP_CURVE_HPP_ */
