@@ -68,6 +68,19 @@ public:
 
     };
 
+  /**
+   * Thrown when an error occurs while encoding or decoding to/from z85.
+   * See ZMQ RFC 32
+   */
+  class z85_exception : public exception
+  {
+  public:
+    z85_exception(const std::string &msg):
+      exception(msg)
+    {
+    }
+  };
+
 /*!
  * Represents internal zmq errors.
  *
