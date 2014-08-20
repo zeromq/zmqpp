@@ -1,7 +1,7 @@
 Development
 ===========
 
-Version 4.1.0
+Version 4.1.1
 =============
 
 Breaking
@@ -52,6 +52,13 @@ Other changes
   * socket_option::router_raw Don't apply 0mq framing to message, allowing talk
     to non-0mq sockets.
   * socket_option::zap_domain Domain value for ZAP (ZMQ RFC 27) authentication.
+* Support for 4.0 context option.
+  * context_option::ipv6 replacing the now deprecated ipv4only option, enables 
+    support for ipv6.
+* Basic wrapper of socket monitor, socket class now has a monitor function that
+  setups the inproc monitor socket against it.
+* Basic curve support. Allowing generation of keys via more c++ style interfaces
+  as well as decoding and encoding z85 formatted data.
 
 Version 3.2.0
 =============
