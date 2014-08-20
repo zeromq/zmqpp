@@ -130,13 +130,6 @@ public:
 	}
 
 	// Copy operators will take copies of any data
-	template<typename Type>
-	void add(Type *part, size_t const size)
-	{
-		_parts.push_back( frame( part, size ) );
-	}
-
-
 	template<typename Type, typename ...Args>
 	void add(Type const& part, Args &&...args)
 	{
@@ -148,6 +141,22 @@ public:
 	void add(Type const part)
 	{
 		*this << part;
+	}
+
+	// Copy operators will take copies of any data with a given size
+	template<typename Type>
+	void add_raw(Type *part, size_t const size)
+	{
+		_parts.push_back( frame( part, size ) );
+	}
+
+	// Use exact data past, neither zmqpp nor 0mq will copy, alter or delete
+	// this data. It must remain as valid for at least the lifetime of the
+	// 0mq message, recommended only with const data.
+	template<typename Type>
+	void add_const(Type *part, size_t const size)
+	{
+		_parts.push_back( frame( part, size, nullptr, nullptr ) );
 	}
 
 	// Stream reader style
@@ -205,7 +214,7 @@ public:
 
 	void push_back(void const* part, size_t const size)
 	{
-		add( part, size );
+		add_raw( part, size );
 	}
 
 	template<typename Type>

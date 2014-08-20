@@ -30,37 +30,36 @@ enum class socket_option {
 	type                      = ZMQ_TYPE,              /*!< Socket type - get only */
 	linger                    = ZMQ_LINGER,            /*!< Socket linger timeout */
 	backlog                   = ZMQ_BACKLOG,           /*!< Maximum length of outstanding connections - get only */
-#if (ZMQ_VERSION_MAJOR == 2)
-    // Note that this is inverse of the zmq names for version 2.x
-	recovery_interval_seconds = ZMQ_RECOVERY_IVL,      /*!< Multicast recovery interval in seconds */
-	recovery_interval         = ZMQ_RECOVERY_IVL_MSEC, /*!< Multicast recovery interval in milliseconds */
-#else
-	recovery_interval         = ZMQ_RECOVERY_IVL,      /*!< Multicast recovery interval in milliseconds */
-#endif
 	reconnect_interval        = ZMQ_RECONNECT_IVL,     /*!< Reconnection interval */
 	reconnect_interval_max    = ZMQ_RECONNECT_IVL_MAX, /*!< Maximum reconnection interval */
 	receive_timeout           = ZMQ_RCVTIMEO,          /*!< Maximum inbound block timeout */
 	send_timeout              = ZMQ_SNDTIMEO,          /*!< Maximum outbound block timeout */
+
 #if (ZMQ_VERSION_MAJOR == 2)
+    // Note that this is inverse of the zmq names for version 2.x
+	recovery_interval_seconds = ZMQ_RECOVERY_IVL,      /*!< Multicast recovery interval in seconds */
+	recovery_interval         = ZMQ_RECOVERY_IVL_MSEC, /*!< Multicast recovery interval in milliseconds */
 	high_water_mark           = ZMQ_HWM,               /*!< High-water mark for all messages */
 	swap_size                 = ZMQ_SWAP,              /*!< Maximum socket swap size in bytes */
 	multicast_loopback        = ZMQ_MCAST_LOOP,        /*!< Allow multicast packet loopback */
-#else
+#else // version > 2
+	recovery_interval         = ZMQ_RECOVERY_IVL,      /*!< Multicast recovery interval in milliseconds */
 	max_messsage_size         = ZMQ_MAXMSGSIZE,        /*!< Maximum inbound message size */
 	send_high_water_mark      = ZMQ_SNDHWM,            /*!< High-water mark for outbound messages */
 	receive_high_water_mark   = ZMQ_RCVHWM,            /*!< High-water mark for inbound messages */
 	multicast_hops            = ZMQ_MULTICAST_HOPS,    /*!< Maximum number of multicast hops */
-#endif
-#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
+
+ #if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
 	ipv4_only                 = ZMQ_IPV4ONLY,
-#endif
-#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
-#if (ZMQ_VERSION_MINOR == 2)
+ #endif
+
+ #if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+  #if ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR == 2))
 	delay_attach_on_connect   = ZMQ_DELAY_ATTACH_ON_CONNECT, /*!< Delay buffer attachment until connect complete */
-#else
+  #else
 	//  ZMQ_DELAY_ATTACH_ON_CONNECT is renamed in ZeroMQ starting 3.3.x
 	immediate                 = ZMQ_IMMEDIATE,               /*!< Block message sending until connect complete */
-#endif
+  #endif
 	last_endpoint             = ZMQ_LAST_ENDPOINT,           /*!< Last bound endpoint - get only */
 	router_mandatory          = ZMQ_ROUTER_MANDATORY,        /*!< Require routable messages - set only */
 	xpub_verbose              = ZMQ_XPUB_VERBOSE,            /*!< Pass on existing subscriptions - set only */
@@ -69,7 +68,38 @@ enum class socket_option {
 	tcp_keepalive_count       = ZMQ_TCP_KEEPALIVE_CNT,       /*!< TCP keepalive retry count */
 	tcp_keepalive_interval    = ZMQ_TCP_KEEPALIVE_INTVL,     /*!< TCP keepalive interval */
 	tcp_accept_filter         = ZMQ_TCP_ACCEPT_FILTER,       /*!< Filter inbound connections - set only */
-#endif
+ #endif
+
+ #if (ZMQ_VERSION_MAJOR >= 4)
+	ipv6                      = ZMQ_IPV6, /*!< IPv6 socket support status */
+	mechanism                 = ZMQ_MECHANISM, /*!< Socket security mechanism - get only */
+	plain_password            = ZMQ_PLAIN_PASSWORD, /*!< PLAIN password */
+	plain_server              = ZMQ_PLAIN_SERVER, /*!< PLAIN server role */
+	plain_username            = ZMQ_PLAIN_USERNAME, /*!< PLAIN username */
+	zap_domain                = ZMQ_ZAP_DOMAIN, /*!< RFC 27 authentication domain */
+	conflate                  = ZMQ_CONFLATE, /*!< Keep only last message - set only */
+	curve_public_key          = ZMQ_CURVE_PUBLICKEY, /*!< CURVE public key */
+	curve_secret_key          = ZMQ_CURVE_SECRETKEY, /*!< CURVE secret key */
+	curve_server_key          = ZMQ_CURVE_SERVERKEY, /*!< CURVE server key */
+	curve_server              = ZMQ_CURVE_SERVER, /*!< CURVE server role - set only */
+	probe_router              = ZMQ_PROBE_ROUTER, /*!< Bootstrap connections to ROUTER sockets - set only */
+	request_correlate         = ZMQ_REQ_CORRELATE, /*!< Match replies with requests - set only */
+	request_relaxed           = ZMQ_REQ_RELAXED, /*!< Relax strict alternation between request and reply - set only */
+	router_raw                = ZMQ_ROUTER_RAW, /*!< Switch ROUTER socket to raw mode - set only */
+ #endif
+
+ #if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 1))
+	handshake_interval        = ZMQ_HANDSHAKE_IVL, /*!< Maximum handshake interval */
+	type_of_service           = ZMQ_TOS, /*!< Type-of-Service socket override status */
+	identity_fd               = ZMQ_IDENTITY_FD, /*!< FD associated with given identity - get only */
+	connect_rid               = ZMQ_CONNECT_RID, /*!< Assign the next outbound connection id - set only */
+	ipc_filter_gid            = ZMQ_IPC_FILTER_GID, /*!< Group ID filters to allow new IPC connections - set only */
+	ipc_filter_pid            = ZMQ_IPC_FILTER_PID, /*!< Process ID filters to allow new IPC connections - set only */
+	ipc_filter_uid            = ZMQ_IPC_FILTER_UID, /*!< User ID filters to allow new IPC connections - set only */
+	router_handover           = ZMQ_ROUTER_HANDOVER, /*!< Handle duplicate client identities on ROUTER sockets - set only */
+ #endif
+#endif // version > 2
+
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	receive_label             = ZMQ_RCVLABEL,          /*!< Received label part - get only */
 #endif

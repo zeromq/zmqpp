@@ -484,4 +484,29 @@ BOOST_AUTO_TEST_CASE( sending_large_messages_string )
 }
 #endif
 
+#if (ZMQ_VERSION_MAJOR >= 4)
+BOOST_AUTO_TEST_CASE( test_simple_monitor )
+{
+    zmqpp::context ctx;
+    zmqpp::socket server(ctx, zmqpp::socket_type::push);
+    server.bind("tcp://*:55443");
+
+    server.monitor("inproc://test_monitor", zmqpp::event::all);
+
+    zmqpp::socket monitor(ctx, zmqpp::socket_type::pair);
+    monitor.connect("inproc://test_monitor");
+
+    zmqpp::socket client(ctx, zmqpp::socket_type::pull);
+    client.connect("tcp://localhost:55443");
+
+    zmqpp::message_t message;
+    BOOST_CHECK( monitor.receive( message ) );
+    BOOST_REQUIRE_EQUAL(2, message.parts());
+
+    zmq_event_t const* event = static_cast<zmq_event_t const*>( message.raw_data(0) );
+    BOOST_CHECK_EQUAL( zmqpp::event::accepted, event->event );
+    BOOST_CHECK_EQUAL( 0, event->value );
+}
+#endif
+
 BOOST_AUTO_TEST_SUITE_END()
