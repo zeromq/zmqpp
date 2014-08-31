@@ -29,12 +29,13 @@ struct client_options
 
 	bool singlepart;
 	bool exit_on_empty;
+	bool ipv6;
 
 	client_options()
 		: show_usage( false ), show_help( false ), show_version( false )
 		, verbose( false ), detailed( false ), annotate( false )
 		, type( zmqpp::socket_type::pair ), binds(), connects()
-		, singlepart( false ), exit_on_empty( false )
+		, singlepart( false ), exit_on_empty( false ), ipv6( false )
 	{ }
 };
 

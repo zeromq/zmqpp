@@ -28,6 +28,7 @@ boost::program_options::options_description connection_options()
 		( "multipart,m", "deprecated option, now the default state" )
 		( "singlepart,s", "treat each line as a new message" )
 		( "verbose,v", "display output sent over socket to stderr" )
+		( "ipv6", "use ipv6" )
 		;
 
 	return options;
@@ -120,6 +121,7 @@ client_options process_command_line(int argc, char const* argv[])
 	options.verbose = ( vm.count( "verbose" ) > 0 || vm.count( "detailed" ) > 0 );
 	options.detailed = ( vm.count( "detailed" ) > 0 );
 	options.exit_on_empty = ( vm.count( "exit-when-no-input" ) > 0 );
+	options.ipv6 = ( vm.count( "ipv6" ) > 0 );
 
 	return options;
 }

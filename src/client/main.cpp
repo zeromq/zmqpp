@@ -66,6 +66,14 @@ int main(int argc, char const* argv[])
 	}
 
 	zmqpp::context context;
+	if( options.ipv6 )
+	{
+#if (ZMQ_VERSION_MAJOR >= 4)
+		context.set(zmqpp::context_option::ipv6, 1);
+#else
+		std::cerr << "Unable to enable ipv6, you must compile against zeromq 4.0 or above to enable, sorry." << std::endl;
+#endif
+	}
 	zmqpp::socket socket( context, options.type );
 
 	// TODO: allow subscriptions on command line
