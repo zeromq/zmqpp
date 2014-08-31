@@ -128,7 +128,8 @@ client_options process_command_line(int argc, char const* argv[])
 
 std::ostream& show_usage(std::ostream& stream, std::string const& application_name)
 {
-	stream << "Usage: " BUILD_CLIENT_NAME " [options] SOCKETTYPE ENDPOINT" << std::endl;
+	stream << "Usage: " << std::endl;
+	stream << "  zmqpp SOCKETTYPE {--connect|--bind} [options] ENDPOINT" << std::endl;
 	stream << "0mq command line client tool." << std::endl;
 	stream << "SOCKETTYPE is one of the supported 0mq socket types." << std::endl;
 	stream << "  pull, push, pub, sub, req, rep" << std::endl;
