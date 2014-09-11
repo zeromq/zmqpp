@@ -5,6 +5,7 @@
 
 using namespace zmqpp;
 
+#if (ZMQ_VERSION_MAJOR >= 4)
 std::string z85::encode(const std::string &raw_data)
 {
   return encode(reinterpret_cast<const uint8_t*>(raw_data.c_str()), raw_data.size());
@@ -31,3 +32,4 @@ std::vector<uint8_t> z85::decode(const std::string &string)
   }
   return dest;
 }
+#endif

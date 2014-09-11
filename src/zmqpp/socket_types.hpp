@@ -133,7 +133,9 @@ enum class socket_type {
 	 * Connect to non-0mq sockets.\n
 	 * Messages sent must consist of a identity target and a single data frame.
 	 */
+#if (ZMQ_VERSION_MAJOR >= 4)
 	stream     = ZMQ_STREAM,
+#endif
 
 	// To match for people who prefer the shorter versions
 	pub        = ZMQ_PUB,    /*!< version of ::publish to match zmq name convention */

@@ -1,9 +1,11 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <zmq.h>
 
 namespace zmqpp
 {
+#if (ZMQ_VERSION_MAJOR >= 4)
   namespace z85
   {
     /**
@@ -30,4 +32,6 @@ namespace zmqpp
      */
     std::vector<uint8_t> decode(const std::string &string);
   };
+#endif
+
 };

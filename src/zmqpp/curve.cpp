@@ -14,6 +14,7 @@
 
 namespace zmqpp { namespace curve {
 
+#if (ZMQ_VERSION_MAJOR >= 4)
 keypair generate_keypair()
 {
 	char public_key [41];
@@ -27,6 +28,7 @@ keypair generate_keypair()
 
 	return keypair{ public_key, secret_key };
 }
+#endif
 
 } // end curve
 
