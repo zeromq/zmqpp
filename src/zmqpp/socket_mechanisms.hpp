@@ -17,6 +17,7 @@ namespace zmqpp
  * Each is designed for a different use and has different limitations.
  */
 enum class socket_security {
+#if (ZMQ_VERSION_MAJOR >= 4)
 	/*!
 	 * The NULL mechanism is defined by the ZMTP 3.0 specification:
 	 * http://rfc.zeromq.org/spec:23. This is the default security mechanism
@@ -40,6 +41,7 @@ enum class socket_security {
 	 * by this document: http://rfc.zeromq.org/spec:25
 	 */
 	curve     = ZMQ_CURVE,
+#endif
 };
 
 }

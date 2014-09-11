@@ -22,6 +22,14 @@ before_script:
   - sudo make install
   - sudo ldconfig
   - cd ..
+  # Perform other test against ZMQ 3.x
+  - git clone https://github.com/zeromq/zeromq3-x
+  - cd zeromq3-x
+  - ./autogen.sh
+  - ./configure --prefix=/tmp/ZMQ3 && make -j 4
+  - make install
+  - cd ../
 
 script:
   - make CXXFLAGS='-DTRAVIS_CI_BUILD' check
+  - make clean ; make CUSTOM_INCLUDE_PATH='-I/tmp/ZMQ3/include' COMMON_LIBS='-L/tmp/ZMQ3/lib/ -lzmq' check
