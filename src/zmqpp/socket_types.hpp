@@ -18,7 +18,7 @@ namespace zmqpp
  *
  * Each is designed for a different use and has different limitations.
  */
-enum class socket_type {
+ZMQPP_COMPARABLE_ENUM socket_type {
 	/*!
 	 * One to one - two way connection.\n
 	 * Connect to ::pair.\n
