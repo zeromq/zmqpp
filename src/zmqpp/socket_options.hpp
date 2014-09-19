@@ -16,7 +16,7 @@ namespace zmqpp
  * \brief possible Socket options in zmq
  */
 
-enum class socket_option {
+ZMQPP_COMPARABLE_ENUM socket_option {
 	affinity                  = ZMQ_AFFINITY,          /*!< I/O thread affinity */
 	identity                  = ZMQ_IDENTITY,          /*!< Socket identity */
 	subscribe                 = ZMQ_SUBSCRIBE,         /*!< Add topic subscription - set only */

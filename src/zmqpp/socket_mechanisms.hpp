@@ -16,7 +16,7 @@ namespace zmqpp
  *
  * Each is designed for a different use and has different limitations.
  */
-enum class socket_security {
+ZMQPP_COMPARABLE_ENUM socket_security {
 #if (ZMQ_VERSION_MAJOR >= 4)
 	/*!
 	 * The NULL mechanism is defined by the ZMTP 3.0 specification:
