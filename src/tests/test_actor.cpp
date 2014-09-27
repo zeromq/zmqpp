@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(test_actor_movable)
         pipe->send("boap1");
         pipe->send("boap2");
         pipe->send("boap3");
-        return true; // will send signal::ok to signal successful shutdown
+        return true;
     };
     zmqpp::actor actor1(lambda);
 
@@ -63,6 +63,10 @@ BOOST_AUTO_TEST_CASE(test_actor_movable)
     zmqpp::actor actor3(std::move(actor2));
     actor3.pipe()->receive(str);
     BOOST_CHECK_EQUAL("boap3", str);
+    BOOST_CHECK_EQUAL(actor3.stop(true), true);
+
+    zmqpp::actor actor4(std::move(actor3));
+    BOOST_CHECK_EQUAL(actor4.stop(true), true);
 }
 
 BOOST_AUTO_TEST_CASE(child_thread_wait_for_stop)

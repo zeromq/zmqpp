@@ -83,8 +83,8 @@ namespace zmqpp
 	 * It is safe to call stop() multiple time (to ask the actor to shutdown, and then a bit
 	 * later call stop(true) to make sure it is really stopped)
 	 * 
-	 * @note calling this method on a "moved" actor will return false and no action
-	 * will be taken.
+	 * @note calling this method on an "empty" actor (after it was moved) will return
+	 * false and nothing will happen.
 	 * @param block whether or not we wait until the actor thread stops.
 	 * @return a boolean indicating whether or not the actor successfully shutdown.
 	 */

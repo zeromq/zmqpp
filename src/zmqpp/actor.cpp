@@ -65,7 +65,7 @@ namespace zmqpp
         delete parent_pipe_;
     }
 
-    bool actor::stop(bool block)
+    bool actor::stop(bool block /* = false */)
     {
         if (!parent_pipe_)
 	  return false;

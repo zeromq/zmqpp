@@ -55,6 +55,8 @@
 #include "message.hpp"
 #include "poller.hpp"
 #include "socket.hpp"
+#include "actor.hpp"
+#include "reactor.hpp"
 
 /*!
  * \brief C++ wrapper around zmq
