@@ -36,6 +36,39 @@ BOOST_AUTO_TEST_CASE(simple_test)
     BOOST_CHECK_EQUAL(13, b);
 }
 
+BOOST_AUTO_TEST_CASE(test_actor_movable)
+{
+    auto lambda = [](zmqpp::socket * pipe)
+    {
+        pipe->send(zmqpp::signal::ok); // signal we successfully started
+        pipe->send("boap1");
+        pipe->send("boap2");
+        pipe->send("boap3");
+        return true;
+    };
+    zmqpp::actor actor1(lambda);
+
+    std::string str;    
+    actor1.pipe()->receive(str);
+    BOOST_CHECK_EQUAL("boap1", str);
+
+    zmqpp::actor actor2(std::move(actor1));
+    actor2.pipe()->receive(str);
+    BOOST_CHECK_EQUAL("boap2", str);
+
+    // move from an "empty" actor and make sure it doesnt have a pointer to the pipe anymore
+    zmqpp::actor actor_empty(std::move(actor1));
+    BOOST_CHECK(actor_empty.pipe() == nullptr);
+
+    zmqpp::actor actor3(std::move(actor2));
+    actor3.pipe()->receive(str);
+    BOOST_CHECK_EQUAL("boap3", str);
+    BOOST_CHECK_EQUAL(actor3.stop(true), true);
+
+    zmqpp::actor actor4(std::move(actor3));
+    BOOST_CHECK_EQUAL(actor4.stop(true), true);
+}
+
 BOOST_AUTO_TEST_CASE(child_thread_wait_for_stop)
 {
     auto lambda = [](zmqpp::socket * pipe)
