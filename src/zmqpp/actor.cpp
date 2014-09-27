@@ -44,6 +44,21 @@ namespace zmqpp
         }
     }
 
+  actor::actor(actor &&o)
+  {
+    *this = std::move(o);
+  }
+
+  actor &actor::operator=(actor &&o)
+  {
+    parent_pipe_ = o.parent_pipe_;
+    stopped_ = o.stopped_;
+    retval_ = o.retval_;
+    o.parent_pipe_ = nullptr;
+
+    return *this;
+  }
+
     actor::~actor()
     {
         stop(true);
@@ -52,6 +67,9 @@ namespace zmqpp
 
     bool actor::stop(bool block)
     {
+        if (!parent_pipe_)
+	  return false;
+      
         parent_pipe_->send(signal::stop, true);
         if (!block)
         {
