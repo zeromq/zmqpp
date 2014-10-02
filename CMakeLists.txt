@@ -99,7 +99,7 @@ endif() # ZMQPP_BUILD_STATIC
 # Shared lib
 
 if (ZMQPP_BUILD_SHARED)
-  add_library( zmqpp SHARED $<TARGET_OBJECTS:zmqpp_objects>)
+  add_library( zmqpp SHARED ${LIBZMQPP_SOURCES})
   find_library(ZEROMQ_LIBRARY_SHARED ${ZMQPP_LIBZMQ_NAME_SHARED} PATHS ${ZEROMQ_LIB_DIR})
   target_link_libraries( zmqpp ${ZEROMQ_LIBRARY_SHARED} )
   list( APPEND INSTALL_TARGET_LIST zmqpp)
