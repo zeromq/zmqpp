@@ -5,14 +5,15 @@
  * Created on May 20, 2014, 10:51 PM
  */
 
+#include <cassert>
+#include <cstdlib>
+#include <iostream>
+
 #include "actor.hpp"
 #include "socket.hpp"
-#include <cassert>
 #include "message.hpp"
 #include "exception.hpp"
 #include "context.hpp"
-
-#include <iostream>
 
 zmqpp::context zmqpp::actor::actor_pipe_ctx_;
 
@@ -24,9 +25,10 @@ namespace zmqpp
     child_pipe_(nullptr),
     stopped_(false)
     {
-        std::string pipe_endpoint = "inproc://zmqpp::actor::" + std::to_string(reinterpret_cast<ptrdiff_t> (this));
-        parent_pipe_ = new socket(actor_pipe_ctx_, socket_type::pair);
-        parent_pipe_->bind(pipe_endpoint);
+      std::string pipe_endpoint;
+
+      parent_pipe_ = new socket(actor_pipe_ctx_, socket_type::pair);
+      pipe_endpoint = bind_parent();
 
         child_pipe_ = new socket(actor_pipe_ctx_, socket_type::pair);
         child_pipe_->connect(pipe_endpoint);
@@ -105,6 +107,27 @@ namespace zmqpp
     const socket* actor::pipe() const
     {
         return parent_pipe_;
+    }
+
+    std::string actor::bind_parent()
+    {
+      std::string base_endpoint = "inproc://zmqpp::actor::" + std::to_string(reinterpret_cast<ptrdiff_t> (this));
+	
+	while (true)
+	  {
+	    try
+	      {
+		std::string endpoint = base_endpoint + std::to_string(std::rand());
+		parent_pipe_->bind(endpoint);
+		return endpoint;
+	      }
+	    catch (zmq_internal_exception &e)
+	      {
+		// endpoint already taken.
+	      }
+	  }
+
+
     }
 
 }
