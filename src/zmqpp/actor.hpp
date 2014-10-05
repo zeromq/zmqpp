@@ -102,6 +102,13 @@ namespace zmqpp
 	 */
 	void start_routine(socket *child, ActorStartRoutine routine);
 
+         /**
+         * Bind the parent socket and return the endpoint used.
+         * Since endpoint are generated and have to be tested for availability
+         * this method is reponsible for finding a valid endpoint to bind to.
+         */
+	 std::string bind_parent();
+
 	/**
 	 * The parent thread socket.
 	 * This socket will be closed and freed by the actor destructor.

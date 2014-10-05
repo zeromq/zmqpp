@@ -31,7 +31,7 @@ namespace zmqpp
      * @return a vector of uint8_t: the binary block after string decoding.
      */
     std::vector<uint8_t> decode(const std::string &string);
-  };
+  }
 #endif
 
-};
+}
