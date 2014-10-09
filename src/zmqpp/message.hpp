@@ -252,6 +252,21 @@ public:
 	 */
 	bool is_signal() const;
 
+	/**
+	 * Gets the read cursor. For using get_raw() with stream-style reading.
+	 */
+	size_t read_cursor() const NOEXCEPT { return _read_cursor; }
+
+	/**
+	 * Gets the remaining number of parts in the message.
+	 */
+	size_t remaining() const NOEXCEPT { return  _parts.size() - _read_cursor; }
+
+	/**
+	 * Moves the read cursor to the next element.
+	 * @return the new read_cursor
+	 */
+	size_t next() NOEXCEPT { return ++_read_cursor; }
 private:
 	typedef std::vector<frame> parts_type;
 	parts_type _parts;
