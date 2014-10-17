@@ -34,6 +34,10 @@ public:
 	static const short poll_out;    /*!< Monitor output flag. */
 	static const short poll_error;  /*!< Monitor error flag.\n Only for file descriptors. */
 
+#if ((ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 4)
+        static const short poll_pri;    /*!< Priority input flag.\n Only for file descriptors. See POLLPRI) */
+#endif
+
 	/*!
 	 * Construct an empty polling model.
 	 */

@@ -18,6 +18,10 @@ const short poller::poll_in     = ZMQ_POLLIN;
 const short poller::poll_out    = ZMQ_POLLOUT;
 const short poller::poll_error  = ZMQ_POLLERR;
 
+#if ((ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 4)
+const short poller::poll_pri    = ZMQ_POLLPRI;
+#endif
+
 poller::poller()
 	: _items()
 	, _index()
