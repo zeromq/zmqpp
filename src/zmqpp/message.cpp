@@ -418,14 +418,17 @@ void message::pop_back()
 
 message::message(message&& source) NOEXCEPT
 	: _parts()
-	, _read_cursor(0)
+	, _read_cursor(source._read_cursor)
 {
 	std::swap(_parts, source._parts);
+	source._read_cursor = 0;
 }
 
 message& message::operator=(message&& source) NOEXCEPT
 {
-	std::swap(_parts, source._parts);
+        _read_cursor = source._read_cursor;
+	source._read_cursor = 0;
+	_parts = std::move(source._parts);
 	return *this;
 }
 
