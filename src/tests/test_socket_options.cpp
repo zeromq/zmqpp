@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 #endif
 
 #if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
-#if (ZMQ_VERSION_MINOR == 2)
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 2)
 	CHECK_SET(socket, bool, delay_attach_on_connect);
 #else
 	CHECK_SET(socket, bool, immediate);
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE( get_socket_options )
 #endif
 
 #if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
-#if (ZMQ_VERSION_MINOR == 2)
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 2)
 	CHECK_GET(socket, bool, delay_attach_on_connect);
 #else
 	CHECK_GET(socket, bool, immediate);
