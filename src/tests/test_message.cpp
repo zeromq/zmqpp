@@ -30,8 +30,9 @@ BOOST_AUTO_TEST_CASE( throws_exception_reading_invalid_part )
 	BOOST_CHECK_THROW(message.get(0), zmqpp::exception);
 }
 
-BOOST_AUTO_TEST_CASE( move_supporting )
+BOOST_AUTO_TEST_CASE( move_construction_supporting )
 {
+	std::string test;
 	zmqpp::message first;
 	first.add("string");
 	BOOST_CHECK_EQUAL(1, first.parts());
@@ -39,6 +40,74 @@ BOOST_AUTO_TEST_CASE( move_supporting )
 	zmqpp::message second( std::move(first) );
 	BOOST_CHECK_EQUAL(1, second.parts());
 	BOOST_CHECK_EQUAL(0, first.parts());
+
+	// read cursor
+	zmqpp::message boap;
+	boap.add("string");
+	boap.add("string2");
+
+	boap >> test;
+	BOOST_CHECK_EQUAL("string", test);
+
+	zmqpp::message boap2( std::move(boap));
+	boap2 >> test;
+	BOOST_CHECK_EQUAL("string2", test);
+}
+
+BOOST_AUTO_TEST_CASE( move_construction_supporting2 )
+{
+	std::string test;
+	zmqpp::message first;
+	first.add("string");
+	first.add("string2");
+	BOOST_CHECK_EQUAL(2, first.parts());
+	first >> test;
+
+	zmqpp::message second( std::move(first) );
+	first.add("str");
+	first >> test;
+}
+
+BOOST_AUTO_TEST_CASE( move_assignment_supporting )
+{
+ 	zmqpp::message first;
+	first.add("string");
+
+ 	zmqpp::message second;
+	second.add("blah");
+	second = std::move(first);
+ 	BOOST_CHECK_EQUAL(1, second.parts());
+ 	BOOST_CHECK_EQUAL(0, first.parts());
+
+	zmqpp::message boap;
+	boap.add("string");
+	boap.add("string2");
+
+	std::string test;
+	boap >> test;
+	BOOST_CHECK_EQUAL("string", test);
+
+	zmqpp::message boap2;
+	boap2 = std::move(boap);
+	boap2 >> test;
+	BOOST_CHECK_EQUAL("string2", test);
+}
+
+BOOST_AUTO_TEST_CASE( move_assignment_supporting2 )
+{
+	std::string test;
+	zmqpp::message first;
+	first.add("string");
+	first.add("string2");
+	BOOST_CHECK_EQUAL(2, first.parts());
+	first >> test;
+	BOOST_CHECK_EQUAL("string", test);
+
+	zmqpp::message second;
+	second = std::move(first);
+	first.add("str");
+	first >> test;
+	BOOST_CHECK_EQUAL("str", test);
 }
 
 BOOST_AUTO_TEST_CASE( copyable )
