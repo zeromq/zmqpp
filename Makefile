@@ -3,9 +3,9 @@
 #
 
 CONFIG   = max
-CPPFLAGS = 
-CXXFLAGS = 
-LDFLAGS  = 
+CPPFLAGS =
+CXXFLAGS =
+LDFLAGS  =
 
 PREFIX = /usr/local
 BINDIR = $(DESTDIR)$(PREFIX)/bin
@@ -82,7 +82,7 @@ COMMON_FLAGS = -MMD -std=c++11 -pipe -Wall -fPIC \
 
 COMMON_LIBS = -lzmq
 
-LIBRARY_LIBS =  
+LIBRARY_LIBS =
 
 CLIENT_LIBS = -L$(BUILD_PATH) \
 	-l$(LIBRARY_NAME) \
@@ -90,7 +90,8 @@ CLIENT_LIBS = -L$(BUILD_PATH) \
 
 TEST_LIBS = -L$(BUILD_PATH) \
 	-l$(LIBRARY_NAME) \
-	-lboost_unit_test_framework
+	-lboost_unit_test_framework \
+	-lpthread
 
 ifeq ($(CONFIG),loadtest)
 	CONFIG_FLAGS := $(CONFIG_FLAGS) -DLOADTEST
@@ -163,7 +164,7 @@ $(CLIENT_TARGET): $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE) $(ALL_CLIENT_OBJECTS)
 	$(LD) $(LDFLAGS) -o $(BUILD_PATH)/$@ $(ALL_CLIENT_OBJECTS) $(CLIENT_LIBS) $(COMMON_LIBS)
 
 $(TESTS_TARGET): $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE) $(ALL_TEST_OBJECTS)
-	$(LD) $(LDFLAGS) -o $(BUILD_PATH)/$@ $(ALL_TEST_OBJECTS) $(TEST_LIBS) $(COMMON_LIBS) 
+	$(LD) $(LDFLAGS) -o $(BUILD_PATH)/$@ $(ALL_TEST_OBJECTS) $(TEST_LIBS) $(COMMON_LIBS)
 
 $(TEST_SUITES): $(TESTS_TARGET)
 	LD_LIBRARY_PATH=$(BUILD_PATH):$(LD_LIBRARY_PATH) $(BUILD_PATH)/$(TESTS_TARGET) --log_level=message --run_test=$(patsubst test-%,%,$@)
