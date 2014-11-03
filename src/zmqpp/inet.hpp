@@ -76,7 +76,7 @@ inline uint64_t swap_if_needed(uint64_t const value_to_check)
  * \param hostlonglong unsigned 64 bit host order integer
  * \return unsigned 64 bit network order integer
  */
-inline uint64_t htonll(uint64_t const hostlonglong)
+inline uint64_t zmqpp_htonll(uint64_t const hostlonglong)
 {
 	return zmqpp::swap_if_needed(hostlonglong);
 }
@@ -89,7 +89,7 @@ inline uint64_t htonll(uint64_t const hostlonglong)
  * \param networklonglong unsigned 64 bit network order integer
  * \return unsigned 64 bit host order integer
  */
-inline uint64_t ntohll(uint64_t const networklonglong)
+inline uint64_t zmqpp_ntohll(uint64_t const networklonglong)
 {
 	return zmqpp::swap_if_needed(networklonglong);
 }
@@ -142,7 +142,7 @@ inline double htond(double value)
 
 	uint64_t temp;
 	memcpy(&temp, &value, sizeof(uint64_t));
-	temp = zmqpp::htonll(temp);
+	temp = zmqpp::zmqpp_htonll(temp);
 	memcpy(&value, &temp, sizeof(uint64_t));
 
 	return value;
@@ -160,7 +160,7 @@ inline double ntohd(double value)
 
 	uint64_t temp;
 	memcpy(&temp, &value, sizeof(uint64_t));
-	temp = zmqpp::ntohll(temp);
+	temp = zmqpp::zmqpp_ntohll(temp);
 	memcpy(&value, &temp, sizeof(uint64_t));
 
 	return value;
