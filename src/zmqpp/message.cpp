@@ -138,7 +138,7 @@ void message::get(int64_t& integer, size_t const part) const
 	assert(sizeof(int64_t) == size(part));
 
 	uint64_t const* network_order = static_cast<uint64_t const*>(raw_data(part));
-	integer = static_cast<int64_t>(zmqpp::htonll(*network_order));
+	integer = static_cast<int64_t>(zmqpp::zmqpp_htonll(*network_order));
 }
 
 void message::get(signal &sig, size_t const part) const
@@ -179,7 +179,7 @@ void message::get(uint64_t& unsigned_integer, size_t const part) const
 	assert(sizeof(uint64_t) == size(part));
 
 	uint64_t const* network_order = static_cast<uint64_t const*>(raw_data(part));
-	unsigned_integer = zmqpp::ntohll(*network_order);
+	unsigned_integer = zmqpp::zmqpp_ntohll(*network_order);
 }
 
 void message::get(float& floating_point, size_t const part) const
@@ -237,7 +237,7 @@ message& message::operator<<(int32_t const integer)
 
 message& message::operator<<(int64_t const integer)
 {
-	uint64_t network_order = zmqpp::htonll(static_cast<uint64_t>(integer));
+	uint64_t network_order = zmqpp::zmqpp_htonll(static_cast<uint64_t>(integer));
 	add_raw(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
 
 	return *this;
@@ -272,7 +272,7 @@ message& message::operator<<(uint32_t const unsigned_integer)
 
 message& message::operator<<(uint64_t const unsigned_integer)
 {
-	uint64_t network_order = zmqpp::htonll(unsigned_integer);
+	uint64_t network_order = zmqpp::zmqpp_htonll(unsigned_integer);
 	add_raw(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
 
 	return *this;
@@ -342,7 +342,7 @@ void message::push_front(int32_t const integer)
 
 void message::push_front(int64_t const integer)
 {
-	uint64_t network_order = zmqpp::htonll(static_cast<uint64_t>(integer));
+	uint64_t network_order = zmqpp::zmqpp_htonll(static_cast<uint64_t>(integer));
 	push_front(&network_order, sizeof(uint64_t));
 }
 
@@ -370,7 +370,7 @@ void message::push_front(uint32_t const unsigned_integer)
 
 void message::push_front(uint64_t const unsigned_integer)
 {
-	uint64_t network_order = zmqpp::htonll(unsigned_integer);
+	uint64_t network_order = zmqpp::zmqpp_htonll(unsigned_integer);
 	push_front(&network_order, sizeof(uint64_t));
 }
 
