@@ -56,7 +56,7 @@ void server_task (zmqpp::curve::keypair& server_keypair, std::vector<std::string
   // Start an authentication engine for this context. This engine
   // allows or denies incoming connections (talking to the libzmq
   // core over a protocol called ZAP).
-  zmqpp::auth authenticator{context};
+  zmqpp::auth authenticator(context);
 
   // Get some indication of what the authenticator is deciding
   authenticator.set_verbose (true);
