@@ -24,7 +24,7 @@ namespace zmqpp
  * and define policies for securing PLAIN, CURVE, and GSSAPI connections.
  *
  */
-auth::auth(context& ctx): terminated {false} {
+auth::auth(context& ctx): terminated (false) {
     auto zap_auth_server = [this] (socket * pipe, context& auth_ctx) -> bool {
         // spawn ZAP handler
         socket zap_handler(auth_ctx, socket_type::reply);
