@@ -16,7 +16,7 @@ namespace zmqpp
 /*!
  * Receive a ZAP valid request from the handler socket
  */
-zap_request::zap_request(socket& handler, bool logging) : zap_socket{handler}, verbose{logging} {
+zap_request::zap_request(socket& handler, bool logging) : zap_socket(handler), verbose(logging) {
     message msg;
     zap_socket.receive(msg);
 
