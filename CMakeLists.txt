@@ -83,6 +83,8 @@ set( LIBZMQPP_SOURCES
   src/zmqpp/signal.cpp
   src/zmqpp/socket.cpp
   src/zmqpp/z85.cpp
+  src/zmqpp/zap_request.cpp
+  src/zmqpp/auth.cpp
   src/zmqpp/zmqpp.cpp
   )
 
@@ -171,6 +173,7 @@ if( ZMQPP_BUILD_TESTS )
     src/tests/test_socket.cpp
     src/tests/test_socket_options.cpp
     src/tests/test_z85.cpp
+    src/tests/test_auth.cpp
     )
   target_link_libraries( zmqpp-test-runner  ${LIB_TO_LINK_TO_EXAMPLES} ${Boost_LIBRARIES})
   add_test( zmqpp-test zmqpp-test-runner --log-level=test-suite )
