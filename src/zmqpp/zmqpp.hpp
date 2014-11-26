@@ -57,6 +57,8 @@
 #include "socket.hpp"
 #include "actor.hpp"
 #include "reactor.hpp"
+#include "zap_request.hpp"
+#include "auth.hpp"
 
 /*!
  * \brief C++ wrapper around zmq
