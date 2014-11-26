@@ -95,7 +95,7 @@ public:
     }
 
 private:
-    socket&  		zap_socket;     //  Socket we're talking to
+    socket&  	    zap_socket;     //  Socket we're talking to
     std::string     version;        //  Version number, must be "1.0"
     std::string     sequence;       //  Sequence number of request
     std::string     domain;         //  Server socket domain
@@ -109,8 +109,8 @@ private:
     bool            verbose;        //  Log ZAP requests and replies?
 
     // No copy - private and not implemented
-	zap_request(zap_request const&) ZMQPP_EXPLICITLY_DELETED;
-	zap_request& operator=(zap_request const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+    zap_request(zap_request const&) ZMQPP_EXPLICITLY_DELETED;
+    zap_request& operator=(zap_request const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 };
 
 }
