@@ -47,7 +47,7 @@ public:
 	 * Destructor.
 	 *
 	 */
-    ~auth();
+    	~auth();
 
 	/*!
 	 * Allow (whitelist) a single IP address. For NULL, all clients from this
@@ -57,97 +57,96 @@ public:
 	 * any non-whitelisted addresses are treated as blacklisted.
 	 *
 	 */
-    void allow(std::string address);
+    	void allow(std::string address);
 
-    /*!
+    	/*!
 	 * Deny (blacklist) a single IP address. For all security mechanisms, this
 	 * rejects the connection without any further authentication. Use either a
-     * whitelist, or a blacklist, not not both. If you define both a whitelist
-     * and a blacklist, only the whitelist takes effect.
+     	 * whitelist, or a blacklist, not not both. If you define both a whitelist
+     	 * and a blacklist, only the whitelist takes effect.
 	 *
 	 */
-    void deny(std::string address);
+    	void deny(std::string address);
 
-    /*!
+    	/*!
 	 * Configure a ZAP domain. To cover all domains, use "*".
 	 */
-    void configure_domain(std::string domain);
+    	void configure_domain(std::string domain);
 
-    /*!
+    	/*!
 	 * Configure PLAIN authentication. PLAIN authentication uses a plain-text 
 	 * username and password.
 	 *
 	 */
-    void configure_plain(std::string username, std::string password);
+    	void configure_plain(std::string username, std::string password);
 
-    /*!
+    	/*!
 	 * Configure CURVE authentication. CURVE authentication uses client public keys. 
 	 * This method can be called multiple times. To cover all domains, use "*". 
 	 * To allow all client keys without checking, specify CURVE_ALLOW_ANY for the client_public_key.
 	 *
 	 */
-    void configure_curve(std::string client_public_key);
+    	void configure_curve(std::string client_public_key);
 
-    /*!
+    	/*!
 	 * Configure GSSAPI authentication. GSSAPI authentication uses an underlying 
 	 * mechanism (usually Kerberos) to establish a secure context and perform mutual 
 	 * authentication.
 	 *
 	 */
-    void configure_gssapi();
+    	void configure_gssapi();
 
-    /*!
+    	/*!
 	 * Enable verbose tracing of commands and activity.
 	 *
 	 */
-    void set_verbose(bool verbose);
+    	void set_verbose(bool verbose);
 
 private:
 	/*!
 	 * Handle an authentication command from calling application.
 	 *
 	 */
-    void handle_command(socket& pipe);
+    	void handle_command(socket& pipe);
 
 	/*!
 	 * Handle a PLAIN authentication request from libzmq core
 	 *
 	 */
-    bool authenticate_plain(zap_request& request);
+    	bool authenticate_plain(zap_request& request);
 
 	/*!
 	 * Handle a CURVE authentication request from libzmq core
 	 *
 	 */
-    bool authenticate_curve(zap_request& request);
+    	bool authenticate_curve(zap_request& request);
 
-    /*!
+    	/*!
 	 * Handle a GSSAPI authentication request from libzmq core
 	 *
 	 */
-    bool authenticate_gssapi(zap_request& request);
+    	bool authenticate_gssapi(zap_request& request);
 
-	/*!
-	 * Authentication.
-	 *
-	 */
-    void authenticate(socket& sock);
-    //void authenticate(zap_request& request);
+    	/*!
+     	 * Authentication.
+     	 *
+     	 */
+    	void authenticate(socket& sock);
+    
+    	std::shared_ptr<actor>    		 	authenticator;	// ZAP authentication actor
+    	poller 	            			 	auth_poller;	 // Socket poller
+    	std::unordered_set<std::string> 		whitelist;      // Whitelisted addresses
+    	std::unordered_set<std::string> 		blacklist;      // Blacklisted addresses
+    	std::unordered_map<std::string, std::string> 	passwords;      // PLAIN passwords, if loaded
+    	std::unordered_set<std::string> 		client_keys;    // Client public keys
+    	std::string 				 	domain;			// ZAP domain
+    	bool 					 	allow_any;      // CURVE allows arbitrary clients
+    	bool 					 	terminated;     // Did caller ask us to quit?
+    	bool 					 	verbose;        // Verbose logging enabled?
 
-    std::shared_ptr<actor>    		 					authenticator;	// ZAP authentication actor
-	  poller 	            										auth_poller;	 // Socket poller
-    std::unordered_set<std::string> 				whitelist;      // Whitelisted addresses
-    std::unordered_set<std::string> 				blacklist;      // Blacklisted addresses
-    std::unordered_map<std::string, std::string> 	passwords;      // PLAIN passwords, if loaded
-    std::unordered_set<std::string> 				client_keys;    // Client public keys
-    std::string 									domain;			// ZAP domain
-    bool 											allow_any;      // CURVE allows arbitrary clients
-    bool 											terminated;     // Did caller ask us to quit?
-    bool 											verbose;        // Verbose logging enabled?
-
-    // No copy - private and not implemented
-	auth(auth const&) ZMQPP_EXPLICITLY_DELETED;
-	auth& operator=(auth const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+    	// No copy - private and not implemented
+    	auth(auth const&) ZMQPP_EXPLICITLY_DELETED;
+    	auth& operator=(auth const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 };
 
 }
