@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(strawhouse)
     // Start an authentication engine for this context. This engine
     // allows or denies incoming connections (talking to the libzmq
     // core over a protocol called ZAP).
-    zmqpp::auth authenticator{context};
+    zmqpp::auth authenticator(context);
 
     // Get some indication of what the authenticator is deciding
     authenticator.set_verbose (true);
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(woodhouse)
     // Start an authentication engine for this context. This engine
     // allows or denies incoming connections (talking to the libzmq
     // core over a protocol called ZAP).
-    zmqpp::auth authenticator{context};
+    zmqpp::auth authenticator(context);
 
     // Get some indication of what the authenticator is deciding
     authenticator.set_verbose (true);
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(stonehouse)
     // Start an authentication engine for this context. This engine
     // allows or denies incoming connections (talking to the libzmq
     // core over a protocol called ZAP).
-    zmqpp::auth authenticator{context};
+    zmqpp::auth authenticator(context);
 
     // Get some indication of what the authenticator is deciding
     authenticator.set_verbose (true);
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE(ironhouse)
     // Start an authentication engine for this context. This engine
     // allows or denies incoming connections (talking to the libzmq
     // core over a protocol called ZAP).
-    zmqpp::auth authenticator{context};
+    zmqpp::auth authenticator(context);
 
     // Get some indication of what the authenticator is deciding
     authenticator.set_verbose (true);
@@ -271,7 +271,7 @@ static void server_task (zmqpp::curve::keypair& server_keypair, std::vector<std:
     // Start an authentication engine for this context. This engine
     // allows or denies incoming connections (talking to the libzmq
     // core over a protocol called ZAP).
-    zmqpp::auth authenticator{context};
+    zmqpp::auth authenticator(context);
 
     // Get some indication of what the authenticator is deciding
     authenticator.set_verbose (true);
