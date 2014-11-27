@@ -10,6 +10,7 @@
 #include "zmqpp/zap_request.hpp"
 #include "zmqpp/auth.hpp"
 #include <iostream>
+#include <string>
 
 BOOST_AUTO_TEST_SUITE( auth )
 
