@@ -80,7 +80,7 @@ COMMON_FLAGS = -MMD -std=c++11 -pipe -Wall -fPIC \
 	-DBUILD_CLIENT_NAME='"$(CLIENT_TARGET)"' \
 	-I$(SRC_PATH) $(CUSTOM_INCLUDE_PATH)
 
-COMMON_LIBS = -lzmq
+COMMON_LIBS = -lzmq -lsodium
 
 LIBRARY_LIBS =
 
@@ -90,6 +90,7 @@ CLIENT_LIBS = -L$(BUILD_PATH) \
 
 TEST_LIBS = -L$(BUILD_PATH) \
 	-l$(LIBRARY_NAME) \
+	-lsodium \
 	-lboost_unit_test_framework \
 	-lpthread
 
