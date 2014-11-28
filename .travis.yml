@@ -14,11 +14,19 @@ install:
   - sudo apt-get install libboost-all-dev
 
 before_script:
+  # Build, check, and install libsodium
+  - git clone git://github.com/jedisct1/libsodium.git
+  - cd libsodium
+  - ./autogen.sh 
+  - ./configure && make check 
+  - sudo make install 
+  - sudo ldconfig
+  - cd ../
   # Perform regression test build against ZeroMQ v4.x
   - git clone git://github.com/zeromq/zeromq4-x.git
   - cd zeromq4-x
   - ./autogen.sh
-  - ./configure && make -j4
+  - ./configure --with-libsodium && make -j4
   - sudo make install
   - sudo ldconfig
   - cd ..
@@ -29,19 +37,11 @@ before_script:
   - ./configure --prefix=/tmp/ZMQ3 && make -j 4
   - make install
   - cd ../
-  # Build, check, and install libsodium
-  - git clone git://github.com/jedisct1/libsodium.git
-  - cd libsodium
-  - ./autogen.sh 
-  - ./configure && make check 
-  - sudo make install 
-  - sudo ldconfig
-  - cd ../
   # Build, check, and install the latest version of ZeroMQ
   - git clone git://github.com/zeromq/libzmq.git
   - cd libzmq
   - ./autogen.sh 
-  - ./configure && make check
+  - ./configure --with-libsodium && make check
   - sudo make install
   - sudo ldconfig
   - cd ../
