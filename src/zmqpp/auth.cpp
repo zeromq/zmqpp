@@ -14,6 +14,8 @@
 #include "socket_types.hpp"
 #include "signal.hpp"
 
+#if (ZMQ_VERSION_MAJOR > 3)
+
 namespace zmqpp
 {
 auth::auth(context& ctx) :
@@ -355,3 +357,5 @@ void auth::authenticate(socket& sock) {
 }
 
 }
+
+#endif

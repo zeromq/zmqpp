@@ -19,6 +19,11 @@
 #include "context.hpp"
 #include "zap_request.hpp"
 
+
+// Authentication is something from zmq 4
+
+#if (ZMQ_VERSION_MAJOR > 3)
+
 namespace zmqpp
 {
 
@@ -150,5 +155,7 @@ private:
 };
 
 }
+
+#endif
 
 #endif /* ZMQPP_AUTH_HPP_ */

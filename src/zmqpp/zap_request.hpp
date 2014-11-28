@@ -11,6 +11,8 @@
 #include <string>
 #include "socket.hpp"
 
+#if (ZMQ_VERSION_MAJOR > 3)
+
 namespace zmqpp
 {
 
@@ -114,5 +116,7 @@ private:
 };
 
 }
+
+#endif
 
 #endif /* ZMQPP_ZAP_REQUEST_HPP_ */
