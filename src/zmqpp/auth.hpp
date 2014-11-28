@@ -19,7 +19,10 @@
 #include "context.hpp"
 #include "zap_request.hpp"
 
-#define ZAP_ENDPOINT  "inproc://zeromq.zap.01"
+
+// Authentication is something from zmq 4
+
+#if (ZMQ_VERSION_MAJOR > 3)
 
 namespace zmqpp
 {
@@ -27,7 +30,7 @@ namespace zmqpp
 /*!
  * auth - authentication for ZeroMQ security mechanisms
  * 
- * A auth actor takes over authentication for all incoming connections in
+ * An auth actor takes over authentication for all incoming connections in
  * its context. You can whitelist or blacklist peers based on IP address,
  * and define policies for securing PLAIN, CURVE, and GSSAPI connections.
  *
@@ -36,7 +39,7 @@ class auth
 {
 public:
 	/*!
-	 * Consturctor. A auth actor takes over authentication for all incoming connections in
+	 * Constructor. A auth actor takes over authentication for all incoming connections in
 	 * its context. You can whitelist or blacklist peers based on IP address,
 	 * and define policies for securing PLAIN, CURVE, and GSSAPI connections.
 	 *
@@ -144,11 +147,15 @@ private:
     	bool 					 	terminated;     // Did caller ask us to quit?
     	bool 					 	verbose;        // Verbose logging enabled?
 
+        constexpr static const char * const zap_endpoint_ = "inproc://zeromq.zap.01";
+  
     	// No copy - private and not implemented
     	auth(auth const&) ZMQPP_EXPLICITLY_DELETED;
     	auth& operator=(auth const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 };
 
 }
+
+#endif
 
 #endif /* ZMQPP_AUTH_HPP_ */

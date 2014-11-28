@@ -10,13 +10,18 @@
 #include "socket.hpp"
 #include "z85.hpp"
 
+#if (ZMQ_VERSION_MAJOR > 3)
+
 namespace zmqpp
 {
 
 /*!
  * Receive a ZAP valid request from the handler socket
  */
-zap_request::zap_request(socket& handler, bool logging) : zap_socket(handler), verbose(logging) {
+zap_request::zap_request(socket& handler, bool logging) :
+  zap_socket(handler),
+  verbose(logging)
+{
     message msg;
     zap_socket.receive(msg);
 
@@ -68,3 +73,5 @@ void zap_request::reply (std::string status_code, std::string status_text) {
 }    
 
 }
+
+#endif
