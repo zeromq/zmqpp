@@ -14,6 +14,8 @@
 
 BOOST_AUTO_TEST_SUITE( auth )
 
+// The whole test suite should be ran only against libzmq > 3
+#if (ZMQ_VERSION_MAJOR > 3)
 
 BOOST_AUTO_TEST_CASE(grasslands)
 {
@@ -348,5 +350,6 @@ BOOST_AUTO_TEST_CASE(ironhouse2)
     server_thread.join();
 }
 
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()
