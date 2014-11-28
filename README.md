@@ -85,7 +85,7 @@ Installation can be done by the standard make && make install. If the boost
 unittest framework is install check and installcheck can be run for sanity
 checking. Following security dependencies are required to use ZMQ security.
 
-    Install Security Dependencies:
+    # Install Security Dependencies:
     git clone git://github.com/jedisct1/libsodium.git
     cd libsodium
     ./autogen.sh
