@@ -18,12 +18,6 @@
 
 namespace zmqpp
 {
-/*!
- * Consturctor. A auth actor takes over authentication for all incoming connections in
- * its context. You can whitelist or blacklist peers based on IP address,
- * and define policies for securing PLAIN, CURVE, and GSSAPI connections.
- *
- */
 auth::auth(context& ctx): terminated (false) {
     auto zap_auth_server = [this] (socket * pipe, context& auth_ctx) -> bool {
         // spawn ZAP handler
@@ -59,10 +53,6 @@ auth::auth(context& ctx): terminated (false) {
     authenticator = std::make_shared<actor>(std::bind(zap_auth_server, std::placeholders::_1, std::ref(ctx)));
 }
 
-/*!
- * Destructor.
- *
- */
 auth::~auth() {
     message msg;
 	msg << "TERMINATE";
@@ -70,14 +60,6 @@ auth::~auth() {
     authenticator->pipe()->wait();
 }
 
-/*!
- * Allow (whitelist) a single IP address. For NULL, all clients from this
- * address will be accepted. For PLAIN and CURVE, they will be allowed to
- * continue with authentication. You can call this method multiple times
- * to whitelist multiple IP addresses. If you whitelist a single address,
- * any non-whitelisted addresses are treated as blacklisted.
- *
- */
 void auth::allow(std::string address) {
 	message msg;
 	msg << "ALLOW" << address;
@@ -85,13 +67,6 @@ void auth::allow(std::string address) {
 	authenticator->pipe()->wait();
 }
 
-/*!
- * Deny (blacklist) a single IP address. For all security mechanisms, this
- * rejects the connection without any further authentication. Use either a
- * whitelist, or a blacklist, not not both. If you define both a whitelist
- * and a blacklist, only the whitelist takes effect.
- *
- */
 void auth::deny(std::string address) {
 	message msg;
 	msg << "DENY" << address;
@@ -99,9 +74,6 @@ void auth::deny(std::string address) {
 	authenticator->pipe()->wait();
 }
 
-/*!
- * Configure a ZAP domain. To cover all domains, use "*".
- */
 void auth::configure_domain(std::string domain) {
 	message msg;
 	assert(!domain.empty());
@@ -110,11 +82,6 @@ void auth::configure_domain(std::string domain) {
 	authenticator->pipe()->wait();
 }
 
-/*!
- * Configure PLAIN authentication. PLAIN authentication uses a plain-text 
- * username and password.
- *
- */
 void auth::configure_plain(std::string username, std::string password) {
 	message msg;
 	assert(!username.empty());
@@ -129,12 +96,6 @@ void auth::configure_plain(std::string username, std::string password) {
     authenticator->pipe()->wait();
 }
 
-/*!
- * Configure CURVE authentication. CURVE authentication uses client public keys. 
- * This method can be called multiple times. To cover all domains, use "*". 
- * To allow all client keys without checking, specify CURVE_ALLOW_ANY for the client_public_key.
- *
- */
 void auth::configure_curve(std::string client_public_key) {
 	message msg;
 	assert(!client_public_key.empty());
@@ -148,12 +109,6 @@ void auth::configure_curve(std::string client_public_key) {
 	authenticator->pipe()->wait();
 }
 
-/*!
- * Configure GSSAPI authentication. GSSAPI authentication uses an underlying 
- * mechanism (usually Kerberos) to establish a secure context and perform mutual 
- * authentication.
- *
- */
 void auth::configure_gssapi() {
 	message msg;
 	msg << "GSSAPI";
@@ -166,10 +121,6 @@ void auth::configure_gssapi() {
 	authenticator->pipe()->wait();
 }
 
-/*!
- * Enable verbose tracing of commands and activity.
- *
- */
 void auth::set_verbose(bool verbose) {
     std::string verbose_string = (true == verbose) ? "true" : "false"; 
 	message msg;
@@ -183,10 +134,6 @@ void auth::set_verbose(bool verbose) {
     authenticator->pipe()->wait();
 }
 
-/*!
- * Handle an authentication command from calling application.
- *
- */
 void auth::handle_command(socket& pipe) {
     // Get the whole message off the pipe in one go
 	message msg;
@@ -285,10 +232,6 @@ void auth::handle_command(socket& pipe) {
     }
 }
 
-/*!
- * Handle a PLAIN authentication request from libzmq core
- *
- */
 bool auth::authenticate_plain(zap_request& request) {
 	auto search = passwords.find(request.get_username());
     if((search != passwords.end()) && (search->second == request.get_password())) {
@@ -307,10 +250,6 @@ bool auth::authenticate_plain(zap_request& request) {
     }
 }
 
-/*!
- * Handle a CURVE authentication request from libzmq core
- *
- */
 bool auth::authenticate_curve(zap_request& request) {
 	if (allow_any) {
     	if (verbose) {
@@ -334,10 +273,6 @@ bool auth::authenticate_curve(zap_request& request) {
 	}    	
 }
 
-/*!
- * Handle a GSSAPI authentication request from libzmq core
- *
- */
 bool auth::authenticate_gssapi(zap_request& request) {
 	if (verbose) {
     	std::cout << "auth: allowed (GSSAPI) principal=" << request.get_principal() 
@@ -346,10 +281,6 @@ bool auth::authenticate_gssapi(zap_request& request) {
 	return true;	
 }
 
-/*!
- * Authentication.
- *
- */
 void auth::authenticate(socket& sock) {
     // Receive a ZAP request.
 	zap_request request(sock, verbose);
