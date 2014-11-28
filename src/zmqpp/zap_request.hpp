@@ -36,79 +36,79 @@ public:
     /*! 
      * Get Version
      */
-    inline std::string get_version() {
+    const std::string & get_version() const {
         return version;
     }
 
     /*! 
      * Get Domain
      */
-    inline std::string get_domain() {
+    const std::string & get_domain() const {
         return domain;
     }
 
     /*! 
      * Get Address
      */
-    inline std::string get_address() {
+    const std::string & get_address() const {
         return address;
     }
 
     /*! 
      * Get Identity
      */
-    inline std::string get_identity() {
+    const std::string & get_identity() const {
         return identity;
     }
 
     /*! 
      * Get Security Mechanism
      */
-    inline std::string get_mechanism() {
+    const std::string & get_mechanism() const {
         return mechanism;
     }
 
     /*! 
      * Get username for PLAIN security mechanism
      */
-    inline std::string get_username() {
+    const std::string & get_username() const {
         return username;
     }
 
     /*! 
      * Get password for PLAIN security mechanism
      */
-    inline std::string get_password() {
+    const std::string & get_password() const {
         return password;
     }
 
     /*! 
      * Get client_key for CURVE security mechanism
      */
-    inline std::string get_client_key() {
+    const std::string & get_client_key() const {
         return client_key;
     }
 
     /*! 
      * Get principal for GSSAPI security mechanism
      */
-    inline std::string get_principal() {
+    const std::string & get_principal() const {
         return principal;
     }
 
 private:
-    socket&  	    zap_socket;     //  Socket we're talking to
-    std::string     version;        //  Version number, must be "1.0"
-    std::string     sequence;       //  Sequence number of request
-    std::string     domain;         //  Server socket domain
-    std::string     address;        //  Client IP address
-    std::string     identity;       //  Server socket idenntity
-    std::string     mechanism;      //  Security mechansim
-    std::string     username;       //  PLAIN user name
-    std::string     password;       //  PLAIN password, in clear text
-    std::string     client_key;     //  CURVE client public key in ASCII
-    std::string     principal;      //  GSSAPI client principal
-    bool            verbose;        //  Log ZAP requests and replies?
+    socket&  	    zap_socket;     //!< Socket we're talking to
+    std::string     version;        //!< Version number, must be "1.0"
+    std::string     sequence;       //!< Sequence number of request
+    std::string     domain;         //!< Server socket domain
+    std::string     address;        //!< Client IP address
+    std::string     identity;       //!< Server socket idenntity
+    std::string     mechanism;      //!< Security mechansim
+    std::string     username;       //!< PLAIN user name
+    std::string     password;       //!< PLAIN password, in clear text
+    std::string     client_key;     //!< CURVE client public key in ASCII
+    std::string     principal;      //!< GSSAPI client principal
+    bool            verbose;        //!< Log ZAP requests and replies?
 
     // No copy - private and not implemented
     zap_request(zap_request const&) ZMQPP_EXPLICITLY_DELETED;
