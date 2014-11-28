@@ -123,6 +123,12 @@ BOOST_AUTO_TEST_CASE(woodhouse)
 
 BOOST_AUTO_TEST_CASE(stonehouse)
 {
+    if (!zmq_has("curve"))
+    {
+      std::cout << "Skipping stonehouse test since zmq wasn't build with libsodium" << std::endl;
+      return;
+    }
+
     // initialize the 0MQ context
     zmqpp::context context;
 
@@ -182,6 +188,12 @@ BOOST_AUTO_TEST_CASE(stonehouse)
 
 BOOST_AUTO_TEST_CASE(ironhouse)
 {
+    if (!zmq_has("curve"))
+    {
+      std::cout << "Skipping ironhouse test since zmq wasn't build with libsodium" << std::endl;
+      return;
+    }
+
     // initialize the 0MQ context
     zmqpp::context context;
 
@@ -305,6 +317,12 @@ static void server_task(zmqpp::curve::keypair& server_keypair, std::vector<std::
 
 BOOST_AUTO_TEST_CASE(ironhouse2)
 {
+    if (!zmq_has("curve"))
+    {
+      std::cout << "Skipping ironhouse2 test since zmq wasn't build with libsodium" << std::endl;
+      return;
+    }
+
     // We need two certificates, one for the client and one for
     // the server. The client must know the server's public key
     // to make a CURVE connection.
