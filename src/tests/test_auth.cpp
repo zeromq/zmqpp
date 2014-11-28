@@ -21,11 +21,11 @@ BOOST_AUTO_TEST_CASE(grasslands)
     zmqpp::context context;
 
     // create and bind a server socket
-    zmqpp::socket server (context, zmqpp::socket_type::push);
+    zmqpp::socket server(context, zmqpp::socket_type::push);
     server.bind("tcp://*:9000");
 
     // create and connect a client socket
-    zmqpp::socket client (context, zmqpp::socket_type::pull);
+    zmqpp::socket client(context, zmqpp::socket_type::pull);
     client.connect("tcp://127.0.0.1:9000");
 
     // Send a single message from server to client
@@ -50,21 +50,21 @@ BOOST_AUTO_TEST_CASE(strawhouse)
     zmqpp::auth authenticator(context);
 
     // Get some indication of what the authenticator is deciding
-    authenticator.set_verbose (true);
+    authenticator.set_verbose(true);
 
     // Configure ZAP domain
-    authenticator.configure_domain ("global");
+    authenticator.configure_domain("global");
 
     // Whitelist our address; any other address will be rejected
-    authenticator.allow ("127.0.0.1");
+    authenticator.allow("127.0.0.1");
 
     // create and bind a server socket
-    zmqpp::socket server (context, zmqpp::socket_type::push);
+    zmqpp::socket server(context, zmqpp::socket_type::push);
     //server.set(zmqpp::socket_option::zap_domain, "global");
     server.bind("tcp://*:9000");
 
     // create and connect a client socket
-    zmqpp::socket client (context, zmqpp::socket_type::pull);
+    zmqpp::socket client(context, zmqpp::socket_type::pull);
     client.connect("tcp://127.0.0.1:9000");
 
     // Send a single message from server to client
@@ -89,23 +89,23 @@ BOOST_AUTO_TEST_CASE(woodhouse)
     zmqpp::auth authenticator(context);
 
     // Get some indication of what the authenticator is deciding
-    authenticator.set_verbose (true);
+    authenticator.set_verbose(true);
 
-    authenticator.configure_domain ("*");
+    authenticator.configure_domain("*");
 
     // Tell the authenticator how to handle PLAIN requests
-    authenticator.configure_plain ("admin", "password");
+    authenticator.configure_plain("admin", "password");
 
     // Whitelist our address; any other address will be rejected
-    authenticator.allow ("127.0.0.1");
+    authenticator.allow("127.0.0.1");
 
     // create and bind a server socket
-    zmqpp::socket server (context, zmqpp::socket_type::push);
+    zmqpp::socket server(context, zmqpp::socket_type::push);
     server.set(zmqpp::socket_option::plain_server, 1);
     server.bind("tcp://*:9000");
 
     // create and connect a client socket
-    zmqpp::socket client (context, zmqpp::socket_type::pull);
+    zmqpp::socket client(context, zmqpp::socket_type::pull);
     client.set(zmqpp::socket_option::plain_username, "admin");
     client.set(zmqpp::socket_option::plain_password, "password");
     client.connect("tcp://127.0.0.1:9000");
@@ -132,15 +132,15 @@ BOOST_AUTO_TEST_CASE(stonehouse)
     zmqpp::auth authenticator(context);
 
     // Get some indication of what the authenticator is deciding
-    authenticator.set_verbose (true);
+    authenticator.set_verbose(true);
 
-    authenticator.configure_domain ("*");
+    authenticator.configure_domain("*");
 
     // Whitelist our address; any other address will be rejected
-    authenticator.allow ("127.0.0.1");
+    authenticator.allow("127.0.0.1");
 
     // Tell the authenticator how to handle CURVE requests
-    authenticator.configure_curve ("CURVE_ALLOW_ANY");
+    authenticator.configure_curve("CURVE_ALLOW_ANY");
 
     // We need two certificates, one for the client and one for
     // the server. The client must know the server's public key
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(stonehouse)
     std::cout << "Server Secret Key :" << server_keypair.secret_key << std::endl;
 
     // create and bind a server socket
-    zmqpp::socket server (context, zmqpp::socket_type::push);
+    zmqpp::socket server(context, zmqpp::socket_type::push);
     server.set(zmqpp::socket_option::identity, "IDENT");
     int as_server = 1;
     server.set(zmqpp::socket_option::curve_server, as_server);
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(stonehouse)
     server.bind("tcp://*:9000");
 
     // create and connect a client socket
-    zmqpp::socket client (context, zmqpp::socket_type::pull);
+    zmqpp::socket client(context, zmqpp::socket_type::pull);
     client.set(zmqpp::socket_option::curve_server_key, server_keypair.public_key);
     client.set(zmqpp::socket_option::curve_public_key, client_keypair.public_key);
     client.set(zmqpp::socket_option::curve_secret_key, client_keypair.secret_key);
@@ -191,12 +191,12 @@ BOOST_AUTO_TEST_CASE(ironhouse)
     zmqpp::auth authenticator(context);
 
     // Get some indication of what the authenticator is deciding
-    authenticator.set_verbose (true);
+    authenticator.set_verbose(true);
 
-    authenticator.configure_domain ("*");
+    authenticator.configure_domain("*");
 
     // Whitelist our address; any other address will be rejected
-    authenticator.allow ("127.0.0.1");
+    authenticator.allow("127.0.0.1");
 
     // We need two certificates, one for the client and one for
     // the server. The client must know the server's public key
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE(ironhouse)
     authenticator.configure_curve(client_keypair.public_key);
 
     // create and bind a server socket
-    zmqpp::socket server (context, zmqpp::socket_type::push);
+    zmqpp::socket server(context, zmqpp::socket_type::push);
     server.set(zmqpp::socket_option::identity, "IDENT");
     int as_server = 1;
     server.set(zmqpp::socket_option::curve_server, as_server);
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(ironhouse)
     server.bind("tcp://*:9000");
 
     // create and connect a client socket
-    zmqpp::socket client (context, zmqpp::socket_type::pull);
+    zmqpp::socket client(context, zmqpp::socket_type::pull);
     client.set(zmqpp::socket_option::curve_server_key, server_keypair.public_key);
     client.set(zmqpp::socket_option::curve_public_key, client_keypair.public_key);
     client.set(zmqpp::socket_option::curve_secret_key, client_keypair.secret_key);
@@ -243,12 +243,12 @@ BOOST_AUTO_TEST_CASE(ironhouse)
  * The client task runs in its own context, and receives the 
  * client keypair and server public key as an argument.
  */
-static void client_task (zmqpp::curve::keypair& client_keypair, std::string server_public_key) {
+static void client_task(zmqpp::curve::keypair& client_keypair, std::string server_public_key) {
     // initialize the 0MQ context
     zmqpp::context context;
 
     // create client socket and configure it to use full encryption
-    zmqpp::socket client (context, zmqpp::socket_type::pull);
+    zmqpp::socket client(context, zmqpp::socket_type::pull);
     client.set(zmqpp::socket_option::curve_server_key, server_public_key);
     client.set(zmqpp::socket_option::curve_public_key, client_keypair.public_key);
     client.set(zmqpp::socket_option::curve_secret_key, client_keypair.secret_key);
@@ -265,7 +265,7 @@ static void client_task (zmqpp::curve::keypair& client_keypair, std::string serv
  * The server task runs in its own context, and receives the 
  * server key pair and a set of allowed/valid client public keys as an argument.
  */
-static void server_task (zmqpp::curve::keypair& server_keypair, std::vector<std::string>& client_public_keys) {
+static void server_task(zmqpp::curve::keypair& server_keypair, std::vector<std::string>& client_public_keys) {
     // initialize the 0MQ context
     zmqpp::context context;
 
@@ -275,19 +275,19 @@ static void server_task (zmqpp::curve::keypair& server_keypair, std::vector<std:
     zmqpp::auth authenticator(context);
 
     // Get some indication of what the authenticator is deciding
-    authenticator.set_verbose (true);
+    authenticator.set_verbose(true);
 
-    authenticator.configure_domain ("*");
+    authenticator.configure_domain("*");
 
     // Whitelist our address; any other address will be rejected
-    authenticator.allow ("127.0.0.1");
+    authenticator.allow("127.0.0.1");
 
     // Tell authenticator to do authenticate clients against all allowed client public keys
     for(auto cpk : client_public_keys)
     authenticator.configure_curve(cpk);
 
     // create and bind a server socket
-    zmqpp::socket server (context, zmqpp::socket_type::push);
+    zmqpp::socket server(context, zmqpp::socket_type::push);
     server.set(zmqpp::socket_option::identity, "IDENT");
     int as_server = 1;
     server.set(zmqpp::socket_option::curve_server, as_server);

@@ -125,7 +125,7 @@ void auth::configure_plain(std::string username, std::string password) {
         std::cout << "auth: configure PLAIN - username:" << username << " password:" << password << std::endl; 
     }
 
-	authenticator->pipe()->send(msg);
+    authenticator->pipe()->send(msg);
     authenticator->pipe()->wait();
 }
 
