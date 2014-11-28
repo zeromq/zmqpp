@@ -12,8 +12,6 @@ install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
   # Requirements
   - sudo apt-get install libboost-all-dev
-  - git clone git://github.com/jedisct1/libsodium.git
-  - ( cd libsodium; ./autogen.sh; ./configure; make check; sudo make install; sudo ldconfig )
 
 before_script:
   # Perform regression test build against ZeroMQ v4.x
@@ -39,7 +37,7 @@ before_script:
   - sudo make install 
   - sudo ldconfig
   - cd ../
-  # Build, check, and install the version of ZeroMQ given by ZMQ_REPO
+  # Build, check, and install the latest version of ZeroMQ
   - git clone git://github.com/zeromq/libzmq.git
   - cd libzmq
   - ./autogen.sh 
