@@ -14,16 +14,17 @@
 #include "socket_types.hpp"
 #include "signal.hpp"
 
-#define ZAP_ENDPOINT  "inproc://zeromq.zap.01"
-
 namespace zmqpp
 {
-auth::auth(context& ctx): terminated (false) {
+auth::auth(context& ctx) :
+  terminated(false),
+  verbose(false)
+  {
     auto zap_auth_server = [this] (socket * pipe, context& auth_ctx) -> bool {
         // spawn ZAP handler
         socket zap_handler(auth_ctx, socket_type::reply);
         try {
-            zap_handler.bind(ZAP_ENDPOINT);
+            zap_handler.bind(zap_endpoint_);
             pipe->send(signal::ok);
         }
         catch (zmq_internal_exception &e) {
@@ -44,7 +45,7 @@ auth::auth(context& ctx): terminated (false) {
                 handle_command(*pipe);
             }
         }
-        zap_handler.unbind(ZAP_ENDPOINT);
+        zap_handler.unbind(zap_endpoint_);
         return true;        
     };
 
