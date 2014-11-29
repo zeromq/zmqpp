@@ -839,7 +839,7 @@ signal socket::wait()
     while (true)
     {
         message msg;
-        receive(msg);
+        while(!receive(msg));
 
         if (msg.is_signal())
         {

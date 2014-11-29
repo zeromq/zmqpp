@@ -37,7 +37,7 @@ namespace zmqpp
         t.detach();
 
         signal sig;
-        parent_pipe_->receive(sig);
+        sig = parent_pipe_->wait();
         assert(sig == signal::ok || sig == signal::ko);
         if (sig == signal::ko)
         {
