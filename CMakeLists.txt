@@ -29,6 +29,11 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
   set(CMAKE_MACOSX_RPATH 0)
 endif()
 
+# If libzmq is build in the same cmake global project and we want to
+# depends on it instead of searching for libzmq in the system, we set this to true
+set( ZMQPP_LIBZMQ_CMAKE   false   CACHE BOOL "libzmq is build through cmake too" )
+
+
 set( ZMQPP_BUILD_STATIC   true   CACHE BOOL "Build the ZMQPP static library" )
 set( ZMQPP_BUILD_SHARED   true   CACHE BOOL "Build the ZMQPP dynamic library" )
 
@@ -87,21 +92,27 @@ set( LIBZMQPP_SOURCES
   )
 
 # Staticlib
-
 if (ZMQPP_BUILD_STATIC)
   add_library( zmqpp-static STATIC ${LIBZMQPP_SOURCES})
-  find_library(ZEROMQ_LIBRARY_STATIC ${ZMQPP_LIBZMQ_NAME_STATIC} PATHS ${ZEROMQ_LIB_DIR})
-  target_link_libraries( zmqpp-static ${ZEROMQ_LIBRARY_STATIC} )
+  if (NOT ZMQPP_LIBZMQ_CMAKE)
+    find_library(ZEROMQ_LIBRARY_STATIC ${ZMQPP_LIBZMQ_NAME_STATIC} PATHS ${ZEROMQ_LIB_DIR})
+    target_link_libraries( zmqpp-static ${ZEROMQ_LIBRARY_STATIC} )
+  else()
+    target_link_libraries(zmqpp ${ZMQPP_LIBZMQ_NAME_STATIC})
+  endif()
   list( APPEND INSTALL_TARGET_LIST zmqpp-static)
   set( LIB_TO_LINK_TO_EXAMPLES zmqpp-static )
 endif() # ZMQPP_BUILD_STATIC
 
 # Shared lib
-
 if (ZMQPP_BUILD_SHARED)
   add_library( zmqpp SHARED ${LIBZMQPP_SOURCES})
-  find_library(ZEROMQ_LIBRARY_SHARED ${ZMQPP_LIBZMQ_NAME_SHARED} PATHS ${ZEROMQ_LIB_DIR})
-  target_link_libraries( zmqpp ${ZEROMQ_LIBRARY_SHARED} )
+  if (NOT ZMQPP_LIBZMQ_CMAKE)
+    find_library(ZEROMQ_LIBRARY_SHARED ${ZMQPP_LIBZMQ_NAME_SHARED} PATHS ${ZEROMQ_LIB_DIR})
+    target_link_libraries( zmqpp ${ZEROMQ_LIBRARY_SHARED} )
+  else()
+    target_link_libraries(zmqpp ${ZMQPP_LIBZMQ_NAME_SHARED})
+  endif()
   list( APPEND INSTALL_TARGET_LIST zmqpp)
   set( LIB_TO_LINK_TO_EXAMPLES zmqpp )
 endif() # ZMQPP_BUILD_SHARED
