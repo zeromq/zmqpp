@@ -98,7 +98,9 @@ if (ZMQPP_BUILD_STATIC)
     find_library(ZEROMQ_LIBRARY_STATIC ${ZMQPP_LIBZMQ_NAME_STATIC} PATHS ${ZEROMQ_LIB_DIR})
     target_link_libraries( zmqpp-static ${ZEROMQ_LIBRARY_STATIC} )
   else()
-    target_link_libraries(zmqpp ${ZMQPP_LIBZMQ_NAME_STATIC})
+    # libzmq-static is the name of the target from
+    # libzmq's CMake
+    target_link_libraries(zmqpp libzmq-static)
   endif()
   list( APPEND INSTALL_TARGET_LIST zmqpp-static)
   set( LIB_TO_LINK_TO_EXAMPLES zmqpp-static )
@@ -111,7 +113,9 @@ if (ZMQPP_BUILD_SHARED)
     find_library(ZEROMQ_LIBRARY_SHARED ${ZMQPP_LIBZMQ_NAME_SHARED} PATHS ${ZEROMQ_LIB_DIR})
     target_link_libraries( zmqpp ${ZEROMQ_LIBRARY_SHARED} )
   else()
-    target_link_libraries(zmqpp ${ZMQPP_LIBZMQ_NAME_SHARED})
+    # libzmq is the name of the target from
+    # libzmq's CMake
+    target_link_libraries(zmqpp libzmq)
   endif()
   list( APPEND INSTALL_TARGET_LIST zmqpp)
   set( LIB_TO_LINK_TO_EXAMPLES zmqpp )
