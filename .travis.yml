@@ -11,7 +11,7 @@ install:
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
   # Requirements
-  - sudo apt-get install libboost-all-dev
+  - sudo apt-get install -qq libboost-all-dev
 
 before_script:
   # Build, check, and install libsodium

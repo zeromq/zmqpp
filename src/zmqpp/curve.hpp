@@ -9,6 +9,7 @@
 #define ZMQPP_CURVE_HPP_
 
 #include <string>
+#include <zmq.h>
 
 namespace zmqpp { namespace curve
 {
