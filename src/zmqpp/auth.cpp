@@ -63,21 +63,21 @@ auth::~auth() {
     authenticator->pipe()->wait();
 }
 
-void auth::allow(std::string address) {
+void auth::allow(const std::string &address) {
 	message msg;
 	msg << "ALLOW" << address;
 	authenticator->pipe()->send(msg);
 	authenticator->pipe()->wait();
 }
 
-void auth::deny(std::string address) {
+void auth::deny(const std::string &address) {
 	message msg;
 	msg << "DENY" << address;
 	authenticator->pipe()->send(msg);
 	authenticator->pipe()->wait();
 }
 
-void auth::configure_domain(std::string domain) {
+void auth::configure_domain(const std::string &domain) {
 	message msg;
 	assert(!domain.empty());
 	msg << "DOMAIN" << domain;
@@ -85,7 +85,7 @@ void auth::configure_domain(std::string domain) {
 	authenticator->pipe()->wait();
 }
 
-void auth::configure_plain(std::string username, std::string password) {
+void auth::configure_plain(const std::string &username, const std::string &password) {
 	message msg;
 	assert(!username.empty());
 	assert(!password.empty());
@@ -99,7 +99,7 @@ void auth::configure_plain(std::string username, std::string password) {
     authenticator->pipe()->wait();
 }
 
-void auth::configure_curve(std::string client_public_key) {
+void auth::configure_curve(const std::string &client_public_key) {
 	message msg;
 	assert(!client_public_key.empty());
 	msg << "CURVE" << client_public_key;
