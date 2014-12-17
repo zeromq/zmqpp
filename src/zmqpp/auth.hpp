@@ -21,7 +21,6 @@
 
 
 // Authentication is something from zmq 4
-
 #if (ZMQ_VERSION_MAJOR > 3)
 
 namespace zmqpp
@@ -60,7 +59,7 @@ public:
 	 * any non-whitelisted addresses are treated as blacklisted.
 	 *
 	 */
-    	void allow(std::string address);
+    	void allow(const std::string &address);
 
     	/*!
 	 * Deny (blacklist) a single IP address. For all security mechanisms, this
@@ -69,19 +68,19 @@ public:
      	 * and a blacklist, only the whitelist takes effect.
 	 *
 	 */
-    	void deny(std::string address);
+    	void deny(const std::string &address);
 
     	/*!
 	 * Configure a ZAP domain. To cover all domains, use "*".
 	 */
-    	void configure_domain(std::string domain);
+    	void configure_domain(const std::string &domain);
 
     	/*!
 	 * Configure PLAIN authentication. PLAIN authentication uses a plain-text 
 	 * username and password.
 	 *
 	 */
-    	void configure_plain(std::string username, std::string password);
+    	void configure_plain(const std::string &username, const std::string &password);
 
     	/*!
 	 * Configure CURVE authentication. CURVE authentication uses client public keys. 
@@ -89,7 +88,7 @@ public:
 	 * To allow all client keys without checking, specify CURVE_ALLOW_ANY for the client_public_key.
 	 *
 	 */
-    	void configure_curve(std::string client_public_key);
+    	void configure_curve(const std::string &client_public_key);
 
     	/*!
 	 * Configure GSSAPI authentication. GSSAPI authentication uses an underlying 
