@@ -56,7 +56,7 @@ set( IS_TRAVIS_CI_BUILD   true    CACHE bool "Defines TRAVIS_CI_BUILD - Should t
 
 # Find zmq.h and add its dir to the includes
 find_path(ZEROMQ_INCLUDE zmq.h PATHS ${ZEROMQ_INCLUDE_DIR})
-include_directories(${ZEROMQ_INCLUDE} ${CMAKE_CURRENT_SOURCE_DIR}/src )
+include_directories(${ZEROMQ_INCLUDE_DIR} ${ZEROMQ_INCLUDE} ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
 # Do not run some tests when building on travis-ci (this cause oom error and kill the test
 # process)
