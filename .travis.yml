@@ -2,6 +2,17 @@
 
 language: cpp
 
+env:
+  - ZMQ_REPO=zeromq3-x BUILD_TYPE=default
+  - ZMQ_REPO=zeromq4-x BUILD_TYPE=default WITH_LIBSODIUM=1
+  - ZMQ_REPO=zeromq4-1 BUILD_TYPE=default WITH_LIBSODIUM=1
+  - ZMQ_REPO=libzmq    BUILD_TYPE=default WITH_LIBSODIUM=1
+
+  - ZMQ_REPO=zeromq3-x BUILD_TYPE=cmake
+  - ZMQ_REPO=zeromq4-x BUILD_TYPE=cmake WITH_LIBSODIUM=1
+  - ZMQ_REPO=zeromq4-1 BUILD_TYPE=cmake WITH_LIBSODIUM=1
+  - ZMQ_REPO=libzmq    BUILD_TYPE=cmake WITH_LIBSODIUM=1
+
 before_install:
   - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
   - sudo apt-get update
@@ -13,41 +24,6 @@ install:
   # Requirements
   - sudo apt-get install -qq libboost-all-dev
 
-before_script:
-  # Build, check, and install libsodium
-  - git clone git://github.com/jedisct1/libsodium.git
-  - cd libsodium
-  - ./autogen.sh 
-  - ./configure && make check 
-  - sudo make install 
-  - sudo ldconfig
-  - cd ../
-  # Perform regression test build against ZeroMQ v4.x
-  - git clone git://github.com/zeromq/zeromq4-x.git
-  - cd zeromq4-x
-  - ./autogen.sh
-  - ./configure --with-libsodium && make -j4
-  - sudo make install
-  - sudo ldconfig
-  - cd ..
-  # Perform other test against ZMQ 3.x
-  - git clone https://github.com/zeromq/zeromq3-x
-  - cd zeromq3-x
-  - ./autogen.sh
-  - ./configure --prefix=/tmp/ZMQ3 && make -j 4
-  - make install
-  - cd ../
-  # Build, check, and install the latest version of ZeroMQ
-  - git clone git://github.com/zeromq/libzmq.git
-  - cd libzmq
-  - ./autogen.sh 
-  - ./configure --with-libsodium && make
-  - sudo make install
-  - sudo ldconfig
-  - cd ../
-
 script:
-  - make CXXFLAGS='-DTRAVIS_CI_BUILD' check
-  - make clean ; make CUSTOM_INCLUDE_PATH='-I/tmp/ZMQ3/include' COMMON_LIBS='-L/tmp/ZMQ3/lib/ -lzmq' check
-  ## now try to build using cmake just as a sanity check
-  - rm -rf build && mkdir build && cd build && cmake ../ -DZMQPP_BUILD_STATIC=0 -DZMQPP_BUILD_TESTS=1 && make && ./zmqpp-test-runner;
+  - ./travis.sh
+  
