@@ -2,6 +2,9 @@
 
 set -e
 
+RCol='\e[0m' # Text Reset
+Red='\e[0;31m';
+
 # Install libsodium is required
 if [ -n ${WITH_LIBSODIUM} ]; then
     git clone git://github.com/jedisct1/libsodium.git
@@ -9,7 +12,7 @@ if [ -n ${WITH_LIBSODIUM} ]; then
 	cd libsodium;
 	./autogen.sh
 	./configure
-	make check
+	make check || echo ${Red}"Warning: Libsodium tests failed. The build will continue but may fail."${RCol}
 	sudo make install
 	sudo ldconfig
     )    
@@ -20,8 +23,12 @@ git clone git://github.com/zeromq/${ZMQ_REPO}.git;
 (
     cd ${ZMQ_REPO}
     ./autogen.sh
-    ./configure
-    make check
+    if [ -n ${WITH_LIBSODIUM} ]; then
+	./configure --with-libsodium
+    else
+	./configure
+    fi
+    make check || echo ${Red}"Warning: ZeroMQ tests failed. The build will continue but may fail."${RCol}
     sudo make install
     sudo ldconfig
 )
