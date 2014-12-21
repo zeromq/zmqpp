@@ -44,6 +44,8 @@ set( ZMQPP_BUILD_TESTS    false   CACHE BOOL "Build the ZMQPP tests" )
 
 # Since the current CMake build of ZMQ does not work for generating a dynamic libzmq,
 # give a chance for users to update which ZMQ library to link to
+
+# zmq-static is the name of the static target in libzmq's CMakeLists.txt
 set( ZMQPP_LIBZMQ_NAME_STATIC  "zmq-static" CACHE STRING "The ZMQ library to link the static ZMQPP. (if built)" )
 set( ZMQPP_LIBZMQ_NAME_SHARED  "zmq"        CACHE STRING "The ZMQ library to link the dynamic ZMQPP. (if built)" )
 
@@ -98,11 +100,15 @@ if (ZMQPP_BUILD_STATIC)
   add_library( zmqpp-static STATIC ${LIBZMQPP_SOURCES})
   if (NOT ZMQPP_LIBZMQ_CMAKE)
     find_library(ZEROMQ_LIBRARY_STATIC ${ZMQPP_LIBZMQ_NAME_STATIC} PATHS ${ZEROMQ_LIB_DIR})
-    target_link_libraries( zmqpp-static ${ZEROMQ_LIBRARY_STATIC} )
+    if (NOT ZEROMQ_LIBRARY_STATIC)
+      # If libzmq was not installed through CMake, the static binary is libzmq.a not libzmq-static.a
+      find_library(ZEROMQ_LIBRARY_STATIC libzmq.a PATHS ${ZEROMQ_LIB_DIR})
+    endif()
+    target_link_libraries( zmqpp-static ${ZEROMQ_LIBRARY_STATIC})
   else()
     # libzmq-static is the name of the target from
     # libzmq's CMake
-    target_link_libraries(zmqpp libzmq-static)
+    target_link_libraries(zmqpp-static libzmq-static)
   endif()
   list( APPEND INSTALL_TARGET_LIST zmqpp-static)
   set( LIB_TO_LINK_TO_EXAMPLES zmqpp-static )
