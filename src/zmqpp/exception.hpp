@@ -27,7 +27,7 @@ namespace zmqpp
 
 /** \todo Have a larger variety of exceptions with better state debug information */
 
-/*!
+/**
  * Represents the base zmqpp exception.
  *
  * All zmqpp runtime exceptions are children of this class.
@@ -40,7 +40,7 @@ namespace zmqpp
 class exception : public std::runtime_error
 {
 public:
-	/*!
+	/**
 	 * Standard exception constructor.
 	 *
 	 * \param message a string representing the error message.
@@ -50,7 +50,7 @@ public:
 	{ }
 };
 
-/*!
+/**
  * Represents an attempt to use an invalid object.
  *
  * Objects may be invalid initially or after a shutdown or close.
@@ -90,7 +90,7 @@ public:
     }
   };
 
-/*!
+/**
  * Represents internal zmq errors.
  *
  * Any error response from the zmq bindings will be wrapped in this error.
@@ -100,7 +100,7 @@ public:
 class zmq_internal_exception : public exception
 {
 public:
-	/*!
+	/**
 	 * Uses the zmq functions to pull out error messages and numbers.
 	 */
 	zmq_internal_exception()
@@ -108,7 +108,7 @@ public:
 		, _error(zmq_errno())
 	{ }
 
-	/*!
+	/**
 	 * Retrieve the zmq error number associated with this exception.
 	 * \return zmq error number
 	 */

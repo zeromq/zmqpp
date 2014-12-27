@@ -33,7 +33,7 @@
 namespace zmqpp
 {
 
-/*!
+/**
  * \brief a zmq message with optional multipart support
  *
  * A zmq message is made up of one or more parts which are sent together to
@@ -43,7 +43,7 @@ namespace zmqpp
 class message
 {
 public:
-	/*!
+	/**
 	 * \brief callback to release user allocated data.
 	 *
 	 * The release function will be called on any void* moved part.
