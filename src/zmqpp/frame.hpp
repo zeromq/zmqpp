@@ -23,8 +23,8 @@
 
 namespace zmqpp {
 
-/*!
- * \brief an internal frame wrapper for a single zmq message
+/**
+ * An internal frame wrapper for a single zmq message
  *
  * This frame wrapper consists of a zmq message and meta data it is used
  * by the zmqpp message class to keep track of parts in the internal
