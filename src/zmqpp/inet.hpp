@@ -71,12 +71,10 @@ inline uint64_t swap_if_needed(uint64_t const value_to_check)
 /*!
  * 64 bit version of the htons/htonl
  *
- * I've used the name htonll to try and keep with the htonl naming scheme.
- *
  * \param hostlonglong unsigned 64 bit host order integer
  * \return unsigned 64 bit network order integer
  */
-inline uint64_t htonll(uint64_t const hostlonglong)
+inline uint64_t htonl64(uint64_t const hostlonglong)
 {
 	return zmqpp::swap_if_needed(hostlonglong);
 }
@@ -84,12 +82,10 @@ inline uint64_t htonll(uint64_t const hostlonglong)
 /*!
  * 64 bit version of the ntohs/ntohl
  *
- * I've used the name htonll to try and keep with the htonl naming scheme.
- *
  * \param networklonglong unsigned 64 bit network order integer
  * \return unsigned 64 bit host order integer
  */
-inline uint64_t ntohll(uint64_t const networklonglong)
+inline uint64_t ntohl64(uint64_t const networklonglong)
 {
 	return zmqpp::swap_if_needed(networklonglong);
 }
@@ -142,7 +138,7 @@ inline double htond(double value)
 
 	uint64_t temp;
 	memcpy(&temp, &value, sizeof(uint64_t));
-	temp = zmqpp::htonll(temp);
+	temp = zmqpp::htonl64(temp);
 	memcpy(&value, &temp, sizeof(uint64_t));
 
 	return value;
@@ -160,7 +156,7 @@ inline double ntohd(double value)
 
 	uint64_t temp;
 	memcpy(&temp, &value, sizeof(uint64_t));
-	temp = zmqpp::ntohll(temp);
+	temp = zmqpp::ntohl64(temp);
 	memcpy(&value, &temp, sizeof(uint64_t));
 
 	return value;
