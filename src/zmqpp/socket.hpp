@@ -83,7 +83,16 @@ public:
 	 * \param context the zmq context under which the socket will live
 	 * \param type a valid ::socket_type for the socket
 	 */
-	socket(context_t const& context, socket_type const type);
+	socket( context_t const& context, socket_type const& type );
+
+	/*!
+	 * Create a socket for a given type.
+	 *
+	 * \param context the zmq context under which the socket will live
+	 * \param type a valid ::socket_type for the socket
+	 * \param label a human-readable label describing the socket
+	 */
+	socket( context_t const& context, socket_type const& type, std::string const& label );
 
 	/*!
 	 * This will close any socket still open before returning
@@ -97,6 +106,13 @@ public:
 	 * \return the type of the socket
 	 */
 	socket_type type() const { return _type; }
+
+	/*!
+	 * Get the descriptive label on the socket.
+	 *
+	 * \return the label on the socket
+	 */
+	std::string const& label() const { return _label; }
 
 	/*!
 	 * Asynchronously binds to an endpoint.
@@ -557,6 +573,7 @@ public:
 private:
 	void* _socket;
 	socket_type _type;
+	std::string _label;
 	zmq_msg_t _recv_buffer;
 
 	// No copy

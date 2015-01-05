@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: zmqpp
+Version: @VERSION@
+Description: ZeroMQ C++ client library
+URL: https://github.com/datasift/zmqpp
+Libs: -L${libdir} -lriemannpp
+Cflags: -I${includedir}
