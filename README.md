@@ -7,7 +7,7 @@ Library / Bindings
 This C++ binding for 0mq/zmq is a 'high-level' library that hides most of the
 c-style interface core 0mq provides. It consists of a number of header and
 source files all residing in the zmq directory, these files are provided under
-the MIT license (see LICENCE for details).
+the MPLv2 license (see LICENSE for details).
 
 They can either be included directly into any 0mq using project or used as a
 library. A really basic Makefile is provided for this purpose and will generate
@@ -176,6 +176,6 @@ Licensing
 =========
 
 Both the library and the associated command line client are released under the
-LGPL v3 with an exception for static linking.
+MPLv2 license.
 
-Please see COPYING.LESSER for full details.
+Please see LICENSE for full details.
