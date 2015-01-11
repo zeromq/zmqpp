@@ -20,6 +20,7 @@
 namespace zmqpp
 {
 auth::auth(context& ctx) :
+  curve_allow_any(false),
   terminated(false),
   verbose(false)
   {
@@ -196,12 +197,12 @@ void auth::handle_command(socket& pipe) {
     	std::string client_public_key = msg.get(1);
 
     	if("CURVE_ALLOW_ANY" == client_public_key) {
-    		allow_any = true;
+    		curve_allow_any = true;
             if(verbose) {
     		  std::cout << "auth: configured CURVE - allow ALL clients" << std::endl;
             }
     	} else {
-    		allow_any = false;
+    		curve_allow_any = false;
     		client_keys.insert(client_public_key);
             if(verbose) {
     		  std::cout << "auth: configured CURVE - allow client with public key:" << client_public_key << std::endl;
@@ -258,7 +259,7 @@ bool auth::authenticate_plain(zap_request& request, std::string &user_id)
 
 bool auth::authenticate_curve(zap_request& request, std::string &user_id)
 {
-	if (allow_any) {
+	if (curve_allow_any) {
     	if (verbose) {
         	std::cout << "auth: allowed (CURVE allow any client)" << std::endl;
         }
@@ -359,7 +360,6 @@ void auth::authenticate(socket& sock) {
             allowed = authenticate_gssapi(request);
         }
     }
-    std::cout << "ALLOWED" << user_id << std::endl;
     if (allowed)
     	request.reply("200", "OK", user_id);
     else

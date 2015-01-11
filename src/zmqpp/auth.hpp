@@ -144,7 +144,7 @@ private:
     	std::unordered_map<std::string, std::string> 	passwords;      // PLAIN passwords, if loaded
     	std::unordered_set<std::string> 		client_keys;    // Client public keys
     	std::string 				 	domain;			// ZAP domain
-    	bool 					 	allow_any;      // CURVE allows arbitrary clients
+    	bool                        curve_allow_any;      // CURVE allows arbitrary clients
     	bool 					 	terminated;     // Did caller ask us to quit?
     	bool 					 	verbose;        // Verbose logging enabled?
 
