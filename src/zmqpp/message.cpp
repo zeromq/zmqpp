@@ -483,4 +483,29 @@ bool message::is_signal() const
     return false;
 }
 
+#if (ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 1)
+bool message::get_property(const std::string &property, std::string &out)
+{
+	zmq_msg_t *zmq_raw_msg;
+	try
+	{
+		zmq_raw_msg = &raw_msg();
+	}
+	catch (zmqpp::exception &e) // empty
+	{
+		return false;
+	}
+
+	const char *property_value = zmq_msg_gets(zmq_raw_msg, property.c_str());
+	if (property_value == NULL)
+	{
+		// EINVAL is the only error code
+		assert(errno == EINVAL);
+		return false;
+	}
+
+	out = std::string(property_value);
+	return true;
+}
+#endif
 }

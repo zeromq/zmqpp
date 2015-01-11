@@ -267,6 +267,18 @@ public:
 	 * @return the new read_cursor
 	 */
 	size_t next() NOEXCEPT { return ++_read_cursor; }
+
+
+#if (ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 1)
+	/**
+	* Attemps to retrieve a metadata property from a message.
+	* The underlying call is `zmq_msg_gets()`.
+	*
+	* @note The message MUST have at least one frame, otherwise this wont work.
+	*/
+	bool get_property(const std::string &property, std::string &out);
+#endif
+
 private:
 	typedef std::vector<frame> parts_type;
 	parts_type _parts;
