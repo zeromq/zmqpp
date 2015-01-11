@@ -13,6 +13,7 @@
 #include "exception.hpp"
 #include "socket_types.hpp"
 #include "signal.hpp"
+#include "z85.hpp"
 
 #if (ZMQ_VERSION_MAJOR > 3)
 
@@ -235,13 +236,15 @@ void auth::handle_command(socket& pipe) {
     }
 }
 
-bool auth::authenticate_plain(zap_request& request) {
+bool auth::authenticate_plain(zap_request& request, std::string &user_id)
+{
 	auto search = passwords.find(request.get_username());
     if((search != passwords.end()) && (search->second == request.get_password())) {
         if (verbose) {
             std::cout << "auth: allowed (PLAIN) username=" << request.get_username()
         		<< " password=" << request.get_password() << std::endl;
         }
+        user_id = request.get_username();
         return true;
     }
     else {
@@ -253,11 +256,13 @@ bool auth::authenticate_plain(zap_request& request) {
     }
 }
 
-bool auth::authenticate_curve(zap_request& request) {
+bool auth::authenticate_curve(zap_request& request, std::string &user_id)
+{
 	if (allow_any) {
     	if (verbose) {
         	std::cout << "auth: allowed (CURVE allow any client)" << std::endl;
         }
+        user_id = request.get_client_key();
     	return true;
 	} else {
 		auto search = client_keys.find(request.get_client_key());
@@ -265,6 +270,7 @@ bool auth::authenticate_curve(zap_request& request) {
     		if (verbose) {
         		std::cout << "auth: allowed (CURVE) client_key=" << request.get_client_key() << std::endl;
             }
+            user_id = request.get_client_key();
     		return true;
     	}
     	else {
@@ -288,8 +294,11 @@ void auth::authenticate(socket& sock) {
     // Receive a ZAP request.
 	zap_request request(sock, verbose);
 
+    // will be set by mechanism-dependent code
+    std::string user_id;
+
 	if(request.get_version().empty()) {        // Interrupted
-		request.reply("500", "Internal error");
+		request.reply("500", "Internal error", "");
     	return;     
 	}
 
@@ -339,21 +348,22 @@ void auth::authenticate(socket& sock) {
 
         } else if ("PLAIN" == request.get_mechanism()) {
             // For PLAIN, even a whitelisted address must authenticate
-            allowed = authenticate_plain(request);
+            allowed = authenticate_plain(request, user_id);
 
         } else if ("CURVE" == request.get_mechanism()) {
             // For CURVE, even a whitelisted address must authenticate
-            allowed = authenticate_curve(request);
+            allowed = authenticate_curve(request, user_id);
 
         } else if ("GSSAPI" == request.get_mechanism()) {
             // For GSSAPI, even a whitelisted address must authenticate
             allowed = authenticate_gssapi(request);
         }
     }
+    std::cout << "ALLOWED" << user_id << std::endl;
     if (allowed)
-    	request.reply("200", "OK");
+    	request.reply("200", "OK", user_id);
     else
-        request.reply("400", "No access");
+        request.reply("400", "No access", "");
 }
 
 }

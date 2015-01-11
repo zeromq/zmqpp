@@ -114,14 +114,16 @@ private:
 	/*!
 	 * Handle a PLAIN authentication request from libzmq core
 	 *
+	 * @param user_id store the user as the User-Id.
 	 */
-    	bool authenticate_plain(zap_request& request);
+    	bool authenticate_plain(zap_request& request, std::string &user_id);
 
 	/*!
 	 * Handle a CURVE authentication request from libzmq core
 	 *
+	 * @param user_id store the public key (z85 encoded) as the User-Id.
 	 */
-    	bool authenticate_curve(zap_request& request);
+    	bool authenticate_curve(zap_request& request, std::string &user_id);
 
     	/*!
 	 * Handle a GSSAPI authentication request from libzmq core
