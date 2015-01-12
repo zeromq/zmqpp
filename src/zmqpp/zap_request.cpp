@@ -69,17 +69,21 @@ zap_request::zap_request(socket& handler, bool logging) :
 /*! 
  * Send a ZAP reply to the handler socket
  */
-void zap_request::reply (std::string status_code, std::string status_text) {
-    if (verbose) {
-        std::cout << "auth: ZAP reply status_code=" << status_code
-            << " status_text=" << status_text << std::endl;
-    }
+void zap_request::reply(const std::string &status_code, const std::string &status_text,
+            const std::string &user_id)
+    {
+        if (verbose)
+        {
+            std::cout << "auth: ZAP reply status_code=" << status_code
+                    << " status_text=" << status_text <<
+                    " user_id=" << user_id << std::endl;
+        }
 
-    message reply;
-    reply << version << sequence << status_code << status_text << "" << "";
-    
-    zap_socket.send(reply);
-}    
+        message reply;
+        reply << version << sequence << status_code << status_text << user_id << "";
+
+        zap_socket.send(reply);
+    }
 
 }
 

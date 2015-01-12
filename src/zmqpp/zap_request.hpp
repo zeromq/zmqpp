@@ -40,7 +40,8 @@ public:
     /*! 
      * Send a ZAP reply to the handler socket
      */
-    void reply (std::string status_code, std::string status_text);
+    void reply(const std::string &status_code, const std::string &status_text,
+            const std::string &user_id);
 
     /*! 
      * Get Version
@@ -92,7 +93,8 @@ public:
     }
 
     /*! 
-     * Get client_key for CURVE security mechanism
+     * Get client_key for CURVE security mechanism.
+     * The key is z85 encoded.
      */
     const std::string & get_client_key() const {
         return client_key;

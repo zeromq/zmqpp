@@ -112,24 +112,27 @@ BOOST_AUTO_TEST_CASE(woodhouse)
     authenticator.allow("127.0.0.1");
 
     // create and bind a server socket
-    zmqpp::socket server(context, zmqpp::socket_type::push);
+    zmqpp::socket server(context, zmqpp::socket_type::pull);
     server.set(zmqpp::socket_option::plain_server, 1);
     server.bind("tcp://*:9000");
 
     // create and connect a client socket
-    zmqpp::socket client(context, zmqpp::socket_type::pull);
+    zmqpp::socket client(context, zmqpp::socket_type::push);
     client.set(zmqpp::socket_option::plain_username, "admin");
     client.set(zmqpp::socket_option::plain_password, "password");
     client.connect("tcp://127.0.0.1:9000");
 
-    // Send a single message from server to client
+    // Send a single message from client to server
     zmqpp::message request;
     request << "Hello";
-    server.send(request);
+    client.send(request);
 
     zmqpp::message response;
-    client.receive(response);
+    server.receive(response);
 
+    std::string user_id;
+    BOOST_CHECK_EQUAL(true, response.get_property("User-Id", user_id));
+    BOOST_CHECK_EQUAL("admin", user_id);
     BOOST_CHECK_EQUAL("Hello", response.get(0));
 }
 
@@ -173,7 +176,7 @@ BOOST_AUTO_TEST_CASE(stonehouse)
     std::cout << "Server Secret Key :" << server_keypair.secret_key << std::endl;
 
     // create and bind a server socket
-    zmqpp::socket server(context, zmqpp::socket_type::push);
+    zmqpp::socket server(context, zmqpp::socket_type::pull);
     server.set(zmqpp::socket_option::identity, "IDENT");
     int as_server = 1;
     server.set(zmqpp::socket_option::curve_server, as_server);
@@ -181,20 +184,23 @@ BOOST_AUTO_TEST_CASE(stonehouse)
     server.bind("tcp://*:9000");
 
     // create and connect a client socket
-    zmqpp::socket client(context, zmqpp::socket_type::pull);
+    zmqpp::socket client(context, zmqpp::socket_type::push);
     client.set(zmqpp::socket_option::curve_server_key, server_keypair.public_key);
     client.set(zmqpp::socket_option::curve_public_key, client_keypair.public_key);
     client.set(zmqpp::socket_option::curve_secret_key, client_keypair.secret_key);
     client.connect("tcp://127.0.0.1:9000");
 
-    // Send a single message from server to client
+    // Send a single message from client to server
     zmqpp::message request;
     request << "Hello";
-    server.send(request);
+    client.send(request);
 
     zmqpp::message response;
-    client.receive(response);
-  
+    server.receive(response);
+
+    std::string user_id;
+    BOOST_CHECK_EQUAL(true, response.get_property("User-Id", user_id));
+    BOOST_CHECK_EQUAL(client_keypair.public_key, user_id);
     BOOST_CHECK_EQUAL("Hello", response.get(0));
 }
 
