@@ -24,6 +24,11 @@
 
 #include "options.hpp"
 
+#ifndef BUILD_CLIENT_NAME
+#define BUILD_CLIENT_NAME "zmqpp"
+#endif
+
+
 boost::program_options::options_description connection_options()
 {
 	boost::program_options::options_description options("Connection Options");

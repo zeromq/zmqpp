@@ -42,7 +42,11 @@ int main(int argc, char const* argv[])
 	if( options.show_usage || options.show_help )
 	{
 		show_usage( std::cout, BUILD_CLIENT_NAME );
-		if( options.show_help ) { std::cout << std::endl << show_help( std::cout ); }
+		if( options.show_help )
+		{
+			std::cout << std::endl;
+			show_help( std::cout );
+		}
 
 		return EXIT_FAILURE;
 	}
@@ -226,7 +230,7 @@ int main(int argc, char const* argv[])
 				while( result && (length = strlen( buffer.data() ) - 1) > 0 ) // trim newline from gets
 				{
 					buffer[length] = 0;
-					message.add( buffer.data(), length );
+					message.add( buffer.data(), static_cast<uint64_t>(length) );
 
 					if( options.singlepart ) { break; }
 
