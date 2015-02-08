@@ -49,7 +49,7 @@ configuration file to generate them is in the root directory.
 
 To build the documentation with doxygen use
 
-    doxygen zmqpp.doxygen.conf
+    doxygen
 
 And the resulting html or latex docs will be in the docs/html or docs/latex
 directories.
@@ -72,8 +72,8 @@ the library itself.
 Requirements
 ------------
 
-ZeroMQ 2.2.x or later
-C++0x compliant compiler
+ZeroMQ 2.2.x or later. We recommend to use ZeroMQ >= 3.
+C++11 compliant compiler. (g++ >= 4.7)
 
 The command line client and the tests also require libboost.
 
