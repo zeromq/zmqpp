@@ -230,7 +230,7 @@ int main(int argc, char const* argv[])
 				while( result && (length = strlen( buffer.data() ) - 1) > 0 ) // trim newline from gets
 				{
 					buffer[length] = 0;
-					message.add( buffer.data(), static_cast<uint64_t>(length) );
+					message.add_raw( buffer.data(), static_cast<uint64_t>(length) );
 
 					if( options.singlepart ) { break; }
 
