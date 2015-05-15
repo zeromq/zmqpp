@@ -12,6 +12,7 @@
  *      Author: @benjamg
  */
 
+#include <cstdlib>
 #include <array>
 #include <iostream>
 #include <tuple>
