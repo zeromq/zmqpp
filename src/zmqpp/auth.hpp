@@ -157,7 +157,11 @@ private:
     	bool 					 	terminated;     // Did caller ask us to quit?
     	bool 					 	verbose;        // Verbose logging enabled?
 
+#	if defined(ZMQPP_NO_CONSTEXPR)
+        static const char * const zap_endpoint_;
+#	else
         constexpr static const char * const zap_endpoint_ = "inproc://zeromq.zap.01";
+#	endif
   
     	// No copy - private and not implemented
     	auth(auth const&) ZMQPP_EXPLICITLY_DELETED;
