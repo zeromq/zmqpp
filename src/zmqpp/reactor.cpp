@@ -37,7 +37,7 @@ namespace zmqpp
         add(item, callable);
     }
 
-    void reactor::add(int const descriptor, Callable callable, short const event /* = POLL_IN */)
+    void reactor::add(raw_socket_t const descriptor, Callable callable, short const event /* = POLL_IN */)
     {
         zmq_pollitem_t item{nullptr, descriptor, event, 0};
         add(item, callable);
@@ -55,7 +55,7 @@ namespace zmqpp
         return poller_.has(socket);
     }
 
-    bool reactor::has(int const descriptor)
+    bool reactor::has(raw_socket_t const descriptor)
     {
         return poller_.has(descriptor);
     }
@@ -79,7 +79,7 @@ namespace zmqpp
         poller_.remove(socket);
     }
 
-    void reactor::remove(int const descriptor)
+    void reactor::remove(raw_socket_t const descriptor)
     {
         if (dispatching_)
         {
@@ -103,7 +103,7 @@ namespace zmqpp
         poller_.check_for(socket, event);
     }
 
-    void reactor::check_for(int const descriptor, short const event)
+    void reactor::check_for(raw_socket_t const descriptor, short const event)
     {
         poller_.check_for(descriptor, event);
     }
@@ -132,7 +132,7 @@ namespace zmqpp
         return poller_.events(socket);
     }
 
-    short reactor::events(int const descriptor) const
+    short reactor::events(raw_socket_t const descriptor) const
     {
         return poller_.events(descriptor);
     }
@@ -149,7 +149,7 @@ namespace zmqpp
 
     void reactor::flush_remove_later()
     {
-        for (int fd : fdRemoveLater_)
+        for (raw_socket_t fd : fdRemoveLater_)
             remove(fd);
         for (const socket_t *sock : sockRemoveLater_)
             remove(*sock);

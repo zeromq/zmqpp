@@ -31,7 +31,7 @@ typedef socket socket_t;
 /*!
  * Polling wrapper.
  *
- * Allows access to polling for any number of sockets or file descriptors.
+ * Allows access to polling for any number of zmq sockets or standard sockets.
  */
 class poller
 {
@@ -68,12 +68,12 @@ public:
 	void add(socket_t& socket, short const event = poll_in);
 
 	/*!
-	 * Add a file descriptor to the polling model and set which events to monitor.
+	 * Add a standard socket to the polling model and set which events to monitor.
 	 *
-	 * \param descriptor the file descriptor to monitor.
+	 * \param descriptor the raw socket to monitor (SOCKET under Windows, a file descriptor otherwise).
 	 * \param event the event flags to monitor.
 	 */
-	void add(int const descriptor, short const event = poll_in | poll_error);
+	void add(raw_socket_t const descriptor, short const event = poll_in | poll_error);
 
 	/*!
 	 * Add a zmq_pollitem_t to the poller; Events to monitor are already configured.
@@ -93,12 +93,12 @@ public:
 	 bool has(socket_t const& socket);
 
 	/*!
-	 * Check if we are monitoring a given file descriptor with this poller.
+	 * Check if we are monitoring a given standard socket with this poller.
 	 *
-	 * \param descriptor the file descriptor to check.
+	 * \param descriptor the raw socket to check for.
 	 * \return true if it is there.
 	 */
-	bool has(int const descriptor);
+	 bool has(raw_socket_t const descriptor);
 
 	/*!
 	 * Check if we are monitoring a given pollitem.
@@ -118,11 +118,11 @@ public:
 	void remove(socket_t const& socket);
 	
 	/*!
-	 * Stop monitoring a file descriptor.
+	 * Stop monitoring a standard socket.
 	 *
-	 * \param descriptor the file descriptor to stop monitoring.
+	 * \param descriptor the raw socket to stop monitoring (SOCKET under Windows, a file descriptor otherwise).
 	 */
-	void remove(int const descriptor);
+	void remove(raw_socket_t const descriptor);
 
 	/*!
 	 * Stop monitoring a zmq_pollitem_t
@@ -140,12 +140,12 @@ public:
 	void check_for(socket_t const& socket, short const event);
 	
 	/*!
-	 * Update the monitored event flags for a given file descriptor.
+	 * Update the monitored event flags for a given standard socket.
 	 *
-	 * \param descriptor the file descriptor to update event flags.
+	 * \param descriptor the raw socket to update event flags (SOCKET under Windows, a file descriptor otherwise).
 	 * \param event the event flags to monitor on the socket.
 	 */
-	void check_for(int const descriptor, short const event);
+	void check_for(raw_socket_t const descriptor, short const event);
 	
 	/*!
 	 * Update the monitored event flags for a given zmq_pollitem_t
@@ -177,12 +177,12 @@ public:
 	short events(socket_t const& socket) const;
 	
 	/*!
-	 * Get the event flags triggered for a file descriptor.
+	 * Get the event flags triggered for a standard socket.
 	 *
-	 * \param descriptor the file descriptor to get triggered event flags for.
+	 * \param descriptor the raw socket to get triggered event flags for (SOCKET under Windows, a file descriptor otherwise).
 	 * \return the event flags.
 	 */
-	short events(int const descriptor) const;
+	short events(raw_socket_t const descriptor) const;
 	
 	/*!
 	 * Get the event flags triggered for a zmq_pollitem_t
@@ -193,36 +193,36 @@ public:
 	short events(const zmq_pollitem_t &item) const;
 
 	/*!
-	 * Check either a file descriptor or socket for input events.
+	 * Check either a standard socket or zmq socket for input events.
 	 *
 	 * Templated helper method that calls through to event and checks for a given flag
 	 *
-	 * \param watchable either a file descriptor or socket known to the poller.
+	 * \param watchable either a standard socket or socket known to the poller.
 	 * \return true if there is input.
 	 */
 	template<typename Watched>
 	bool has_input(Watched const& watchable) const { return (events(watchable) & poll_in) != 0; }
 
 	/*!
-	 * Check either a file descriptor or socket for output events.
+	 * Check either a standard socket or zmq socket for output events.
 	 *
 	 * Templated helper method that calls through to event and checks for a given flag
 	 *
-	 * \param watchable either a file descriptor or socket known to the poller.
+	 * \param watchable either a standard socket or zmq socket known to the poller.
 	 * \return true if there is output.
 	 */
 	template<typename Watched>
 	bool has_output(Watched const& watchable) const { return (events(watchable) & poll_out) != 0; }
 
 	/*!
-	 * Check a file descriptor.
+	 * Check a standard socket (file descriptor or SOCKET).
 	 *
 	 * Templated helper method that calls through to event and checks for a given flag
 	 *
 	 * Technically this template works for sockets as well but the error flag is never set for
 	 * sockets so I have no idea why someone would call it.
 	 *
-	 * \param watchable a file descriptor know to the poller.
+	 * \param watchable a standard socket known to the poller.
 	 * \return true if there is an error.
 	 */
 	template<typename Watched>
@@ -231,7 +231,7 @@ public:
 private:
 	std::vector<zmq_pollitem_t> _items;
 	std::unordered_map<void *, size_t> _index;
-	std::unordered_map<int, size_t> _fdindex;
+	std::unordered_map<raw_socket_t, size_t> _fdindex;
 
 	void reindex(size_t const index);
 };
