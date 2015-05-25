@@ -55,7 +55,7 @@ void poller::add(socket& socket, short const event /* = POLL_IN */)
 	_index[socket] = index;
 }
 
-void poller::add(int const descriptor, short const event /* = POLL_IN */)
+void poller::add(raw_socket_t const descriptor, short const event /* = POLL_IN */)
 {
 	zmq_pollitem_t item { nullptr, descriptor, event, 0 };
 
@@ -80,7 +80,7 @@ bool poller::has(socket_t const& socket)
 	return _index.find(socket) != _index.end();
 }
 
-bool poller::has(int const descriptor)
+bool poller::has(raw_socket_t const descriptor)
 {
 	return _fdindex.find(descriptor) != _fdindex.end();
 }
@@ -129,7 +129,7 @@ void poller::remove(socket_t const& socket)
 	reindex( index );
 }
 
-void poller::remove(int const descriptor)
+void poller::remove(raw_socket_t const descriptor)
 {
 	auto found = _fdindex.find(descriptor);
 	if (_fdindex.end() == found) { return; }
@@ -185,12 +185,12 @@ void poller::check_for(socket const& socket, short const event)
 	_items[found->second].events = event;
 }
 
-void poller::check_for(int const descriptor, short const event)
+void poller::check_for(raw_socket_t const descriptor, short const event)
 {
 	auto found = _fdindex.find(descriptor);
 	if (_fdindex.end() == found)
 	{
-		throw exception("this socket is not represented within this poller");
+		throw exception("this standard socket is not represented within this poller");
 	}
 
 	_items[found->second].events = event;
@@ -241,12 +241,12 @@ short poller::events(socket const& socket) const
 	return _items[found->second].revents;
 }
 
-short poller::events(int const descriptor) const
+short poller::events(raw_socket_t const descriptor) const
 {
 	auto found = _fdindex.find(descriptor);
 	if (_fdindex.end() == found)
 	{
-		throw exception("this file descriptor is not represented within this poller");
+		throw exception("this standard socket is not represented within this poller");
 	}
 
 	return _items[found->second].revents;
