@@ -26,6 +26,10 @@
 
 #if (ZMQ_VERSION_MAJOR > 3)
 
+#if defined(ZMQPP_NO_CONSTEXPR)
+	const char * const zmqpp::auth::zap_endpoint_ = "inproc://zeromq.zap.01";
+#endif
+
 namespace zmqpp
 {
 auth::auth(context& ctx) :

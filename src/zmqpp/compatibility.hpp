@@ -78,6 +78,9 @@
 
 #if defined(_MSC_VER)
 #define NOEXCEPT throw()
+#if _MSC_VER < 1900
+#	define ZMQPP_NO_CONSTEXPR
+#endif
 #if _MSC_VER < 1800
 #define ZMQPP_EXPLICITLY_DELETED
 #endif // if _MSC_VER < 1800
