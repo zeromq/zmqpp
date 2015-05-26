@@ -108,7 +108,7 @@ public:
 	 * \param item the pollitem to check for
 	 * \return true if it is there.
 	 */
-	bool has(const zmq_pollitem_t &item);
+	bool has(zmq_pollitem_t const& item);
 
 	/*!
 	 * Stop monitoring a socket.
@@ -129,7 +129,7 @@ public:
 	 *
 	 * \param item the pollitem to stop monitoring.
 	 */
-	void remove(const zmq_pollitem_t &item);
+	void remove(zmq_pollitem_t const& item);
 
 	/*!
 	 * Update the monitored event flags for a given socket.
@@ -153,7 +153,7 @@ public:
 	 * \param item the item to change event flags for.
 	 * \param event the event flags to monitor on the socket.
 	 */
-	void check_for(const zmq_pollitem_t &item, short const event);
+	void check_for(zmq_pollitem_t const& item, short const event);
 	
 	/*!
 	 * Poll for monitored events.
@@ -190,7 +190,7 @@ public:
 	 * \param item the pollitem to get triggered event flags for.
 	 * \return the event flags.
 	 */
-	short events(const zmq_pollitem_t &item) const;
+	short events(zmq_pollitem_t const& item) const;
 
 	/*!
 	 * Check either a standard socket or zmq socket for input events.

@@ -62,13 +62,13 @@ void poller::add(raw_socket_t const descriptor, short const event /* = POLL_IN *
 
 void poller::add(zmq_pollitem_t const& item)
 {
-        size_t index = _items.size();
+	size_t index = _items.size();
 
-        _items.push_back(item);
-        if (nullptr == item.socket)
-            _fdindex[item.fd] = index;
-        else
-            _index[item.socket] = index;
+	_items.push_back(item);
+	if (nullptr == item.socket)
+		_fdindex[item.fd] = index;
+	else
+		_index[item.socket] = index;
 }
 
 bool poller::has(socket_t const& socket)
@@ -81,11 +81,11 @@ bool poller::has(raw_socket_t const descriptor)
 	return _fdindex.find(descriptor) != _fdindex.end();
 }
 
-bool poller::has(const zmq_pollitem_t &item)
+bool poller::has(zmq_pollitem_t const& item)
 {
-        if (nullptr != item.socket)
-            return _index.find(item.socket) != _index.end();
-        return _fdindex.find(item.fd) != _fdindex.end();
+	if (nullptr != item.socket)
+		return _index.find(item.socket) != _index.end();
+	return _fdindex.find(item.fd) != _fdindex.end();
 }
 
 void poller::reindex(size_t const index)
@@ -118,7 +118,7 @@ void poller::remove(raw_socket_t const descriptor)
 	remove(item);
 }
 
-void poller::remove(const zmq_pollitem_t &item)
+void poller::remove(zmq_pollitem_t const& item)
 {
     if (nullptr == item.socket)
       return remove(item.fd);
@@ -164,7 +164,7 @@ void poller::check_for(raw_socket_t const descriptor, short const event)
 	_items[found->second].events = event;
 }
 
-void poller::check_for(const zmq_pollitem_t &item, short const event)
+void poller::check_for(zmq_pollitem_t const& item, short const event)
 {
 
         if (nullptr == item.socket)
@@ -220,7 +220,7 @@ short poller::events(raw_socket_t const descriptor) const
 	return _items[found->second].revents;
 }
 
-short poller::events(const zmq_pollitem_t &item) const
+short poller::events(zmq_pollitem_t const& item) const
 {
         if (nullptr == item.socket)
         {
