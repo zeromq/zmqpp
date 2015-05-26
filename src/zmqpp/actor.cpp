@@ -120,23 +120,21 @@ namespace zmqpp
 
     std::string actor::bind_parent()
     {
-      std::string base_endpoint = "inproc://zmqpp::actor::" + std::to_string(reinterpret_cast<ptrdiff_t> (this));
-	
-	while (true)
-	  {
-	    try
-	      {
-		std::string endpoint = base_endpoint + std::to_string(std::rand());
-		parent_pipe_->bind(endpoint);
-		return endpoint;
-	      }
-	    catch (zmq_internal_exception &e)
-	      {
-		// endpoint already taken.
-	      }
-	  }
+        std::string base_endpoint = "inproc://zmqpp::actor::" + std::to_string(reinterpret_cast<ptrdiff_t> (this));
 
-
+        for (;;)
+        {
+            try
+            {
+                std::string endpoint = base_endpoint + std::to_string(std::rand());
+                parent_pipe_->bind(endpoint);
+                return endpoint;
+            }
+            catch (zmq_internal_exception const&)
+            {
+                // endpoint already taken.
+            }
+        }
     }
 
 }

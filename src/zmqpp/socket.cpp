@@ -845,7 +845,7 @@ void socket::monitor(endpoint_t const monitor_endpoint, int events_required)
 
 signal socket::wait()
 {
-    while (true)
+    for (;;)
     {
         message msg;
         while(!receive(msg));

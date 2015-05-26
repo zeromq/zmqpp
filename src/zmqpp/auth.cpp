@@ -44,7 +44,7 @@ auth::auth(context& ctx) :
             zap_handler.bind(zap_endpoint_);
             pipe->send(signal::ok);
         }
-        catch (zmq_internal_exception &e) {
+        catch (zmq_internal_exception const&) {
             // by returning false here, the actor will send signal::ko
             // this will make the actor constructor throw.
             // we could also to the ourselves: pipe->send(signal::ko);)

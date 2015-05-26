@@ -500,7 +500,7 @@ bool message::get_property(const std::string &property, std::string &out)
 	{
 		zmq_raw_msg = &raw_msg();
 	}
-	catch (zmqpp::exception &e) // empty
+	catch (zmqpp::exception const&) // empty
 	{
 		return false;
 	}
