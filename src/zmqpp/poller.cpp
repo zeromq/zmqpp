@@ -60,7 +60,7 @@ void poller::add(raw_socket_t const descriptor, short const event /* = POLL_IN *
 	add(item);
 }
 
-void poller::add(zmq_pollitem_t item)
+void poller::add(zmq_pollitem_t const& item)
 {
         size_t index = _items.size();
 

@@ -82,7 +82,7 @@ public:
 	 *
 	 * \param item the pollitem to be added
 	 */
-	void add(zmq_pollitem_t item);
+	void add(zmq_pollitem_t const& item);
 
 	 /*!
 	  * Check if we are monitoring a given socket with this poller.
