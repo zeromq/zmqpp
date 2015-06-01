@@ -24,7 +24,7 @@
 #include <zmq.h>
 #include <zmqpp/zmqpp.hpp>
 
-const int max_poll_timeout = 100;
+const int max_poll_timeout = 1000;
 
 BOOST_AUTO_TEST_SUITE( sanity )
 
@@ -82,8 +82,8 @@ BOOST_AUTO_TEST_CASE( zmq_basic_push_pull )
 	BOOST_CHECK_EQUAL(data.size(), zmq_send(pusher, data.data(), data.size(), 0));
 #endif
 
-	zmq_pollitem_t items[] = { { puller, ZMQ_POLLIN, 0, 0 } };
-	BOOST_CHECK_EQUAL(0, zmq_poll(items, 1, max_poll_timeout));
+	zmq_pollitem_t items[] = { { puller, 0, ZMQ_POLLIN, 0 } };
+	BOOST_CHECK_EQUAL(1, zmq_poll(items, 1, max_poll_timeout));
 
 	zmq_msg_t received_message;
 	zmq_msg_init(&received_message);
