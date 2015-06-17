@@ -25,82 +25,80 @@
 namespace zmqpp
 {
 
-/*!
+/**
  * A class for working with ZAP requests and replies.
  * Used in auth to simplify working with RFC 27 messages.
  *
  */
 class zap_request {
 public:
-    /*!
+    /**
      * Receive a ZAP valid request from the handler socket
      */
     zap_request(socket& handler, bool logging);
     
-    /*! 
+    /** 
      * Send a ZAP reply to the handler socket
      */
-    void reply(const std::string &status_code, const std::string &status_text,
-            const std::string &user_id);
+    void reply (std::string status_code, std::string status_text);
 
-    /*! 
+    /** 
      * Get Version
      */
     const std::string & get_version() const {
         return version;
     }
 
-    /*! 
+    /** 
      * Get Domain
      */
     const std::string & get_domain() const {
         return domain;
     }
 
-    /*! 
+    /** 
      * Get Address
      */
     const std::string & get_address() const {
         return address;
     }
 
-    /*! 
+    /** 
      * Get Identity
      */
     const std::string & get_identity() const {
         return identity;
     }
 
-    /*! 
+    /** 
      * Get Security Mechanism
      */
     const std::string & get_mechanism() const {
         return mechanism;
     }
 
-    /*! 
+    /** 
      * Get username for PLAIN security mechanism
      */
     const std::string & get_username() const {
         return username;
     }
 
-    /*! 
+    /** 
      * Get password for PLAIN security mechanism
      */
     const std::string & get_password() const {
         return password;
     }
 
-    /*! 
-     * Get client_key for CURVE security mechanism.
-     * The key is z85 encoded.
+    /** 
+     * Get client_key for CURVE security mechanism
      */
     const std::string & get_client_key() const {
         return client_key;
     }
 
-    /*! 
+    /** 
      * Get principal for GSSAPI security mechanism
      */
     const std::string & get_principal() const {

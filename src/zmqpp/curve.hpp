@@ -20,9 +20,16 @@
 #include <string>
 #include <zmq.h>
 
-namespace zmqpp { namespace curve
+namespace zmqpp {
+/**
+* ZMQ curve facilities.
+*/
+namespace curve
 {
 
+/**
+* A pair of public and private key.
+*/
 struct keypair
 {
 	std::string public_key;
