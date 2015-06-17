@@ -1,0 +1,20 @@
+<map id="src/client/main.cpp" name="src/client/main.cpp">
+<area shape="rect" id="node6" href="$zmqpp_8hpp.html" title="zmqpp/zmqpp.hpp" alt="" coords="1037,155,1167,181"/>
+<area shape="rect" id="node38" href="$options_8hpp.html" title="options.hpp" alt="" coords="851,80,940,107"/>
+<area shape="rect" id="node8" href="$compatibility_8hpp.html" title="compatibility.hpp" alt="" coords="1350,528,1470,555"/>
+<area shape="rect" id="node9" href="$context_8hpp.html" title="context.hpp" alt="" coords="657,304,747,331"/>
+<area shape="rect" id="node11" href="$exception_8hpp.html" title="exception.hpp" alt="" coords="1081,379,1184,405"/>
+<area shape="rect" id="node15" href="$message_8hpp.html" title="message.hpp" alt="" coords="1492,304,1592,331"/>
+<area shape="rect" id="node23" href="$poller_8hpp.html" title="poller.hpp" alt="" coords="1668,304,1747,331"/>
+<area shape="rect" id="node24" href="$socket_8hpp.html" title="socket.hpp" alt="" coords="817,379,904,405"/>
+<area shape="rect" id="node30" href="$actor_8hpp.html" title="actor.hpp" alt="" coords="1340,304,1416,331"/>
+<area shape="rect" id="node32" href="$reactor_8hpp.html" title="reactor.hpp" alt="" coords="1741,229,1828,256"/>
+<area shape="rect" id="node34" href="$zap__request_8hpp.html" title="zap_request.hpp" alt="" coords="823,304,941,331"/>
+<area shape="rect" id="node35" href="$auth_8hpp.html" title="auth.hpp" alt="" coords="1066,229,1138,256"/>
+<area shape="rect" id="node14" href="$context__options_8hpp.html" title="context_options.hpp" alt="" coords="513,379,651,405"/>
+<area shape="rect" id="node20" href="$frame_8hpp.html" title="frame.hpp" alt="" coords="1458,453,1538,480"/>
+<area shape="rect" id="node21" href="$signal_8hpp.html" title="signal.hpp" alt="" coords="317,453,399,480"/>
+<area shape="rect" id="node27" href="$socket__mechanisms_8hpp.html" title="socket_mechanisms.hpp" alt="" coords="623,453,789,480"/>
+<area shape="rect" id="node28" href="$socket__types_8hpp.html" title="socket_types.hpp" alt="" coords="814,453,939,480"/>
+<area shape="rect" id="node29" href="$socket__options_8hpp.html" title="socket_options.hpp" alt="" coords="964,453,1099,480"/>
+</map>

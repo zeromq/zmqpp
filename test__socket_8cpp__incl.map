@@ -1,0 +1,13 @@
+<map id="src/tests/test_socket.cpp" name="src/tests/test_socket.cpp">
+<area shape="rect" id="node7" href="$context_8hpp.html" title="zmqpp/context.hpp" alt="" coords="241,80,375,107"/>
+<area shape="rect" id="node14" href="$socket_8hpp.html" title="zmqpp/socket.hpp" alt="" coords="1362,80,1491,107"/>
+<area shape="rect" id="node19" href="$signal_8hpp.html" title="signal.hpp" alt="" coords="1245,155,1326,181"/>
+<area shape="rect" id="node22" href="$message_8hpp.html" title="zmqpp/message.hpp" alt="" coords="866,80,1009,107"/>
+<area shape="rect" id="node10" href="$compatibility_8hpp.html" title="compatibility.hpp" alt="" coords="1049,229,1169,256"/>
+<area shape="rect" id="node11" href="$exception_8hpp.html" title="exception.hpp" alt="" coords="169,155,271,181"/>
+<area shape="rect" id="node13" href="$context__options_8hpp.html" title="context_options.hpp" alt="" coords="5,155,144,181"/>
+<area shape="rect" id="node16" href="$socket__mechanisms_8hpp.html" title="socket_mechanisms.hpp" alt="" coords="1601,155,1767,181"/>
+<area shape="rect" id="node17" href="$socket__types_8hpp.html" title="socket_types.hpp" alt="" coords="1792,155,1917,181"/>
+<area shape="rect" id="node18" href="$socket__options_8hpp.html" title="socket_options.hpp" alt="" coords="1942,155,2077,181"/>
+<area shape="rect" id="node27" href="$frame_8hpp.html" title="frame.hpp" alt="" coords="1039,155,1119,181"/>
+</map>

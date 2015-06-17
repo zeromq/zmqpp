@@ -1,0 +1,4 @@
+<map id="zmqpp::actor" name="zmqpp::actor">
+<area shape="rect" id="node2" href="$classzmqpp_1_1context.html" title="The context class represents internal zmq context and io threads. " alt="" coords="5,5,117,32"/>
+<area shape="rect" id="node3" href="$classzmqpp_1_1socket.html" title="The socket class represents the zmq sockets. " alt="" coords="142,5,250,32"/>
+</map>

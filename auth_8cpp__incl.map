@@ -1,0 +1,18 @@
+<map id="src/zmqpp/auth.cpp" name="src/zmqpp/auth.cpp">
+<area shape="rect" id="node4" href="$auth_8hpp.html" title="auth.hpp" alt="" coords="869,80,941,107"/>
+<area shape="rect" id="node17" href="$socket__types_8hpp.html" title="socket_types.hpp" alt="" coords="1082,304,1207,331"/>
+<area shape="rect" id="node19" href="$signal_8hpp.html" title="signal.hpp" alt="" coords="1809,304,1891,331"/>
+<area shape="rect" id="node26" href="$exception_8hpp.html" title="exception.hpp" alt="" coords="32,229,135,256"/>
+<area shape="rect" id="node30" href="$message_8hpp.html" title="message.hpp" alt="" coords="1489,229,1589,256"/>
+<area shape="rect" id="node32" href="$z85_8hpp.html" title="z85.hpp" alt="" coords="475,229,543,256"/>
+<area shape="rect" id="node8" href="$actor_8hpp.html" title="actor.hpp" alt="" coords="992,155,1068,181"/>
+<area shape="rect" id="node11" href="$socket_8hpp.html" title="socket.hpp" alt="" coords="793,229,880,256"/>
+<area shape="rect" id="node22" href="$poller_8hpp.html" title="poller.hpp" alt="" coords="1229,229,1308,256"/>
+<area shape="rect" id="node24" href="$context_8hpp.html" title="context.hpp" alt="" coords="243,155,334,181"/>
+<area shape="rect" id="node29" href="$zap__request_8hpp.html" title="zap_request.hpp" alt="" coords="797,155,916,181"/>
+<area shape="rect" id="node15" href="$compatibility_8hpp.html" title="compatibility.hpp" alt="" coords="1267,379,1387,405"/>
+<area shape="rect" id="node16" href="$socket__mechanisms_8hpp.html" title="socket_mechanisms.hpp" alt="" coords="732,304,899,331"/>
+<area shape="rect" id="node18" href="$socket__options_8hpp.html" title="socket_options.hpp" alt="" coords="923,304,1057,331"/>
+<area shape="rect" id="node28" href="$context__options_8hpp.html" title="context_options.hpp" alt="" coords="261,229,399,256"/>
+<area shape="rect" id="node31" href="$frame_8hpp.html" title="frame.hpp" alt="" coords="1654,304,1734,331"/>
+</map>

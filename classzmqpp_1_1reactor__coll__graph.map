@@ -1,0 +1,4 @@
+<map id="zmqpp::reactor" name="zmqpp::reactor">
+<area shape="rect" id="node3" href="$classzmqpp_1_1socket.html" title="The socket class represents the zmq sockets. " alt="" coords="49,13,157,39"/>
+<area shape="rect" id="node6" href="$classzmqpp_1_1poller.html" title="Polling wrapper. " alt="" coords="352,189,452,215"/>
+</map>
