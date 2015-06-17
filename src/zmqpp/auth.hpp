@@ -35,7 +35,7 @@
 namespace zmqpp
 {
 
-/*!
+/**
  * auth - authentication for ZeroMQ security mechanisms
  * 
  * An auth actor takes over authentication for all incoming connections in
@@ -46,7 +46,7 @@ namespace zmqpp
 class auth 
 {
 public:
-	/*!
+	/**
 	 * Constructor. A auth actor takes over authentication for all incoming connections in
 	 * its context. You can whitelist or blacklist peers based on IP address,
 	 * and define policies for securing PLAIN, CURVE, and GSSAPI connections.
@@ -54,13 +54,13 @@ public:
 	 */
 	auth(context& ctx);
 
-	/*!
+	/**
 	 * Destructor.
 	 *
 	 */
     	~auth();
 
-	/*!
+	/**
 	 * Allow (whitelist) a single IP address. For NULL, all clients from this
 	 * address will be accepted. For PLAIN and CURVE, they will be allowed to
 	 * continue with authentication. You can call this method multiple times
@@ -70,7 +70,7 @@ public:
 	 */
     	void allow(const std::string &address);
 
-    	/*!
+    	/**
 	 * Deny (blacklist) a single IP address. For all security mechanisms, this
 	 * rejects the connection without any further authentication. Use either a
      	 * whitelist, or a blacklist, not not both. If you define both a whitelist
@@ -79,19 +79,19 @@ public:
 	 */
     	void deny(const std::string &address);
 
-    	/*!
+    	/**
 	 * Configure a ZAP domain. To cover all domains, use "*".
 	 */
     	void configure_domain(const std::string &domain);
 
-    	/*!
+    	/**
 	 * Configure PLAIN authentication. PLAIN authentication uses a plain-text 
 	 * username and password.
 	 *
 	 */
     	void configure_plain(const std::string &username, const std::string &password);
 
-    	/*!
+    	/**
 	 * Configure CURVE authentication. CURVE authentication uses client public keys. 
 	 * This method can be called multiple times. To cover all domains, use "*". 
 	 * To allow all client keys without checking, specify CURVE_ALLOW_ANY for the client_public_key.
@@ -99,7 +99,7 @@ public:
 	 */
     	void configure_curve(const std::string &client_public_key);
 
-    	/*!
+    	/**
 	 * Configure GSSAPI authentication. GSSAPI authentication uses an underlying 
 	 * mechanism (usually Kerberos) to establish a secure context and perform mutual 
 	 * authentication.
@@ -107,40 +107,40 @@ public:
 	 */
     	void configure_gssapi();
 
-    	/*!
+    	/**
 	 * Enable verbose tracing of commands and activity.
 	 *
 	 */
     	void set_verbose(bool verbose);
 
 private:
-	/*!
+	/**
 	 * Handle an authentication command from calling application.
 	 *
 	 */
     	void handle_command(socket& pipe);
 
-	/*!
+	/**
 	 * Handle a PLAIN authentication request from libzmq core
 	 *
 	 * @param user_id store the user as the User-Id.
 	 */
     	bool authenticate_plain(zap_request& request, std::string &user_id);
 
-	/*!
+	/**
 	 * Handle a CURVE authentication request from libzmq core
 	 *
 	 * @param user_id store the public key (z85 encoded) as the User-Id.
 	 */
     	bool authenticate_curve(zap_request& request, std::string &user_id);
 
-    	/*!
+    	/**
 	 * Handle a GSSAPI authentication request from libzmq core
 	 *
 	 */
     	bool authenticate_gssapi(zap_request& request);
 
-    	/*!
+    	/**
      	 * Authentication.
      	 *
      	 */

@@ -23,7 +23,7 @@ namespace zmqpp
     class socket;
     typedef socket socket_t;
 
-    /*!
+    /**
      * Reactor object that helps to manage multiple socket by calling a user-defined handler for each socket
      * when a watched event occurs.
      *
@@ -34,19 +34,19 @@ namespace zmqpp
     public:
         typedef std::function<void (void) > Callable;
         typedef std::pair<zmq_pollitem_t, Callable> PollItemCallablePair;
-        /*!
+        /**
          * Construct an empty polling model.
          */
         reactor();
 
-        /*!
+        /**
          * Cleanup reactor.
          *
          * Any sockets will need to be closed separately.
          */
         ~reactor();
 	
-        /*!
+        /**
          * Add a socket to the reactor, providing a handler that will be called when the monitored events occur.
          *
          * \param socket the socket to monitor.
@@ -64,7 +64,7 @@ namespace zmqpp
          */
         void add(raw_socket_t const descriptor, Callable callable, short const event = poller::poll_in | poller::poll_error);
 
-        /*!
+        /**
          * Check if we are monitoring a given socket with this reactor.
          *
          * \param socket the socket to check.
@@ -72,7 +72,7 @@ namespace zmqpp
          */
         bool has(socket_t const& socket);
 
-        /*!
+        /**
          * Check if we are monitoring a given standard socket with this reactor.
          *
          * \param descriptor the raw socket to check (SOCKET under Windows, a file descriptor otherwise).
@@ -80,21 +80,21 @@ namespace zmqpp
          */
         bool has(raw_socket_t const descriptor);
 
-        /*!
+        /**
          * Stop monitoring a socket.
          *
          * \param socket the socket to stop monitoring.
          */
         void remove(socket_t const& socket);
 
-        /*!
+        /**
          * Stop monitoring a standard socket.
          *
          * \param descriptor the standard socket to stop monitoring.
          */
         void remove(raw_socket_t const descriptor);
 
-        /*!
+        /**
          * Update the monitored event flags for a given socket.
          *
          * \param socket the socket to update event flags.
@@ -110,7 +110,7 @@ namespace zmqpp
          */
         void check_for(raw_socket_t const descriptor, short const event);
 
-        /*!
+        /**
          * Poll for monitored events and call associated handler when needed.
          *
          * By default this method will block forever or until at least one of the monitored
@@ -123,7 +123,7 @@ namespace zmqpp
          */
         bool poll(long timeout = poller::wait_forever);
 
-        /*!
+        /**
          * Get the event flags triggered for a socket.
          *
          * \param socket the socket to get triggered event flags for.
@@ -131,7 +131,7 @@ namespace zmqpp
          */
         short events(socket_t const& socket) const;
 
-        /*!
+        /**
          * Get the event flags triggered for a standard socket.
          *
          * \param descriptor the raw socket to get triggered event flags for (SOCKET under Windows, a file descriptor otherwise).

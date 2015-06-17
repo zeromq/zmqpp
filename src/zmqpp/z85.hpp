@@ -15,6 +15,9 @@
 namespace zmqpp
 {
 #if (ZMQ_VERSION_MAJOR >= 4)
+  /**
+  * Provide z85 encoding and decoding facilities.
+  */
   namespace z85
   {
     /**
