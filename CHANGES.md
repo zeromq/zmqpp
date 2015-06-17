@@ -1,6 +1,14 @@
 Development
 ===========
 
+
+
+Version 4.1.2
+=============
+
+* Fix a compilation bug (#119)
+* Improve documentation
+
 Version 4.1.1
 =============
 
