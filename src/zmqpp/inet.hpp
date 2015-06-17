@@ -17,6 +17,8 @@
 #ifndef ZMQPP_INET_HPP_
 #define ZMQPP_INET_HPP_
 
+#include <cstdint>
+
 /** \todo cross-platform version of including headers. */
 // We get htons and htonl from here
 #ifdef _WIN32
