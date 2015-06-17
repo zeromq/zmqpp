@@ -1,22 +1,43 @@
-The ZMQPP library {#mainpage}
-=============================
+@mainpage
 
 Introduction
 ------------
 
-ZMQPP is a C++ wrapper around the 0mq C library. It is designed to hide
-the zeroMQ's C API and instead provide a C++ish API.
+zmqpp is a "high-level" C++ binding for 0mq/zmq. The "high-level" term is used in
+comparison to [cppzmq](https://github.com/zeromq/cppzmq) which is somewhat a raw wrapper
+around the [libzmq](https://github.com/zeromq/libzmq) C interface.
 
-ZMQPP works with zeromq 2.2+.
- 
-The current stable version of ZMQPP is 3.2 and can be found in the `master` branch in the git repository.
-The current dev branch is at version 4.
+The library is documented and has a nice test suite. This doesn't mean that the library is bug
+free or that the test suite is 100% complete.
 
-Using ZMQPP
------------
+The development takes places in this [GitHub repository](http://github.com/zeromq/zmqpp).
 
-Take a look at the examples available in the git repository.
-Quick link to documentation for most important classes:
-+ zmqpp::context
-+ zmqpp::socket
-+ zmqpp::message
+
+Features
+---------
+
+Basic features:
+
++ zmqpp provides most feature from libzmq in a C++ style API.
++ It supports multiple version of [libzmq](https://github.com/zeromq/libzmq).
+
+Being built on top of libzmq, and being a higher-level binding, zmqpp provides some
+additional features:
+
++ [Reactor](@ref zmqpp::reactor) pattern.
++ [Actor](@ref zmqpp::actor) pattern.
++ Support for ZAP.
+
+
+Examples
+--------
+
+zmqpp comes a few examples. These can be found [here](https://github.com/zeromq/zmqpp/tree/develop/examples).
+
+Reading the documentation is a good way to start learning about zmqpp.
+The most important classes that you will likely use are thoses:
+
++ [Context](@ref zmqpp::context).
++ [Socket](@ref zmqpp::socket).
++ [Message](@ref zmqpp::message).
++ And either a [Poller](@ref zmqpp::poller) or a [Reactor](@ref zmqpp::reactor).
