@@ -539,4 +539,31 @@ BOOST_AUTO_TEST_CASE( add_const_part )
 	free(data);
 }
 
+BOOST_AUTO_TEST_CASE( add_nocopy )
+{
+    zmqpp::message msg;
+    const char *const_data = "hello";
+    void* data = malloc(15);
+    memcpy(data, "a_longer_hello", 14);
+
+    msg.add_nocopy_const(const_data, 5);
+    msg.add_nocopy(data, 14);
+
+    // This is what you MUST NOT do, even though it compiles fine.
+    //char *raw = static_cast<char *>(zmq_msg_data(&msg.raw_msg(0)));
+    //raw[0] = 'c'; // crash
+
+    // However you can do that on non-const data.
+    char *raw = static_cast<char *>(zmq_msg_data(&msg.raw_msg(1)));
+    raw[0] = '_';
+
+    BOOST_REQUIRE_EQUAL(2, msg.parts());
+    BOOST_CHECK_EQUAL(5, msg.size(0));
+    BOOST_CHECK_EQUAL(14, msg.size(1));
+    BOOST_CHECK_EQUAL("hello", msg.get(0));
+    BOOST_CHECK_EQUAL("__longer_hello", msg.get(1)); // we changed 1 byte
+
+    free(data);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

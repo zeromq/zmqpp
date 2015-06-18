@@ -100,6 +100,12 @@
 #define ZMQPP_EXPLICITLY_DELETED = delete
 #endif
 
+#if __cplusplus >= 201300  // this worked in g++4.9
+#define ZMQPP_DEPRECATED(reason) [[deprecated(#reason)]]
+#else
+#define ZMQPP_DEPRECATED(reason)
+#endif
+
 #ifndef NOEXCEPT
 #define NOEXCEPT noexcept
 #endif
