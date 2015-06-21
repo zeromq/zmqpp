@@ -546,6 +546,8 @@ BOOST_AUTO_TEST_CASE( add_nocopy )
     void* data = malloc(15);
     memcpy(data, "a_longer_hello", 14);
 
+    //msg.add_nocopy(const_data, 5); should trigger static assert.
+
     msg.add_nocopy_const(const_data, 5);
     msg.add_nocopy(data, 14);
 

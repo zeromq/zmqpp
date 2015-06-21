@@ -198,8 +198,8 @@ public:
 	void add_nocopy(Type *part, size_t const data_size,
 					zmq_free_fn *ffn = nullptr, void *hint = nullptr)
 	{
-		static_assert(!std::is_const<Type *>::value,
-					  "Data part must not be const. Use add_nocopy_const() instead (and read its documentation)");
+		static_assert(!std::is_const<Type>::value,
+                      "Data part must not be const. Use add_nocopy_const() instead (and read its documentation)");
 		_parts.push_back(frame(part, data_size, ffn, hint));
 	}
 
