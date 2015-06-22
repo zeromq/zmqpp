@@ -100,6 +100,17 @@
 #define ZMQPP_EXPLICITLY_DELETED = delete
 #endif
 
+#if __cplusplus >= 201300  // c++14 version. This number worked
+                           // on g++ 4.9 when compiling with -std=c++14
+#define ZMQPP_DEPRECATED(reason) [[deprecated(#reason)]]
+#elif __GNUC__
+#define ZMQPP_DEPRECATED(reason) __attribute__ ((deprecated))
+#elif defined(_MSC_VER)
+#define ZMQPP_DEPRECATED(reason) __declspec(deprecated(#reason))
+#else
+#define ZMQPP_DEPRECATED(reason)
+#endif
+
 #ifndef NOEXCEPT
 #define NOEXCEPT noexcept
 #endif

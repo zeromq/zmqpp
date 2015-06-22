@@ -163,9 +163,78 @@ public:
 	// this data. It must remain as valid for at least the lifetime of the
 	// 0mq message, recommended only with const data.
 	template<typename Type>
+	ZMQPP_DEPRECATED("Use add_nocopy() or add_nocopy_const() instead.")
 	void add_const(Type *part, size_t const data_size)
 	{
 		_parts.push_back( frame( part, data_size, nullptr, nullptr ) );
+	}
+
+	/**
+	 * Add a no-copy frame.
+	 *
+	 * This means that neither zmqpp nor libzmq will make a copy of the
+	 * data. The pointed-to data must remain valid for the lifetime of
+	 * the underlying zmq_msg_t. Note that you cannot always know about
+	 * this lifetime, so be careful.
+	 *
+	 * @param part The pointed-to data that will be send in the message.
+	 * @param data_size The number of byte pointed-to by "part".
+	 * @param ffn The free function called by libzmq when it doesn't need
+	 * your buffer anymore. It defaults to nullptr, meaning your data
+	 * will not be freed.
+	 * @param hint A hint to help your free function do its job.
+	 *
+	 * @note This is similar to what `move()` does. While `move()` provide a safe
+	 * (wrt to type) deleter (at the cost of 1 memory allocation) add_nocopy
+	 * let you pass the low-level callback that libzmq will invoke.
+	 *
+	 * @note The free function must be thread-safe as it can be invoke from
+	 * any libzmq's context threads.
+	 *
+	 * @see add_nocopy_const
+	 * @see move
+	 */
+	template<typename Type>
+	void add_nocopy(Type *part, size_t const data_size,
+					zmq_free_fn *ffn = nullptr, void *hint = nullptr)
+	{
+		static_assert(!std::is_const<Type>::value,
+                      "Data part must not be const. Use add_nocopy_const() instead (and read its documentation)");
+		_parts.push_back(frame(part, data_size, ffn, hint));
+	}
+
+	/**
+	 * Add a no-copy frame where pointed-to data are const.
+	 *
+	 * This means that neither zmqpp nor libzmq will make a copy of the
+	 * data. The pointed-to data must remain valid for the lifetime of
+	 * the underlying zmq_msg_t. Note that you cannot always know about
+	 * this lifetime, so be careful.
+	 *
+	 * @warning About constness: The library will cast away constness from
+	 * your pointer. However, it promises that both libzmq and zmqpp will
+	 * not alter the pointed-to data. *YOU* must however be careful: zmqpp or libzmq
+	 * will happily return a non-const pointer to your data. It's your responsibility
+	 * to not modify it.
+	 *
+	 * @param part The pointed-to data that will be send in the message.
+	 * @param data_size The number of byte pointed-to by "part".
+	 * @param ffn The free function called by libzmq when it doesn't need
+	 * your buffer anymore. It defaults to nullptr, meaning your data
+	 * will not be freed.
+	 * @param hint A hint to help your free function do its job.
+	 *
+	 * @note The free function must be thread-safe as it can be invoke from
+	 * any libzmq's context threads.
+	 *
+	 * @see add_nocopy
+	 */
+	template<typename Type>
+	void add_nocopy_const(const Type *part, size_t const data_size,
+				   zmq_free_fn *ffn = nullptr, void *hint = nullptr)
+	{
+		add_nocopy(const_cast<typename std::remove_const<Type *>::type>(part),
+				   data_size, ffn, hint);
 	}
 
 	// Stream reader style
