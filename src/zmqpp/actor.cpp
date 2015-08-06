@@ -51,7 +51,22 @@ namespace zmqpp
     if (sig == signal::ko)
     {
       delete parent_pipe_;
-      throw actor_initialization_exception();
+      std::lock_guard<std::mutex> lg(mutex_);
+      if (eptr_)
+      {
+        try
+        {
+          std::rethrow_exception(eptr_);
+        }
+        catch (std::exception &e)
+        {
+          std::throw_with_nested(actor_initialization_exception());
+        }
+      }
+      else
+      {
+        throw actor_initialization_exception();
+      }
     }
   }
 
@@ -102,10 +117,21 @@ namespace zmqpp
 
   void actor::start_routine(socket *child_pipe, ActorStartRoutine routine)
   {
-    if (routine(child_pipe))
-      child_pipe->send(signal::ok);
-    else
+    try
+    {
+      if (routine(child_pipe))
+        child_pipe->send(signal::ok);
+      else
+        child_pipe->send(signal::ko);
+    }
+    catch (const std::exception &)
+    {
+      std::lock_guard<std::mutex> lg(mutex_);
+      eptr_ = std::current_exception();
       child_pipe->send(signal::ko);
+    }
+
+
     delete child_pipe;
   }
 

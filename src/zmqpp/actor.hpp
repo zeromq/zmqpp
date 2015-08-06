@@ -12,6 +12,7 @@
 #include <thread>
 #include <functional>
 #include <mutex>
+#include <zmqpp/context.hpp>
 #include "socket.hpp"
 
 namespace zmqpp
@@ -109,6 +110,9 @@ namespace zmqpp
      * @param block whether or not we wait until the actor thread stops.
      * @return a boolean indicating whether or not the actor successfully
      * shutdown.
+     *
+     * @note Exception thrown during initialization (before sending ko/ok) are
+     *       rethrown in the actor's constructor.
      */
     bool stop(bool block = false);
 
@@ -150,6 +154,10 @@ namespace zmqpp
      * between Actor and their parent thread.
      */
     static context actor_pipe_ctx_;
+
+    mutable std::mutex mutex_;
+
+    std::exception_ptr eptr_;
 
     /**
      * Keeps track of the status of the actor thread.
