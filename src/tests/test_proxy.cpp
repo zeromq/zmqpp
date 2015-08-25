@@ -15,15 +15,9 @@
 
 BOOST_AUTO_TEST_SUITE( proxy )
 
-BOOST_AUTO_TEST_CASE( simple_direction )
+BOOST_AUTO_TEST_CASE(simple_direction)
 {
   zmqpp::context ctx;
-  zmqpp::socket puller(ctx, zmqpp::socket_type::pull);
-  zmqpp::socket pusher(ctx, zmqpp::socket_type::push);
-
-  pusher.connect(
-      "inproc://frontend"); // connect to the pull socket in the other thread
-  puller.connect("inproc://backend"); // ditto, push socket.
 
   std::thread t1([&]()
                  {
@@ -35,6 +29,14 @@ BOOST_AUTO_TEST_CASE( simple_direction )
                  });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+  zmqpp::socket puller(ctx, zmqpp::socket_type::pull);
+  zmqpp::socket pusher(ctx, zmqpp::socket_type::push);
+
+  pusher.connect(
+      "inproc://frontend"); // connect to the pull socket in the other thread
+  puller.connect("inproc://backend"); // ditto, push socket.
+
   zmqpp::message msg;
   msg << "Hello";
 
