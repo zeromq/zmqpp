@@ -93,6 +93,7 @@ set( LIBZMQPP_SOURCES
   src/zmqpp/zap_request.cpp
   src/zmqpp/auth.cpp
   src/zmqpp/zmqpp.cpp
+  src/zmqpp/proxy.cpp
   )
 
 # Staticlib
@@ -195,6 +196,7 @@ if( ZMQPP_BUILD_TESTS )
     src/tests/test_socket_options.cpp
     src/tests/test_z85.cpp
     src/tests/test_auth.cpp
+    src/tests/test_proxy.cpp
     )
   target_link_libraries( zmqpp-test-runner  ${LIB_TO_LINK_TO_EXAMPLES} ${Boost_LIBRARIES})
   add_test( zmqpp-test zmqpp-test-runner --log-level=test-suite )
