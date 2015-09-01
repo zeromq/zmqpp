@@ -106,6 +106,9 @@ ZMQPP_COMPARABLE_ENUM socket_option {
 	ipc_filter_uid            = ZMQ_IPC_FILTER_UID, /*!< User ID filters to allow new IPC connections - set only */
 	router_handover           = ZMQ_ROUTER_HANDOVER, /*!< Handle duplicate client identities on ROUTER sockets - set only */
  #endif
+ #if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
+	xpub_manual               = ZMQ_XPUB_MANUAL
+ #endif
 #endif // version > 2
 
 #ifdef ZMQ_EXPERIMENTAL_LABELS

@@ -426,6 +426,13 @@ void socket::set(socket_option const option, int const value)
 	case socket_option::request_relaxed:
 	case socket_option::router_raw:
 #endif
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 1)
+	case socket_option::router_handover:
+#endif
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	case socket_option::xpub_manual:
+#endif
+
 		if (value == 0) { set(option, false); }
 		else if (value == 1) { set(option, true); }
 		else { throw exception("attempting to set a boolean option with a non 0 or 1 integer"); }
@@ -506,8 +513,11 @@ void socket::set(socket_option const option, bool const value)
 	case socket_option::request_relaxed:
 	case socket_option::router_raw:
 #endif
-#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR >= 4 && ZMQ_VERSION_MINOR >= 1)
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 1)
 	case socket_option::router_handover:
+#endif
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	case socket_option::xpub_manual:
 #endif
 	{
 		int ivalue = value ? 1 : 0;
