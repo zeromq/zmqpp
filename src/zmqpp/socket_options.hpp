@@ -107,7 +107,8 @@ ZMQPP_COMPARABLE_ENUM socket_option {
 	router_handover           = ZMQ_ROUTER_HANDOVER, /*!< Handle duplicate client identities on ROUTER sockets - set only */
  #endif
  #if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
-	xpub_manual               = ZMQ_XPUB_MANUAL
+	xpub_manual               = ZMQ_XPUB_MANUAL,
+	xpub_verbose_unsubscribe  = ZMQ_XPUB_VERBOSE_UNSUBSCRIBE,
  #endif
 #endif // version > 2
 
