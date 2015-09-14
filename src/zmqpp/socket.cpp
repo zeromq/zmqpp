@@ -179,7 +179,7 @@ bool socket::send(message& message, bool const dont_block /* = false */)
 
 			if(EINTR == zmq_errno())
 			{
-				if (0 == message.parts())
+				if (0 == i) // If first part of the message.
 				{
 					return false;
 				}
