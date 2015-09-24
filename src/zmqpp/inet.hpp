@@ -17,6 +17,8 @@
 #ifndef ZMQPP_INET_HPP_
 #define ZMQPP_INET_HPP_
 
+#include <utility>
+#include <cassert>
 #include <cstdint>
 
 /** \todo cross-platform version of including headers. */
