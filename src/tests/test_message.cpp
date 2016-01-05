@@ -568,4 +568,30 @@ BOOST_AUTO_TEST_CASE( add_nocopy )
     free(data);
 }
 
+BOOST_AUTO_TEST_CASE( remove )
+{
+    size_t partRemoved = 1;
+    std::array<std::string, 3> parts = {{
+        "a long test frame 1 to go over the small message size limitation",
+        "another frame 2",
+        "some final frame 3"
+    }};
+
+    zmqpp::message message;
+    message << parts[0] << parts[1] << parts[2];
+
+    BOOST_REQUIRE_EQUAL( parts.size(), message.parts() );
+
+    message.remove(partRemoved);
+    BOOST_REQUIRE_EQUAL( parts.size() - 1, message.parts() );
+    for( size_t i = 0; i < parts.size() - 1; ++i )
+    {
+        if (i == partRemoved)
+            continue;
+
+        BOOST_CHECK_EQUAL( parts[i].size(), message.size(i) );
+        BOOST_CHECK_EQUAL( parts[i], message.get(i) );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
