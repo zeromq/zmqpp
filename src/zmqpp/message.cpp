@@ -425,6 +425,11 @@ void message::pop_back()
 	_parts.pop_back();
 }
 
+void message::remove(size_t const part)
+{
+    _parts.erase( _parts.begin() + part );
+}
+
 message::message(message&& source) NOEXCEPT
 	: _parts()
 	, _read_cursor(source._read_cursor)
