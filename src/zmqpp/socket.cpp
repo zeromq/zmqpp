@@ -431,7 +431,7 @@ void socket::set(socket_option const option, int const value)
 #endif
 #if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
 	case socket_option::xpub_manual:
-	case socket_option::xpub_verbose_unsubscribe:
+	case socket_option::xpub_verboser:
 #endif
 
 		if (value == 0) { set(option, false); }
@@ -519,7 +519,7 @@ void socket::set(socket_option const option, bool const value)
 #endif
 #if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
 	case socket_option::xpub_manual:
-	case socket_option::xpub_verbose_unsubscribe:
+	case socket_option::xpub_verboser:
 #endif
 	{
 		int ivalue = value ? 1 : 0;

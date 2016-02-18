@@ -108,7 +108,7 @@ ZMQPP_COMPARABLE_ENUM socket_option {
  #endif
  #if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
 	xpub_manual               = ZMQ_XPUB_MANUAL,
-	xpub_verbose_unsubscribe  = ZMQ_XPUB_VERBOSE_UNSUBSCRIBE,
+	xpub_verboser             = ZMQ_XPUB_VERBOSER,
  #endif
 #endif // version > 2
 
