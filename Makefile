@@ -110,7 +110,6 @@ CLIENT_LIBS = -L$(BUILD_PATH) \
 
 TEST_LIBS = -L$(BUILD_PATH) \
 	-l$(LIBRARY_NAME) \
-	-lsodium \
 	-lboost_unit_test_framework \
 	-lpthread
 
