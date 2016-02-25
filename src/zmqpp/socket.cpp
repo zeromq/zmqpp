@@ -791,7 +791,7 @@ void socket::get(socket_option const option, std::string& value) const
 			throw zmq_internal_exception();
 		}
 
-		value.assign(buffer.data(), size);
+		value.assign(buffer.data(), size > 0 ? size-1 : 0);
 		break;
 	default:
 		throw exception("attempting to get a non string option with a string value");
