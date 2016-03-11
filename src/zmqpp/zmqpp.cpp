@@ -14,7 +14,8 @@
 
 #include "zmqpp.hpp"
 
-#define STRINGIZE(val) #val
+#define QUOTE(name) #name
+#define STRINGIZE(val) QUOTE(val)
 
 namespace zmqpp
 {
