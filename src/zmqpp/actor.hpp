@@ -12,7 +12,7 @@
 #include <thread>
 #include <functional>
 #include <mutex>
-#include <zmqpp/context.hpp>
+#include "context.hpp"
 #include "socket.hpp"
 
 namespace zmqpp
