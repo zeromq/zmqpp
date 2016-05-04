@@ -117,6 +117,5 @@ namespace zmqpp
 #endif
 }
 
-
 #endif /* ZMQPP_COMPATIBILITY_HPP_ */
 

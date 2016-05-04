@@ -98,6 +98,7 @@ set( LIBZMQPP_SOURCES
 # Staticlib
 if (ZMQPP_BUILD_STATIC)
   add_library( zmqpp-static STATIC ${LIBZMQPP_SOURCES})
+  target_compile_definitions(zmqpp-static PUBLIC ZMQ_STATIC ZMQPP_STATIC_DEFINE)
   if (NOT ZMQPP_LIBZMQ_CMAKE)
     find_library(ZEROMQ_LIBRARY_STATIC ${ZMQPP_LIBZMQ_NAME_STATIC} PATHS ${ZEROMQ_LIB_DIR})
     if (NOT ZEROMQ_LIBRARY_STATIC)
@@ -128,6 +129,10 @@ if (ZMQPP_BUILD_SHARED)
   list( APPEND INSTALL_TARGET_LIST zmqpp)
   set( LIB_TO_LINK_TO_EXAMPLES zmqpp )
 endif() # ZMQPP_BUILD_SHARED
+
+include(GenerateExportHeader)
+generate_export_header(zmqpp)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Examples
 # --------
@@ -210,3 +215,7 @@ install(TARGETS ${INSTALL_TARGET_LIST}
 
 install(DIRECTORY src/zmqpp DESTINATION include/
         FILES_MATCHING PATTERN "*.hpp")
+
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/zmqpp_export.h"
+        DESTINATION "include")

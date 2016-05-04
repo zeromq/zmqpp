@@ -22,6 +22,9 @@
 
 #include <zmq.h>
 
+#include "compatibility.hpp"
+#include "zmqpp_export.h"
+
 namespace zmqpp
 {
 
@@ -37,7 +40,7 @@ namespace zmqpp
  * The class extends std::runtime_error.
  *
  */
-class exception : public std::runtime_error
+class ZMQPP_EXPORT exception : public std::runtime_error
 {
 public:
 	/**
@@ -55,7 +58,7 @@ public:
  *
  * Objects may be invalid initially or after a shutdown or close.
  */
-class invalid_instance : public exception
+class ZMQPP_EXPORT invalid_instance : public exception
 {
 public:
 	invalid_instance(std::string const& message)
@@ -66,7 +69,7 @@ public:
     /**
      * Represents a failed zmqpp::actor initialization.
      */
-    class actor_initialization_exception : public exception
+    class ZMQPP_EXPORT actor_initialization_exception : public exception
     {
     public:
 
@@ -81,7 +84,7 @@ public:
    * Thrown when an error occurs while encoding or decoding to/from z85.
    * See ZMQ RFC 32
    */
-  class z85_exception : public exception
+  class ZMQPP_EXPORT z85_exception : public exception
   {
   public:
     z85_exception(const std::string &msg):
@@ -97,7 +100,7 @@ public:
  *
  * The class provides access to the zmq error number via zmq_error().
  */
-class zmq_internal_exception : public exception
+class ZMQPP_EXPORT zmq_internal_exception : public exception
 {
 public:
 	/**

@@ -21,6 +21,7 @@
 
 #include <zmq.h>
 
+#include "zmqpp_export.h"
 #include "compatibility.hpp"
 #include "exception.hpp"
 #if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
@@ -43,7 +44,7 @@ namespace zmqpp
  *
  * This class is c++0x move supporting and cannot be copied.
  */
-class context
+class ZMQPP_EXPORT context
 {
 public:
 
