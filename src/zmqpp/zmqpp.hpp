@@ -82,7 +82,7 @@ namespace zmqpp
  *
  * \return string version number.
  */
-std::string version();
+ZMQPP_EXPORT std::string version();
 
 /*!
  * Retrieve the parts of the zmqpp version number.
@@ -94,7 +94,7 @@ std::string version();
  * \param minor an unsigned 8 bit reference to set to the minor version.
  * \param revision an unsigned 8 bit reference to set the current revision.
  */
-void version(uint8_t& major, uint8_t& minor, uint8_t& revision);
+ZMQPP_EXPORT void version(uint8_t& major, uint8_t& minor, uint8_t& revision);
 
 /*!
  * Retrieve the parts of the 0mq version this library was built against.
@@ -110,7 +110,7 @@ void version(uint8_t& major, uint8_t& minor, uint8_t& revision);
  * \param minor an unsigned 8 bit reference to set to the minor version.
  * \param revision an unsigned 8 bit reference to set the current revision.
  */
-void zmq_version(uint8_t& major, uint8_t& minor, uint8_t& patch);
+ZMQPP_EXPORT void zmq_version(uint8_t& major, uint8_t& minor, uint8_t& patch);
 
 typedef context     context_t;   /*!< \brief context type */
 typedef std::string endpoint_t;  /*!< \brief endpoint type */

@@ -13,6 +13,8 @@
 #include <iostream>
 #include "compatibility.hpp"
 
+#include "zmqpp_export.h"
+
 namespace zmqpp
 {
 
@@ -50,5 +52,5 @@ namespace std
     /**
      * Write the value of the signal to the stream without removing the signal header..
      */
-    ostream &operator<<(ostream &s, const zmqpp::signal &sig);
+    ZMQPP_EXPORT ostream &operator<<(ostream &s, const zmqpp::signal &sig);
 }

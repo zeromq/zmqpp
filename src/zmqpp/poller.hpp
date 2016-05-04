@@ -33,18 +33,18 @@ typedef socket socket_t;
  *
  * Allows access to polling for any number of zmq sockets or standard sockets.
  */
-class poller
+class ZMQPP_EXPORT poller
 {
 public:
-	static const long wait_forever; /*!< Block forever flag, default setting. */
+    static const long wait_forever = -1; /*!< Block forever flag, default setting. */
 
-	static const short poll_none;   /*!< No polling flags set. */
-	static const short poll_in;     /*!< Monitor inbound flag. */
-	static const short poll_out;    /*!< Monitor output flag. */
-	static const short poll_error;  /*!< Monitor error flag.\n Only for file descriptors. */
+    static const short poll_none = 0;   /*!< No polling flags set. */
+    static const short poll_in = ZMQ_POLLIN;     /*!< Monitor inbound flag. */
+    static const short poll_out = ZMQ_POLLOUT;    /*!< Monitor output flag. */
+    static const short poll_error = ZMQ_POLLERR;  /*!< Monitor error flag.\n Only for file descriptors. */
 
 #if ((ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 4)
-        static const short poll_pri;    /*!< Priority input flag.\n Only for file descriptors. See POLLPRI) */
+        static const short poll_pri = ZMQ_POLLPRI;    /*!< Priority input flag.\n Only for file descriptors. See POLLPRI) */
 #endif
 
 	/**
