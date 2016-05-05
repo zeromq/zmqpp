@@ -75,16 +75,18 @@ namespace event
 class ZMQPP_EXPORT socket
 {
 public:
-    static const int normal = 0;                    /*!< /brief default send type, no flags set */
+	enum {
+		normal = 0,                     /*!< /brief default send type, no flags set */
 #if (ZMQ_VERSION_MAJOR == 2)
-    static const int dont_wait = ZMQ_NOBLOCK;				    /*!< /brief don't block if sending is not currently possible  */
+		dont_wait = ZMQ_NOBLOCK,        /*!< /brief don't block if sending is not currently possible  */
 #else
-    static const int dont_wait = ZMQ_DONTWAIT;					/*!< /brief don't block if sending is not currently possible  */
+		dont_wait = ZMQ_DONTWAIT,       /*!< /brief don't block if sending is not currently possible  */
 #endif
-    static const int send_more = ZMQ_SNDMORE;					/*!< /brief more parts will follow this one */
+		send_more = ZMQ_SNDMORE,        /*!< /brief more parts will follow this one */
 #ifdef ZMQ_EXPERIMENTAL_LABELS
-    static const int send_label = ZMQ_SNDLABEL;				/*!< /brief this message part is an internal zmq label */
+		send_label = ZMQ_SNDLABEL       /*!< /brief this message part is an internal zmq label */
 #endif
+	};
 
 	/**
 	 * Create a socket for a given type.

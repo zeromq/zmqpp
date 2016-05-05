@@ -36,16 +36,19 @@ typedef socket socket_t;
 class ZMQPP_EXPORT poller
 {
 public:
-    static const long wait_forever = -1; /*!< Block forever flag, default setting. */
+	enum {
+		wait_forever = -1          /*!< Block forever flag, default setting. */
+	};
 
-    static const short poll_none = 0;   /*!< No polling flags set. */
-    static const short poll_in = ZMQ_POLLIN;     /*!< Monitor inbound flag. */
-    static const short poll_out = ZMQ_POLLOUT;    /*!< Monitor output flag. */
-    static const short poll_error = ZMQ_POLLERR;  /*!< Monitor error flag.\n Only for file descriptors. */
-
+	enum : short {
+		poll_none = 0,             /*!< No polling flags set. */
+		poll_in = ZMQ_POLLIN,      /*!< Monitor inbound flag. */
+		poll_out = ZMQ_POLLOUT,    /*!< Monitor output flag. */
+		poll_error = ZMQ_POLLERR,  /*!< Monitor error flag.\n Only for file descriptors. */
 #if ((ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 4)
-        static const short poll_pri = ZMQ_POLLPRI;    /*!< Priority input flag.\n Only for file descriptors. See POLLPRI) */
+		poll_pri = ZMQ_POLLPRI     /*!< Priority input flag.\n Only for file descriptors. See POLLPRI) */
 #endif
+	};
 
 	/**
 	 * Construct an empty polling model.
