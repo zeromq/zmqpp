@@ -23,7 +23,6 @@
 #include <zmq.h>
 
 #include "compatibility.hpp"
-#include "zmqpp_export.h"
 
 namespace zmqpp
 {

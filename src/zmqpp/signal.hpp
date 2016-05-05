@@ -11,9 +11,8 @@
 
 #include <cstdint>
 #include <iostream>
-#include "compatibility.hpp"
 
-#include "zmqpp_export.h"
+#include "compatibility.hpp"
 
 namespace zmqpp
 {
