@@ -43,7 +43,7 @@ namespace zmqpp
  *
  * This class is c++0x move supporting and cannot be copied.
  */
-class context
+class ZMQPP_EXPORT context
 {
 public:
 

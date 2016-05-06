@@ -40,7 +40,7 @@ namespace zmqpp
  * the target endpoints. zmq guarantees either the whole message or none
  * of the message will be delivered.
  */
-class message
+class ZMQPP_EXPORT message
 {
 public:
 	/**

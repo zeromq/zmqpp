@@ -30,7 +30,7 @@ namespace zmqpp {
  * by the zmqpp message class to keep track of parts in the internal
  * queue. It is unlikely you need to use this class.
  */
-class frame
+class ZMQPP_EXPORT frame
 {
 public:
 	frame();
