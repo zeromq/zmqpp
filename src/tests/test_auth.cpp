@@ -20,6 +20,7 @@
 #include "zmqpp/auth.hpp"
 #include <iostream>
 #include <string>
+#include <netinet/in.h>
 
 BOOST_AUTO_TEST_SUITE( auth )
 
@@ -202,6 +203,64 @@ BOOST_AUTO_TEST_CASE(stonehouse)
     BOOST_CHECK_EQUAL(true, response.get_property("User-Id", user_id));
     BOOST_CHECK_EQUAL(client_keypair.public_key, user_id);
     BOOST_CHECK_EQUAL("Hello", response.get(0));
+}
+
+BOOST_AUTO_TEST_CASE(custom_metadata)
+{
+    zmqpp::context context;
+    zmqpp::socket client(context, zmqpp::socket_type::req);
+    client.connect("tcp://127.0.0.1:9000");
+
+    zmqpp::socket server(context, zmqpp::socket_type::rep);
+    server.bind("tcp://*:9000");
+
+    zmqpp::message request;
+    request << "1.0" << "0001" << "test" << "192.168.55.1" << "BOB" << "PLAIN" << "admin" << "secret";
+    client.send(request);
+
+    // let zap_request class handle the message
+    zmqpp::zap_request zap_request(server, false);
+
+    // create some metadata pairs
+    const std::unordered_map<std::string, std::string> pairs = {
+            {"foo", "bar"},
+            {"name", "value"}
+    };
+
+    // send metadata together with ZAP reply
+    zap_request.reply("200", "OK", "admin", pairs);
+
+    zmqpp::message response;
+    client.receive(response);
+
+    BOOST_CHECK_EQUAL("1.0", response.get(0));
+    BOOST_CHECK_EQUAL("0001", response.get(1));
+    BOOST_CHECK_EQUAL("200", response.get(2));
+    BOOST_CHECK_EQUAL("OK", response.get(3));
+    BOOST_CHECK_EQUAL("admin", response.get(4));
+
+    // the last frame contains ZMTP/3.0 encoded metadata
+    const void *metadata;
+    response.get(metadata, 5);
+
+    const uint8_t *chars = reinterpret_cast<const uint8_t*>(metadata);
+
+    for (size_t i = 0; i < pairs.size(); ++i) {
+        const auto name_size = *chars;
+        chars += 1;
+
+        const std::string name(chars, chars + name_size);
+        chars += name_size;
+
+        const auto value_size = ntohl(*reinterpret_cast<const uint32_t*>(chars));
+        chars += 4;
+
+        const std::string value(chars, chars + value_size);
+        chars += value_size;
+
+        BOOST_CHECK_EQUAL(1, pairs.count(name));
+        BOOST_CHECK_EQUAL(pairs.at(name), value);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(ironhouse)

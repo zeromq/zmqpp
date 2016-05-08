@@ -18,6 +18,8 @@
 #include "message.hpp"
 #include "socket.hpp"
 #include "z85.hpp"
+#include <unordered_map>
+#include <netinet/in.h>
 
 #if (ZMQ_VERSION_MAJOR > 3)
 
@@ -70,20 +72,53 @@ zap_request::zap_request(socket& handler, bool logging) :
  * Send a ZAP reply to the handler socket
  */
 void zap_request::reply(const std::string &status_code, const std::string &status_text,
-            const std::string &user_id)
+            const std::string &user_id, const std::unordered_map<std::string, std::string> &metadata_pairs)
+{
+    if (verbose)
     {
-        if (verbose)
-        {
-            std::cout << "auth: ZAP reply status_code=" << status_code
-                    << " status_text=" << status_text <<
-                    " user_id=" << user_id << std::endl;
-        }
-
-        message reply;
-        reply << version << sequence << status_code << status_text << user_id << "";
-
-        zap_socket.send(reply);
+        std::cout << "auth: ZAP reply status_code=" << status_code
+                << " status_text=" << status_text <<
+                " user_id=" << user_id << std::endl;
     }
+
+    message reply;
+    reply.push_back(version);
+    reply.push_back(sequence);
+    reply.push_back(status_code);
+    reply.push_back(status_text);
+    reply.push_back(user_id);
+    std::vector<uint8_t> md = serialize_metadata(metadata_pairs);
+    reply.push_back(md.data(), md.size());
+
+    zap_socket.send(reply);
+}
+
+std::vector<std::uint8_t> zap_request::serialize_metadata(
+        const std::unordered_map<std::string, std::string> &metadata_pairs)
+{
+    std::vector<uint8_t> metadata;
+
+    for (const auto &pair : metadata_pairs) {
+        // name length (1 OCTET)
+        assert(pair.first.length() < 256);
+        metadata.push_back(static_cast<uint8_t>(pair.first.length()));
+
+        // name
+        std::copy(pair.first.begin(), pair.first.end(), std::back_inserter(metadata));
+
+        // value length (4 OCTETs in network byte order)
+        assert(pair.second.length() <= UINT32_MAX); // hm, really?
+        auto value_length = htobe32(static_cast<uint32_t>(pair.second.length()));
+        std::copy(reinterpret_cast<uint8_t*>(&value_length),
+                  reinterpret_cast<uint8_t*>(&value_length) + 4,
+                  std::back_inserter(metadata));
+
+        // value
+        std::copy(pair.second.begin(), pair.second.end(), std::back_inserter(metadata));
+    }
+
+    return metadata;
+}
 
 }
 

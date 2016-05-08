@@ -19,6 +19,8 @@
 
 #include <string>
 #include "socket.hpp"
+#include <unordered_map>
+#include <vector>
 
 #if (ZMQ_VERSION_MAJOR > 3)
 
@@ -41,7 +43,15 @@ public:
      * Send a ZAP reply to the handler socket
      */
     void reply(const std::string &status_code, const std::string &status_text,
-            const std::string &user_id);
+            const std::string &user_id,
+            const std::unordered_map<std::string, std::string> &metadata_pairs = std::unordered_map<std::string, std::string>());
+
+    /**
+     * Serialize a map of metadata (name, value) pairs to ZMTP/3.0 wire format
+     * as specified in ZRFC27 (http://rfc.zeromq.org/spec:27)
+     */
+    static std::vector<std::uint8_t> serialize_metadata(
+            const std::unordered_map<std::string, std::string> &metadata_pairs);
 
     /** 
      * Get Version
