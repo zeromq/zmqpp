@@ -116,13 +116,24 @@ void socket::close()
 	_socket = nullptr;
 }
 
+bool socket::send(std::string const& str, bool dont_block/* = false */)
+{
+	return send(str, (dont_block) ? socket::dont_wait : socket::normal);
+}
+
+bool socket::receive(std::string &str, bool dont_block /* = false */)
+{
+	// Unable to use message wrapper as this could be multipart legacy fallback
+	return receive(str, (dont_block) ? socket::dont_wait : socket::normal);
+}
+
 bool socket::send(zmqpp::signal sig, bool dont_block/* = false */)
 {
     message msg(sig);
     return send(msg, dont_block);
 }
 
-  bool socket::receive(zmqpp::signal &sig, bool dont_block /* = false */)
+bool socket::receive(zmqpp::signal &sig, bool dont_block /* = false */)
 {
     message msg;
     bool ret = receive(msg, dont_block);
