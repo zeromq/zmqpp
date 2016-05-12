@@ -223,10 +223,59 @@ public:
 	 * socket then this function will return false.
 	 *
 	 * \param string message part to send
-	 * \param flags message send flags
+	 * \param dont_block boolean to dictate if we wait while sending.
 	 * \return true if message part sent, false if it would have blocked
 	 */
-	bool send(std::string const& string, int const flags = normal);
+	bool send(std::string const& string, bool const dont_block = false);
+
+	/**
+	 * If there is a message ready then get the next part as a string
+	 *
+	 * If the socket::DONT_WAIT flag and there is no message ready to receive
+	 * then this function will return false.
+	 *
+	 * \param string message part to receive into
+	 * \param dont_block boolean to dictate if we wait for data.
+	 * \return true if message part received, false if it would have blocked
+	 */
+	bool receive(std::string& string, bool const dont_block = false);
+
+	/**
+	 * Sends a signal over the socket.
+	 *
+	 * If dont_block is true and we are unable to send the signal e then this
+	 * function will return false.
+	 *
+	 * \param sig signal to send.
+	 * \param dont_block boolean to dictate if we wait while sending.
+	 * \return true if message part sent, false if it would have blocked
+	 */
+	bool send(signal sig, bool dont_block = false);
+
+    /**
+	 * If there is a message ready then we read a signal from it.
+	 *
+	 * If dont_block is true and we are unable to send the signal then this
+	 * function will return false.
+	 *
+	 * \param sig signal to receive into
+	 * \param dont_block boolean to dictate if we wait while sending.
+	 * \return true if signal received, false if it would have blocked
+	 */
+	bool receive(signal &sig, bool dont_block = false);
+				
+	/**
+	 * Sends the byte data held by the string as the next message part.
+	 *
+	 * If the socket::DONT_WAIT flag and we are unable to add a new message to
+	 * socket then this function will return false.
+	 *
+	 * \param string message part to send
+	 * \param dont_block boolean to dictate if we wait for data.
+	 * \return true if message part sent, false if it would have blocked
+	 */
+	ZMQPP_DEPRECATED("prefer using zmqpp::message for multipart messages")
+	bool send(std::string const& string, int const flags);
 
 	/**
 	 * If there is a message ready then get the next part as a string
@@ -238,32 +287,8 @@ public:
 	 * \param flags message receive flags
 	 * \return true if message part received, false if it would have blocked
 	 */
-	bool receive(std::string& string, int const flags = normal);
-
-	/**
-	 * Sends a signal over the socket.
-	 *
-	 * If dont_block is true and we are unable to send the signal e then this
-	 * function will return false.
-	 *
-	 * @param sig signal to send.
-	 * @param flags message send flags
-	 * @return true if message part sent, false if it would have blocked
-	 */
-	bool send(signal sig, bool dont_block = false);
-
-
-    	/**
-	 * If there is a message ready then we read a signal from it.
-	 *
-	 * If dont_block is true and we are unable to send the signal then this
-	 * function will return false.
-	 *
-	 * \param sig signal to receive into
-	 * \param flags message receive flags
-	 * \return true if signal received, false if it would have blocked
-	 */
-	bool receive(signal &sig, bool dont_block = false);
+	ZMQPP_DEPRECATED("prefer using zmqpp::message for multipart messages")
+	bool receive(std::string& string, int const flags);
 
 	/**
 	 * Sends the byte data pointed to by buffer as the next part of the message.
