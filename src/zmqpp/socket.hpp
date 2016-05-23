@@ -35,7 +35,7 @@ namespace zmqpp
 {
 
 class context;
-template<template<class T, class = std::allocator<T> > class container_type> class message_base;
+template<template<class T, class = std::allocator<T> > class container_type> class basic_message;
 
 typedef std::string endpoint_t;
 typedef context     context_t;
@@ -203,7 +203,7 @@ public:
 	 * \return true if message sent, false if it would have blocked
 	 */
 	template<template<class T, class = std::allocator<T>> class container>
-	bool send(message_base<container>& message, bool const dont_block = false)
+	bool send(basic_message<container>& message, bool const dont_block = false)
 	{
 		size_t parts = message.parts();
 		if (parts == 0)
@@ -259,7 +259,7 @@ public:
 		}
 
 		// Leave message reference in a stable state
-		zmqpp::message_base<container> local;
+		zmqpp::basic_message<container> local;
 		std::swap(local, message);
 		return true;
 	}
@@ -275,12 +275,12 @@ public:
 	 * \return true if message sent, false if it would have blocked
 	 */
 	template<template<class T, class = std::allocator<T>> class container>
-	bool receive(message_base<container>& message, bool const dont_block = false)
+	bool receive(basic_message<container>& message, bool const dont_block = false)
 	{
 		if (message.parts() > 0)
 		{
 			// swap and discard old message
-			zmqpp::message_base<container> local;
+			zmqpp::basic_message<container> local;
 			std::swap(local, message);
 		}
 
@@ -690,7 +690,7 @@ private:
 	socket& operator=(socket const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 
 	template<template<class T, class = std::allocator<T>> class container>
-	void track_message(message_base<container> const&, uint32_t const, bool&);
+	void track_message(basic_message<container> const&, uint32_t const, bool&);
 };
 
 }

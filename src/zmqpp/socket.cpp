@@ -710,7 +710,7 @@ socket::operator void*() const
 }
 
 template<template<class T, class = std::allocator<T>> class container>
-void socket::track_message(message_base<container> const& /* message */, uint32_t const parts, bool& should_delete)
+void socket::track_message(basic_message<container> const& /* message */, uint32_t const parts, bool& should_delete)
 {
 	if (parts == 0)
 	{

@@ -45,7 +45,7 @@ namespace zmqpp
  * of the message will be delivered.
  */
 template<template<class T, class = std::allocator<T> > class container_type>
-class message_base
+class basic_message
 {
 public:
 	/**
@@ -60,20 +60,20 @@ public:
 	 */
 	typedef std::function<void (void*)> release_function;
 
-	message_base()
+	basic_message()
 		: _parts()
 		, _read_cursor(0)
 	{
 		static_assert(std::is_same<parts_type, std::vector<frame>>::value || std::is_same<parts_type, std::deque<frame>>::value, "Container not supported.");
 	}
-	~message_base()
+	~basic_message()
 	{
 		clear();
 	}
 
     template <typename T, typename ...Args>
-    message_base(T const &part, Args &&...args)
-        : message_base()
+    basic_message(T const &part, Args &&...args)
+        : basic_message()
     {
         add(part, std::forward<Args>(args)...);
     }
@@ -86,7 +86,7 @@ public:
 	{
 		if (part >= _parts.size())
 		{
-			throw exception("attempting to request a message_base part outside the valid range");
+			throw exception("attempting to request a basic_message part outside the valid range");
 		}
 
 		return _parts[part].size();
@@ -189,8 +189,8 @@ public:
 		string.assign(get(part));
 	}
 
-	// Warn: If a pointer type is requested the message_base (well zmq) still 'owns'
-	// the data and will release it when the message_base object is freed.
+	// Warn: If a pointer type is requested the basic_message (well zmq) still 'owns'
+	// the data and will release it when the basic_message object is freed.
 	template<typename Type>
 	Type get(size_t const part)
 	{
@@ -215,29 +215,29 @@ public:
     }
 
 	// Raw get data operations, useful with data structures more than anything else
-	// Warn: The message_base (well zmq) still 'owns' the data and will release it
-	// when the message_base object is freed.
+	// Warn: The basic_message (well zmq) still 'owns' the data and will release it
+	// when the basic_message object is freed.
 	template<typename Type>
 	void get(Type*& value, size_t const part) const
 	{
 		value = static_cast<Type*>(raw_data(part));
 	}
 
-	// Warn: The message_base (well zmq) still 'owns' the data and will release it
-	// when the message_base object is freed.
+	// Warn: The basic_message (well zmq) still 'owns' the data and will release it
+	// when the basic_message object is freed.
 	template<typename Type>
 	void get(Type** value, size_t const part) const
 	{
 		*value = static_cast<Type*>(raw_data(part));
 	}
 
-	// Move operators will take ownership of message_base parts without copying
+	// Move operators will take ownership of basic_message parts without copying
 	void move(void* part, size_t const size, release_function const& release)
 	{
 		callback_releaser* hint = new callback_releaser();
 		hint->func = release;
 
-		_parts.push_back(frame(part, size, &message_base::release_callback, hint));
+		_parts.push_back(frame(part, size, &basic_message::release_callback, hint));
 	}
 
 	// Raw move data operation, useful with data structures more than anything else
@@ -270,7 +270,7 @@ public:
 
 	// Use exact data past, neither zmqpp nor 0mq will copy, alter or delete
 	// this data. It must remain as valid for at least the lifetime of the
-	// 0mq message_base, recommended only with const data.
+	// 0mq basic_message, recommended only with const data.
 	template<typename Type>
 	ZMQPP_DEPRECATED("Use add_nocopy() or add_nocopy_const() instead.")
 	void add_const(Type *part, size_t const data_size)
@@ -286,7 +286,7 @@ public:
 	 * the underlying zmq_msg_t. Note that you cannot always know about
 	 * this lifetime, so be careful.
 	 *
-	 * @param part The pointed-to data that will be send in the message_base.
+	 * @param part The pointed-to data that will be send in the basic_message.
 	 * @param data_size The number of byte pointed-to by "part".
 	 * @param ffn The free function called by libzmq when it doesn't need
 	 * your buffer anymore. It defaults to nullptr, meaning your data
@@ -326,7 +326,7 @@ public:
 	 * will happily return a non-const pointer to your data. It's your responsibility
 	 * to not modify it.
 	 *
-	 * @param part The pointed-to data that will be send in the message_base.
+	 * @param part The pointed-to data that will be send in the basic_message.
 	 * @param data_size The number of byte pointed-to by "part".
 	 * @param ffn The free function called by libzmq when it doesn't need
 	 * your buffer anymore. It defaults to nullptr, meaning your data
@@ -353,64 +353,64 @@ public:
 	}
 
 	template<typename Type>
-	message_base& operator>>(Type& value)
+	basic_message& operator>>(Type& value)
 	{
 		get(value, _read_cursor++);
 		return *this;
 	}
 
 	// Stream writer style - these all use copy styles
-	message_base& operator<<(int8_t const integer)
+	basic_message& operator<<(int8_t const integer)
 	{
 		add_raw(reinterpret_cast<void const*>(&integer), sizeof(int8_t));
 		return *this;
 	}
-	message_base& operator<<(int16_t const integer)
+	basic_message& operator<<(int16_t const integer)
 	{
 		uint16_t network_order = htons(static_cast<uint16_t>(integer));
 		add_raw(reinterpret_cast<void const*>(&network_order), sizeof(uint16_t));
 
 		return *this;
 	}
-	message_base& operator<<(int32_t const integer)
+	basic_message& operator<<(int32_t const integer)
 	{
 		uint32_t network_order = htonl(static_cast<uint32_t>(integer));
 		add_raw(reinterpret_cast<void const*>(&network_order), sizeof(uint32_t));
 
 		return *this;
 	}
-	message_base& operator<<(int64_t const integer)
+	basic_message& operator<<(int64_t const integer)
 	{
 		uint64_t network_order = htonll(static_cast<uint64_t>(integer));
 		add_raw(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
 
 		return *this;
 	}
-	message_base& operator<<(signal const sig)
+	basic_message& operator<<(signal const sig)
 	{
 		return (*this) << static_cast<int64_t>(sig);
 	}
 
-	message_base& operator<<(uint8_t const unsigned_integer)
+	basic_message& operator<<(uint8_t const unsigned_integer)
 	{
 		add_raw(reinterpret_cast<void const*>(&unsigned_integer), sizeof(uint8_t));
 		return *this;
 	}
-	message_base& operator<<(uint16_t const unsigned_integer)
+	basic_message& operator<<(uint16_t const unsigned_integer)
 	{
 		uint16_t network_order = htons(unsigned_integer);
 		add_raw(reinterpret_cast<void const*>(&network_order), sizeof(uint16_t));
 
 		return *this;
 	}
-	message_base& operator<<(uint32_t const unsigned_integer)
+	basic_message& operator<<(uint32_t const unsigned_integer)
 	{
 		uint32_t network_order = htonl(unsigned_integer);
 		add_raw(reinterpret_cast<void const*>(&network_order), sizeof(uint32_t));
 
 		return *this;
 	}
-	message_base& operator<<(uint64_t const unsigned_integer)
+	basic_message& operator<<(uint64_t const unsigned_integer)
 	{
 		uint64_t network_order = htonll(unsigned_integer);
 		add_raw(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
@@ -418,7 +418,7 @@ public:
 		return *this;
 	}
 
-	message_base& operator<<(float const floating_point)
+	basic_message& operator<<(float const floating_point)
 	{
 		assert(sizeof(float) == 4);
 
@@ -427,7 +427,7 @@ public:
 
 		return *this;
 	}
-	message_base& operator<<(double const double_precision)
+	basic_message& operator<<(double const double_precision)
 	{
 		assert(sizeof(double) == 8);
 
@@ -436,7 +436,7 @@ public:
 
 		return *this;
 	}
-	message_base& operator<<(bool const boolean)
+	basic_message& operator<<(bool const boolean)
 	{
 		uint8_t byte = (boolean) ? 1 : 0;
 		add_raw(reinterpret_cast<void const*>(&byte), sizeof(uint8_t));
@@ -444,12 +444,12 @@ public:
 		return *this;
 	}
 
-	message_base& operator<<(char const* c_string)
+	basic_message& operator<<(char const* c_string)
 	{
 		add_raw(reinterpret_cast<void const*>(c_string), strlen(c_string));
 		return *this;
 	}
-	message_base& operator<<(std::string const& string)
+	basic_message& operator<<(std::string const& string)
 	{
 		add_raw(reinterpret_cast<void const*>(string.data()), string.size());
 		return *this;
@@ -576,14 +576,14 @@ public:
 	}
 
 	// Move supporting
-	message_base(message_base&& source) NOEXCEPT
+	basic_message(basic_message&& source) NOEXCEPT
 		: _parts()
 		, _read_cursor(source._read_cursor)
 	{
 		std::swap(_parts, source._parts);
 		source._read_cursor = 0;
 	}
-	message_base& operator=(message_base<container_type>&& source) NOEXCEPT
+	basic_message& operator=(basic_message<container_type>&& source) NOEXCEPT
 	{
 		_read_cursor = source._read_cursor;
 		source._read_cursor = 0;
@@ -592,13 +592,13 @@ public:
 	}
 
 	// Copy support
-	message_base copy() const
+	basic_message copy() const
 	{
-		message_base<container_type> msg;
+		basic_message<container_type> msg;
 		msg.copy(*this);
 		return msg;
 	}
-	void copy(message_base<container_type> const& source)
+	void copy(basic_message<container_type> const& source)
 	{
 		_parts.resize(source._parts.size());
 		for (size_t i = 0; i < source._parts.size(); ++i)
@@ -624,7 +624,7 @@ public:
 	{
 		if (part >= _parts.size())
 		{
-			throw zmqpp::exception("attempting to request a message_base part outside the valid range");
+			throw zmqpp::exception("attempting to request a basic_message part outside the valid range");
 		}
 
 		return _parts[part].data();
@@ -633,7 +633,7 @@ public:
 	{
 		if (part >= _parts.size())
 		{
-			throw zmqpp::exception("attempting to request a message_base part outside the valid range");
+			throw zmqpp::exception("attempting to request a basic_message part outside the valid range");
 		}
 
 		return _parts[part].msg();
@@ -652,10 +652,10 @@ public:
 	}
 	
 	/**
-	 * Check if the message_base is a signal.
-	 * If the message_base has 1 part, has the correct size and if the 7 first bytes match
-	 * the signal header we consider the message_base a signal.
-	 * @return true if the message_base is a signal, false otherwise
+	 * Check if the basic_message is a signal.
+	 * If the basic_message has 1 part, has the correct size and if the 7 first bytes match
+	 * the signal header we consider the basic_message a signal.
+	 * @return true if the basic_message is a signal, false otherwise
 	 */
 	bool is_signal() const
 	{
@@ -675,7 +675,7 @@ public:
 	size_t read_cursor() const NOEXCEPT { return _read_cursor; }
 
 	/**
-	 * Gets the remaining number of parts in the message_base.
+	 * Gets the remaining number of parts in the basic_message.
 	 */
 	size_t remaining() const NOEXCEPT { return  _parts.size() - _read_cursor; }
 
@@ -690,10 +690,10 @@ public:
 
 #if (ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 1)
 	/**
-	* Attemps to retrieve a metadata property from a message_base.
+	* Attemps to retrieve a metadata property from a basic_message.
 	* The underlying call is `zmq_msg_gets()`.
 	*
-	* @note The message_base MUST have at least one frame, otherwise this wont work.
+	* @note The basic_message MUST have at least one frame, otherwise this wont work.
 	*/
 	bool get_property(const std::string &property, std::string &out)
 	{
@@ -726,8 +726,8 @@ private:
 	size_t _read_cursor;
 
 	// Disable implicit copy support, code must request a copy to clone
-	message_base(message_base const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
-	message_base& operator=(message_base const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+	basic_message(basic_message const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+	basic_message& operator=(basic_message const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 
 	static void release_callback(void* data, void* hint)
 	{
@@ -744,7 +744,7 @@ private:
 	}
 };
 
-typedef message_base<std::vector> message;
+typedef basic_message<std::vector> message;
 
 }
 
