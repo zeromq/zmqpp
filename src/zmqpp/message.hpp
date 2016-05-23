@@ -14,8 +14,8 @@
  * \author Ben Gray (\@benjamg)
  */
 
-#ifndef ZMQPP_message_base_HPP_
-#define ZMQPP_message_base_HPP_
+#ifndef ZMQPP_MESSAGE_HPP_
+#define ZMQPP_MESSAGE_HPP_
 
 #include <cassert>
 #include <functional>
@@ -38,11 +38,11 @@ namespace zmqpp
 {
 
 /**
- * \brief a zmq message_base with optional multipart support
+ * \brief a zmq message with optional multipart support
  *
- * A zmq message_base is made up of one or more parts which are sent together to
- * the target endpoints. zmq guarantees either the whole message_base or none
- * of the message_base will be delivered.
+ * A zmq message is made up of one or more parts which are sent together to
+ * the target endpoints. zmq guarantees either the whole message or none
+ * of the message will be delivered.
  */
 template<template<class T, class = std::allocator<T> > class container_type>
 class message_base
@@ -748,4 +748,4 @@ typedef message_base<std::vector> message;
 
 }
 
-#endif /* ZMQPP_message_base_HPP_ */
+#endif /* ZMQPP_MESSAGE_HPP_ */
