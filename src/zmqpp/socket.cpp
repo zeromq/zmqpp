@@ -134,124 +134,6 @@ bool socket::send(zmqpp::signal sig, bool dont_block/* = false */)
     return ret;
 }
 
-bool socket::send(message& message, bool const dont_block /* = false */)
-{
-	size_t parts = message.parts();
-	if (parts == 0)
-	{
-		throw std::invalid_argument("sending requires messages have at least one part");
-	}
-
-	bool dont_wait = dont_block;
-	for(size_t i = 0; i < parts; ++i)
-	{
-		int flag = socket::normal;
-		if(dont_wait) { flag |= socket::dont_wait; }
-		if(i < (parts - 1)) { flag |= socket::send_more; }
-
-#if (ZMQ_VERSION_MAJOR == 2)
-		int result = zmq_send( _socket, &message.raw_msg(i), flag );
-#elif (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
-		int result = zmq_sendmsg( _socket, &message.raw_msg(i), flag );
-#else
-		int result = zmq_msg_send( &message.raw_msg(i), _socket, flag );
-#endif
-
-		if (result < 0)
-		{
-			// the zmq framework should not block if the first part is accepted
-			// so we should only ever get this error on the first part
-			if((0 == i) && (EAGAIN == zmq_errno()))
-			{
-				return false;
-			}
-
-			if(EINTR == zmq_errno())
-			{
-				if (0 == i) // If first part of the message.
-				{
-					return false;
-				}
-
-				// If we have an interrupt but it's not on the first part then we
-				// know we can safely send out the rest of the message as we can
-				// enforce that it won't wait on a blocking action
-				dont_wait = true;
-				continue;
-			}
-
-			// sanity checking
-			assert(EAGAIN != zmq_errno());
-
-			throw zmq_internal_exception();
-		}
-
-		message.sent(i);
-	}
-
-	// Leave message reference in a stable state
-	zmqpp::message local;
-	std::swap(local, message);
-	return true;
-}
-
-bool socket::receive(message& message, bool const dont_block /* = false */)
-{
-	if (message.parts() > 0)
-	{
-		// swap and discard old message
-		zmqpp::message local;
-		std::swap(local, message);
-	}
-
-	int flags = (dont_block) ? socket::dont_wait : socket::normal;
-	bool more = true;
-
-	while(more)
-	{
-#if (ZMQ_VERSION_MAJOR == 2)
-		int result = zmq_recv( _socket, &_recv_buffer, flags );
-#elif (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
-		int result = zmq_recvmsg( _socket, &_recv_buffer, flags );
-#else
-		int result = zmq_msg_recv( &_recv_buffer, _socket, flags );
-#endif
-
-		if(result < 0)
-		{
-			if ((0 == message.parts()) && (EAGAIN == zmq_errno()))
-			{
-				return false;
-			}
-
-			if(EINTR == zmq_errno())
-			{
-				if (0 == message.parts())
-				{
-					return false;
-				}
-
-				// If we have an interrupt but it's not on the first part then we
-				// know we can safely pull out the rest of the message as it will
-				// not be blocking
-				continue;
-			}
-
-			assert(EAGAIN != zmq_errno());
-
-			throw zmq_internal_exception();
-		}
-
-		zmq_msg_t& dest = message.raw_new_msg();
-		zmq_msg_move(&dest, &_recv_buffer);
-
-		get(socket_option::receive_more, more);
-	}
-
-	return true;
-}
-
-
 bool socket::send(std::string const& string, int const flags /* = NORMAL */)
 {
 	return send_raw(string.data(), string.size(), flags);
@@ -827,7 +709,8 @@ socket::operator void*() const
 	return _socket;
 }
 
-void socket::track_message(message const& /* message */, uint32_t const parts, bool& should_delete)
+template<template<class T, class = std::allocator<T>> class container>
+void socket::track_message(message_base<container> const& /* message */, uint32_t const parts, bool& should_delete)
 {
 	if (parts == 0)
 	{
