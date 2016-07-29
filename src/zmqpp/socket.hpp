@@ -212,15 +212,15 @@ public:
 	 *
 	 * \param message reference to fill with received data
 	 * \param dont_block boolean to dictate if we wait for data.
-	 * \return true if message sent, false if it would have blocked
+	 * \return true if message received, false if it would have blocked
 	 */
 	bool receive(message_t& message, bool const dont_block = false);
 
 	/**
 	 * Sends the byte data held by the string as the next message part.
 	 *
-	 * If the socket::DONT_WAIT flag and we are unable to add a new message to
-	 * socket then this function will return false.
+	 * If dont_block is true and we are unable to add a new message then this
+	 * function will return false.
 	 *
 	 * \param string message part to send
 	 * \param dont_block boolean to dictate if we wait while sending.
@@ -231,8 +231,8 @@ public:
 	/**
 	 * If there is a message ready then get the next part as a string
 	 *
-	 * If the socket::DONT_WAIT flag and there is no message ready to receive
-	 * then this function will return false.
+	 * If dont_block is true and we are unable to get a message then this
+	 * function will return false.
 	 *
 	 * \param string message part to receive into
 	 * \param dont_block boolean to dictate if we wait for data.
@@ -243,19 +243,19 @@ public:
 	/**
 	 * Sends a signal over the socket.
 	 *
-	 * If dont_block is true and we are unable to send the signal e then this
+	 * If dont_block is true and we are unable to send the signal then this
 	 * function will return false.
 	 *
 	 * \param sig signal to send.
 	 * \param dont_block boolean to dictate if we wait while sending.
-	 * \return true if message part sent, false if it would have blocked
+	 * \return true if signal sent, false if it would have blocked
 	 */
 	bool send(signal sig, bool dont_block = false);
 
     /**
 	 * If there is a message ready then we read a signal from it.
 	 *
-	 * If dont_block is true and we are unable to send the signal then this
+	 * If dont_block is true and we are unable to get the signal then this
 	 * function will return false.
 	 *
 	 * \param sig signal to receive into
