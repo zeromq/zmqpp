@@ -475,6 +475,9 @@ void socket::set(socket_option const option, int const value)
 	case socket_option::tcp_keepalive_count:
 	case socket_option::tcp_keepalive_interval:
 #endif
+#if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::use_fd:
+#endif
 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
 		{
 			throw zmq_internal_exception();
@@ -655,6 +658,9 @@ void socket::get(socket_option const option, int& value) const
 #endif
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	case socket_option::receive_label:
+#endif
+#if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::use_fd:
 #endif
 #if (ZMQ_VERSION_MAJOR >= 4)
 	case socket_option::ipv6:

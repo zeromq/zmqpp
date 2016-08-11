@@ -109,6 +109,7 @@ ZMQPP_COMPARABLE_ENUM socket_option {
  #if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
 	xpub_manual               = ZMQ_XPUB_MANUAL,
 	xpub_verboser             = ZMQ_XPUB_VERBOSER,
+	use_fd                    = ZMQ_USE_FD, /*!< Use a pre-allocated file descriptor instead of allocating a new one */
  #endif
 #endif // version > 2
 

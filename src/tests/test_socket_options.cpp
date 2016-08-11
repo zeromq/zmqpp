@@ -367,4 +367,15 @@ BOOST_AUTO_TEST_CASE( get_socket_options_tcp_only )
 //  CHECK_NOGET(socket, curve_server);
 }
 #endif
+#if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
+BOOST_AUTO_TEST_CASE( use_fd_socket_option )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::push);
+	CHECK_GET(socket, int, use_fd);
+	CHECK_SET(socket, int, use_fd);
+	CHECK_GET(socket, int, use_fd);
+}
+#endif
+
 BOOST_AUTO_TEST_SUITE_END()
