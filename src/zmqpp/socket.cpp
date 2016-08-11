@@ -480,6 +480,16 @@ void socket::set(socket_option const option, int const value)
 			throw zmq_internal_exception();
 		}
 		break;
+#if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::use_fd:
+	{
+		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
+		{
+			throw zmq_internal_exception();
+		}
+		break;
+	}
+#endif
 	default:
 		throw exception("attempting to set a non signed integer option with a signed integer value");
 	}
@@ -529,16 +539,6 @@ void socket::set(socket_option const option, bool const value)
 		}
 		break;
 	}
-#if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
-	case socket_option::use_fd:
-	{
-		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
-		{
-			throw zmq_internal_exception();
-		}
-		break;
-	}
-#endif
 	default:
 		throw exception("attempting to set a non boolean option with a boolean value");
 	}
