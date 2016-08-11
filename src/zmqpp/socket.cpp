@@ -475,21 +475,14 @@ void socket::set(socket_option const option, int const value)
 	case socket_option::tcp_keepalive_count:
 	case socket_option::tcp_keepalive_interval:
 #endif
-		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
-		{
-			throw zmq_internal_exception();
-		}
-		break;
 #if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
 	case socket_option::use_fd:
-	{
+#endif
 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
 		{
 			throw zmq_internal_exception();
 		}
 		break;
-	}
-#endif
 	default:
 		throw exception("attempting to set a non signed integer option with a signed integer value");
 	}
@@ -668,13 +661,6 @@ void socket::get(socket_option const option, int& value) const
 #endif
 #if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
 	case socket_option::use_fd:
-		if (0 != zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size))
-		{
-			throw zmq_internal_exception();
-		}
-		// sanity check
-		assert(value_size <= sizeof(int));
-		break;
 #endif
 #if (ZMQ_VERSION_MAJOR >= 4)
 	case socket_option::ipv6:
