@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_SUITE( socket_options )
 template<typename CheckType, typename WantedType>
 void try_set(zmqpp::socket& socket, zmqpp::socket_option const& option, CheckType const& value, std::string const& option_name, std::string const& value_type)
 {
-	BOOST_CHECKPOINT("setting option " << option_name << " against set type '" << value_type << "'");
+	BOOST_TEST_CHECKPOINT("setting option " << option_name << " against set type '" << value_type << "'");
 	try
 	{
 		socket.set(option, value);
@@ -51,7 +51,7 @@ void try_set(zmqpp::socket& socket, zmqpp::socket_option const& option, CheckTyp
 template<typename CheckType, typename WantedType>
 void try_get(zmqpp::socket const& socket, zmqpp::socket_option const& option, std::string const& option_name, std::string const& value_type)
 {
-	BOOST_CHECKPOINT("getting option " << option_name << " against set type '" << value_type << "'");
+	BOOST_TEST_CHECKPOINT("getting option " << option_name << " against set type '" << value_type << "'");
 	try
 	{
 		CheckType value;
