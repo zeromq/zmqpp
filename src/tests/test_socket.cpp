@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE( socket_creation )
 BOOST_AUTO_TEST_CASE( socket_creation_bad_type )
 {
 	zmqpp::context context;
-	BOOST_CHECK_THROW(zmqpp::socket socket(context, static_cast<zmqpp::socket_type>(-1)), zmqpp::zmq_internal_exception)
+	BOOST_CHECK_THROW(zmqpp::socket socket(context, static_cast<zmqpp::socket_type>(-1)), zmqpp::zmq_internal_exception);
 }
 
 BOOST_AUTO_TEST_CASE( valid_socket )
