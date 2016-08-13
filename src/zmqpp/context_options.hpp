@@ -26,10 +26,12 @@ namespace zmqpp
  */
 
 ZMQPP_COMPARABLE_ENUM context_option {
-	io_threads  = ZMQ_IO_THREADS,          /*!< I/O thread count */
-	max_sockets = ZMQ_MAX_SOCKETS,         /*!< Maximum supported sockets */
+	io_threads           = ZMQ_IO_THREADS,           /*!< I/O thread count */
+	max_sockets          = ZMQ_MAX_SOCKETS,          /*!< Maximum supported sockets */
 #if (ZMQ_VERSION_MAJOR >= 4)
-	ipv6        = ZMQ_IPV6                 /*!< Enable ipv6 for all new sockets */
+	thread_sched_policy  = ZMQ_THREAD_SCHED_POLICY,  /*!< Scheduling policy for I/O threads */
+	thread_priority      = ZMQ_THREAD_PRIORITY,      /*!< Scheduling priority for I/O threads */
+	ipv6                 = ZMQ_IPV6                  /*!< Enable ipv6 for all new sockets */
 #endif
 };
 
