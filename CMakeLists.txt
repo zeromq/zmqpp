@@ -22,7 +22,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
 
 # Set compiler flags that don't work on Windows
 if(NOT MSVC)
-	list(APPEND CMAKE_CXX_FLAGS "-Wextra")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
 endif()
 
 
