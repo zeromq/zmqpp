@@ -18,6 +18,7 @@
 #include "message.hpp"
 #include "socket.hpp"
 #include "z85.hpp"
+#include "byte_ordering.hpp"
 #include <unordered_map>
 #include <netinet/in.h>
 
@@ -108,7 +109,7 @@ std::vector<std::uint8_t> zap_request::serialize_metadata(
 
         // value length (4 OCTETs in network byte order)
         assert(pair.second.length() <= UINT32_MAX); // hm, really?
-        auto value_length = htobe32(static_cast<uint32_t>(pair.second.length()));
+        auto value_length = HOST_TO_BIG_ENDIAN_32(static_cast<uint32_t>(pair.second.length()));
         std::copy(reinterpret_cast<uint8_t*>(&value_length),
                   reinterpret_cast<uint8_t*>(&value_length) + 4,
                   std::back_inserter(metadata));
