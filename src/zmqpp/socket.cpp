@@ -16,6 +16,7 @@
 #include <cassert>
 #include <cstring>
 #include <functional>
+#include <algorithm>
 
 #include "context.hpp"
 #include "exception.hpp"
@@ -340,7 +341,7 @@ bool socket::receive_raw(char* buffer, size_t& length, int const flags /* = NORM
 
 	if(result >= 0)
 	{
-		length = zmq_msg_size(&_recv_buffer);
+		length = std::min(length, zmq_msg_size(&_recv_buffer));
 		memcpy(buffer, zmq_msg_data(&_recv_buffer), length);
 
 		return true;
