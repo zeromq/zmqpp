@@ -102,6 +102,58 @@ BOOST_AUTO_TEST_CASE( simple_pull_push )
 	BOOST_CHECK(!puller.has_more_parts());
 }
 
+BOOST_AUTO_TEST_CASE( simple_receive_raw )
+{
+	zmqpp::context context;
+	char buf[64];
+	size_t len;
+
+	zmqpp::socket puller(context, zmqpp::socket_type::pull);
+	puller.bind("inproc://test");
+
+	zmqpp::socket pusher(context, zmqpp::socket_type::push);
+	pusher.connect("inproc://test");
+
+	BOOST_CHECK(pusher.send("hello world!"));
+
+	wait_for_socket(puller);
+
+	len = sizeof(buf);
+	BOOST_CHECK(puller.receive_raw(buf, len));
+
+	std::string message(buf, len);
+	BOOST_CHECK_EQUAL("hello world!", message);
+	BOOST_CHECK(!puller.has_more_parts());
+}
+
+BOOST_AUTO_TEST_CASE( simple_receive_raw_short_buf )
+{
+	zmqpp::context context;
+	char buf[64];
+	size_t len;
+
+	zmqpp::socket puller(context, zmqpp::socket_type::pull);
+	puller.bind("inproc://test");
+
+	zmqpp::socket pusher(context, zmqpp::socket_type::push);
+	pusher.connect("inproc://test");
+
+	BOOST_CHECK(pusher.send("hello world!"));
+
+	wait_for_socket(puller);
+
+	memset(buf, 0xee, sizeof(buf));
+	len = 5;
+	BOOST_CHECK(puller.receive_raw(buf, len));
+
+	BOOST_CHECK_EQUAL(5, len);
+	BOOST_CHECK_EQUAL(0xee, buf[5] & 0xff);
+	BOOST_CHECK_EQUAL(0xee, buf[6] & 0xff);
+	std::string message(buf, len);
+	BOOST_CHECK_EQUAL("hello", message);
+	BOOST_CHECK(!puller.has_more_parts());
+}
+
 BOOST_AUTO_TEST_CASE( multipart_pair )
 {
 	zmqpp::context context;
