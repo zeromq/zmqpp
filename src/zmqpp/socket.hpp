@@ -53,7 +53,7 @@ namespace event
 	const int closed           = ZMQ_EVENT_CLOSED;          /*<! connection closed */
 	const int close_failed     = ZMQ_EVENT_CLOSE_FAILED;    /*<! connection couldn't be closed */
 	const int disconnected     = ZMQ_EVENT_DISCONNECTED;    /*<! broken session */
-
+    const int monitor_stopped  = ZMQ_EVENT_MONITOR_STOPPED; /*<! this monitor socket will not receive event anymore */
 	const int all              = ZMQ_EVENT_ALL;             /*<! all event flags */
 }
 #endif
@@ -536,6 +536,14 @@ public:
 	 * \param events_required a bit mask of required events.
 	 */
 	void monitor(endpoint_t const monitor_endpoint, int events_required);
+
+	/**
+	 * Detach the monitor from this socket.
+	 *
+	 * \param monitor_endpoint the valid inproc endpoint to bind to.
+	 * \param events_required a bit mask of required events.
+	 */
+	void unmonitor();
 #endif
 
 	/**
