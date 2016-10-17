@@ -863,6 +863,16 @@ void socket::monitor(endpoint_t const monitor_endpoint, int events_required)
 		throw zmq_internal_exception();
 	}
 }
+
+void socket::unmonitor()
+{
+    int result = zmq_socket_monitor( _socket, NULL, 0 );
+
+	if (0 != result)
+	{
+		throw zmq_internal_exception();
+	}
+}
 #endif
 
 signal socket::wait()

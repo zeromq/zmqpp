@@ -560,23 +560,55 @@ BOOST_AUTO_TEST_CASE( test_simple_monitor )
     zmqpp::socket client(ctx, zmqpp::socket_type::pull);
     client.connect("tcp://localhost:55443");
 
-    zmqpp::message_t message;
-    BOOST_CHECK( monitor.receive( message ) );
-    BOOST_REQUIRE_EQUAL(2, message.parts());
+    // Receive event accepted
+    {
+        zmqpp::message_t message;
+        BOOST_CHECK( monitor.receive( message ) );
+        BOOST_REQUIRE_EQUAL(2, message.parts());
 
 #if (ZMQ_VERSION_MINOR >= 1)
-    const uint8_t *ptr = reinterpret_cast<const uint8_t *>(message.raw_data(0));
-    uint16_t ev = *(reinterpret_cast<const uint16_t *>(ptr));
-    // uint32_t value = *(reinterpret_cast<const uint32_t *>(ptr + 2));
-    BOOST_CHECK_EQUAL( zmqpp::event::accepted, ev );
-    BOOST_CHECK_EQUAL("tcp://0.0.0.0:55443", message.get(1));
-    // value is the underlying file descriptor. we cannot check its value against anything meaningful
+        const uint8_t *ptr = reinterpret_cast<const uint8_t *>(message.raw_data(0));
+        uint16_t ev = *(reinterpret_cast<const uint16_t *>(ptr));
+        // uint32_t value = *(reinterpret_cast<const uint32_t *>(ptr + 2));
+        BOOST_CHECK_EQUAL( zmqpp::event::accepted, ev );
+        BOOST_CHECK_EQUAL("tcp://0.0.0.0:55443", message.get(1));
+        // value is the underlying file descriptor. we cannot check its value against anything meaningful
 #else
-    zmq_event_t const* event = static_cast<zmq_event_t const*>( message.raw_data(0) );
-    BOOST_CHECK_EQUAL( zmqpp::event::accepted, event->event );
-    BOOST_CHECK_EQUAL( 0, event->value );
-    BOOST_CHECK_EQUAL("tcp://0.0.0.0:55443", message.get(1));
+        zmq_event_t const* event = static_cast<zmq_event_t const*>( message.raw_data(0) );
+        BOOST_CHECK_EQUAL( zmqpp::event::accepted, event->event );
+        BOOST_CHECK_EQUAL( 0, event->value );
+        BOOST_CHECK_EQUAL("tcp://0.0.0.0:55443", message.get(1));
 #endif
+    }
+
+    server.unmonitor();
+
+    zmqpp::socket client2(ctx, zmqpp::socket_type::pull);
+    client2.connect("tcp://localhost:55443");
+
+    // Receive event monitor_stopped
+    {
+        zmqpp::message_t message;
+        BOOST_CHECK( monitor.receive( message ) );
+        BOOST_REQUIRE_EQUAL(2, message.parts());
+
+#if (ZMQ_VERSION_MINOR >= 1)
+        const uint8_t *ptr = reinterpret_cast<const uint8_t *>(message.raw_data(0));
+        uint16_t ev = *(reinterpret_cast<const uint16_t *>(ptr));
+        // uint32_t value = *(reinterpret_cast<const uint32_t *>(ptr + 2));
+        BOOST_CHECK_EQUAL( zmqpp::event::monitor_stopped, ev );
+#else
+        zmq_event_t const* event = static_cast<zmq_event_t const*>( message.raw_data(0) );
+        BOOST_CHECK_EQUAL( zmqpp::event::monitor_stopped, event->event );
+#endif
+    }
+
+    // Receive nothing else
+    {
+        zmqpp::message_t message;
+        BOOST_CHECK( !monitor.receive( message, true ) );
+    }
+
 }
 #endif
 
