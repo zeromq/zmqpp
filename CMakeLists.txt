@@ -150,17 +150,22 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # --------
 
 if(ZMQPP_BUILD_EXAMPLES)
-  add_executable( zmqpp-simple-server
-    examples/simple_server
-    )
+  find_package(Threads REQUIRED)
 
-  add_executable( zmqpp-simple-client
-    examples/simple_client
-    )
+  set (ZMQPP_EXAMPLES
+    simple_server
+    simple_client
+    grasslands
+    strawhouse
+    woodhouse
+    ironhouse
+    ironhouse2)
 
-  target_link_libraries( zmqpp-simple-client ${LIB_TO_LINK_TO_EXAMPLES} )
-  target_link_libraries( zmqpp-simple-server ${LIB_TO_LINK_TO_EXAMPLES} )
-  list( APPEND INSTALL_TARGET_LIST zmqpp-simple-server zmqpp-simple-client )
+  foreach( ZMQPP_EXAMPLE ${ZMQPP_EXAMPLES} )
+    add_executable( zmqpp-example-${ZMQPP_EXAMPLE}  examples/${ZMQPP_EXAMPLE}.cpp )
+    target_link_libraries( zmqpp-example-${ZMQPP_EXAMPLE} ${LIB_TO_LINK_TO_EXAMPLES} ${CMAKE_THREAD_LIBS_INIT})
+    list( APPEND INSTALL_TARGET_LIST zmqpp-example-${ZMQPP_EXAMPLE} )
+  endforeach()
 endif()
 
 
