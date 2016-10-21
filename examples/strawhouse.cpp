@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
     // create and bind a server socket
     zmqpp::socket server (context, zmqpp::socket_type::push);
-    //server.set(zmqpp::socket_option::zap_domain, "global");
+    server.set(zmqpp::socket_option::zap_domain, "global");
     server.bind("tcp://*:9000");
 
     // create and connect a client socket
@@ -74,8 +74,12 @@ auth: API command=DOMAIN
 auth: domain=global
 auth: API command=ALLOW
 auth: whitelisting ipaddress=127.0.0.1
+auth: ZAP request mechanism=NULL ipaddress=127.0.0.1
+auth: passed (whitelist) address=127.0.0.1
+auth: ZAP reply status_code=200 status_text=OK user_id=
 Strawhouse test OK
 auth: API command=TERMINATE
 auth: Shutdown ZAP Authentication Server
+
 prem@prem-Vostro-2420:~/zmqpp-develop/examples$
 */
