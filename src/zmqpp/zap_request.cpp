@@ -20,7 +20,10 @@
 #include "z85.hpp"
 #include "byte_ordering.hpp"
 #include <unordered_map>
+
+#ifndef _WIN32
 #include <netinet/in.h>
+#endif
 
 #if (ZMQ_VERSION_MAJOR > 3)
 
