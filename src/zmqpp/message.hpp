@@ -89,7 +89,7 @@ public:
 	// Warn: If a pointer type is requested the message (well zmq) still 'owns'
 	// the data and will release it when the message object is freed.
 	template<typename Type>
-	Type get(size_t const part)
+	Type get(size_t const part) const
 	{
 		Type value;
 		get(value, part);
