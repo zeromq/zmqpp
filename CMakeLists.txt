@@ -90,6 +90,7 @@ set( LIBZMQPP_SOURCES
   src/zmqpp/context.cpp
   src/zmqpp/curve.cpp
   src/zmqpp/frame.cpp
+  src/zmqpp/loop.cpp
   src/zmqpp/message.cpp
   src/zmqpp/poller.cpp
   src/zmqpp/reactor.cpp
@@ -212,6 +213,7 @@ if( ZMQPP_BUILD_TESTS )
     src/tests/test_message_stream.cpp
     src/tests/test_poller.cpp
     src/tests/test_reactor.cpp
+    src/tests/test_loop.cpp
     src/tests/test_sanity.cpp
     src/tests/test_socket.cpp
     src/tests/test_socket_options.cpp
