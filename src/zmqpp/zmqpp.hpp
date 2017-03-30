@@ -66,6 +66,7 @@
 #include "socket.hpp"
 #include "actor.hpp"
 #include "reactor.hpp"
+#include "loop.hpp"
 #include "zap_request.hpp"
 #include "auth.hpp"
 
