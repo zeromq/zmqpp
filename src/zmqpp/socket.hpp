@@ -198,9 +198,11 @@ public:
 	 * If dont_block is true and we are unable to add a new message then this
 	 * function will return false.
 	 *
+	 * If the socket send times out this function will return false.
+	 *
 	 * \param message message to send
 	 * \param dont_block boolean to dictate if we wait while sending.
-	 * \return true if message sent, false if it would have blocked
+	 * \return true if message sent, false if it would have blocked or it timed out.
 	 */
 	bool send(message_t& message, bool const dont_block = false);
 
@@ -210,9 +212,11 @@ public:
 	 * If dont_block is true and we are unable to get a message then this
 	 * function will return false.
 	 *
+	 * If the socket receive times out this function will return false.
+	 *
 	 * \param message reference to fill with received data
 	 * \param dont_block boolean to dictate if we wait for data.
-	 * \return true if message received, false if it would have blocked
+	 * \return true if message received, false if it would have blocked or it timed out.
 	 */
 	bool receive(message_t& message, bool const dont_block = false);
 
@@ -222,9 +226,11 @@ public:
 	 * If dont_block is true and we are unable to add a new message then this
 	 * function will return false.
 	 *
+	 * If the socket send times out this function will return false.
+	 *
 	 * \param string message part to send
 	 * \param dont_block boolean to dictate if we wait while sending.
-	 * \return true if message part sent, false if it would have blocked
+	 * \return true if message part sent, false if it would have blocked or it timed out.
 	 */
 	bool send(std::string const& string, bool const dont_block = false);
 
@@ -234,9 +240,11 @@ public:
 	 * If dont_block is true and we are unable to get a message then this
 	 * function will return false.
 	 *
+	 * If the socket receive times out this function will return false.
+	 *
 	 * \param string message part to receive into
 	 * \param dont_block boolean to dictate if we wait for data.
-	 * \return true if message part received, false if it would have blocked
+	 * \return true if message part received, false if it would have blocked or it timed out.
 	 */
 	bool receive(std::string& string, bool const dont_block = false);
 
@@ -246,21 +254,25 @@ public:
 	 * If dont_block is true and we are unable to send the signal then this
 	 * function will return false.
 	 *
+	 * If the socket send times out this function will return false.
+	 *
 	 * \param sig signal to send.
 	 * \param dont_block boolean to dictate if we wait while sending.
-	 * \return true if signal sent, false if it would have blocked
+	 * \return true if signal sent, false if it would have blocked or it timed out.
 	 */
 	bool send(signal sig, bool dont_block = false);
 
-    /**
+        /**
 	 * If there is a message ready then we read a signal from it.
 	 *
 	 * If dont_block is true and we are unable to get the signal then this
 	 * function will return false.
 	 *
+	 * If the socket receive times out this function will return false.
+	 *
 	 * \param sig signal to receive into
 	 * \param dont_block boolean to dictate if we wait while sending.
-	 * \return true if signal received, false if it would have blocked
+	 * \return true if signal received, false if it would have blocked or it timed out.
 	 */
 	bool receive(signal &sig, bool dont_block = false);
 				
@@ -270,9 +282,11 @@ public:
 	 * If the socket::DONT_WAIT flag and we are unable to add a new message to
 	 * socket then this function will return false.
 	 *
+	 * If the socket send times out this function will return false.
+	 *
 	 * \param string message part to send
 	 * \param dont_block boolean to dictate if we wait for data.
-	 * \return true if message part sent, false if it would have blocked
+	 * \return true if message part sent, false if it would have blocked or it timed out.
 	 */
 	ZMQPP_DEPRECATED("prefer using zmqpp::message for multipart messages")
 	bool send(std::string const& string, int const flags);
@@ -283,9 +297,11 @@ public:
 	 * If the socket::DONT_WAIT flag and there is no message ready to receive
 	 * then this function will return false.
 	 *
+	 * If the socket receive times out this function will return false.
+	 *
 	 * \param string message part to receive into
 	 * \param flags message receive flags
-	 * \return true if message part received, false if it would have blocked
+	 * \return true if message part received, false if it would have blocked or it timed out.
 	 */
 	ZMQPP_DEPRECATED("prefer using zmqpp::message for multipart messages")
 	bool receive(std::string& string, int const flags);
@@ -296,10 +312,12 @@ public:
 	 * If the socket::DONT_WAIT flag and we are unable to add a new message to
 	 * socket then this function will return false.
 	 *
+	 * If the socket send times out this function will return false.
+	 *
 	 * \param buffer byte buffer pointer to start writing from
 	 * \param length max length of the buffer
 	 * \param flags message send flags
-	 * \return true if message part sent, false if it would have blocked
+	 * \return true if message part sent, false if it would have blocked or it timed out.
 	 */
 	bool send_raw(char const* buffer, size_t const length, int const flags = normal);
 
@@ -313,10 +331,12 @@ public:
 	 * If the socket::DONT_WAIT flag and there is no message ready to receive
 	 * then this function will return false.
 	 *
+	 * If the socket receive times out this function will return false.
+	 *
 	 * \param buffer byte buffer pointer to start writing to
 	 * \param length max length of the buffer
 	 * \param flags message receive flags
-	 * \return true if message part received, false if it would have blocked
+	 * \return true if message part received, false if it would have blocked or it timed out.
 	 */
 	bool receive_raw(char* buffer, size_t& length, int const flags = normal);
 
