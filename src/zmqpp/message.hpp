@@ -97,7 +97,7 @@ public:
 	}
 
     template<int part=0, typename T, typename ...Args>
-    void extract(T &nextpart, Args &...args)
+    void extract(T &nextpart, Args &...args) const
     {
         assert(part < parts());
         get(nextpart,part);
@@ -105,7 +105,7 @@ public:
     }
 
     template<int part=0, typename T>
-    void extract(T &nextpart)
+    void extract(T &nextpart) const
     {
         assert(part < parts());
         get(nextpart,part);
