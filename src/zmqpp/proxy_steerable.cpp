@@ -9,6 +9,8 @@
 
 #include "proxy_steerable.hpp"
 
+#if (ZMQ_VERSION_MAJOR >= 4)
+
 zmqpp::proxy_steerable::proxy_steerable(
     zmqpp::socket &sa,
     zmqpp::socket &sb,
@@ -27,4 +29,6 @@ zmqpp::proxy_steerable::proxy_steerable(
   zmq_proxy_steerable(static_cast<void *>(sa), static_cast<void *>(sb),
       static_cast<void *>(capture), static_cast<void *>(control));
 }
+
+#endif
 

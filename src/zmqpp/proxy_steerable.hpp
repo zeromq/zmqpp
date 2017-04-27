@@ -13,6 +13,7 @@
 
 namespace zmqpp
 {
+#if (ZMQ_VERSION_MAJOR >= 4)
   /**
    * Provide a steerable proxy that will bidirectionally
    * forward traffic between socket A and B.
@@ -46,4 +47,6 @@ namespace zmqpp
      */
     proxy_steerable(socket &sa, socket &sb, socket &control, socket &capture );
   };
+#endif
+
 }
