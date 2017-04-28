@@ -24,7 +24,7 @@ zmqpp::proxy_steerable::proxy_steerable(
     zmqpp::socket &sa,
     zmqpp::socket &sb,
     zmqpp::socket &control,
-    zmqpp::capture &capture )
+    zmqpp::socket &capture )
 {
   zmq_proxy_steerable(static_cast<void *>(sa), static_cast<void *>(sb),
       static_cast<void *>(capture), static_cast<void *>(control));
