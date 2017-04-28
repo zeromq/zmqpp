@@ -101,6 +101,7 @@ set( LIBZMQPP_SOURCES
   src/zmqpp/auth.cpp
   src/zmqpp/zmqpp.cpp
   src/zmqpp/proxy.cpp
+  src/zmqpp/proxy_steerable.cpp
   )
 
 # Staticlib
