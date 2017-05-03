@@ -24,7 +24,7 @@ namespace zmqpp
    *
    * @note This is wrapper around `zmq_proxy()`.
    */
-  class proxy
+  class ZMQPP_EXPORT proxy
   {
   public:
     /**
