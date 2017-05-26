@@ -358,7 +358,7 @@ BOOST_AUTO_TEST_CASE( get_socket_options_tcp_only )
 {
 	zmqpp::context context;
 	zmqpp::socket socket(context, zmqpp::socket_type::subscribe);
-	socket.bind("tcp://*:54321");
+	socket.bind("tcp://*:54322");
 
 // TODO: reenable once I have curve key generation working to test against
 //	CHECK_GET(socket, std::string, curve_public_key);
