@@ -384,6 +384,11 @@ void socket::set(socket_option const option, int const value)
 	case socket_option::send_buffer_size:
 	case socket_option::receive_buffer_size:
 #endif
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	case socket_option::vmci_buffer_size:
+	case socket_option::vmci_buffer_min:
+	case socket_option::vmci_buffer_max:
+#endif
 	case socket_option::affinity:
 		if (value < 0) { throw exception("attempting to set an unsigned 64 bit integer option with a negative integer"); }
 		set(option, static_cast<uint64_t>(value));
@@ -431,10 +436,15 @@ void socket::set(socket_option const option, int const value)
 	case socket_option::router_handover:
 #endif
 #if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	case socket_option::gssapi_plaintext:
+	case socket_option::gssapi_server:
+	case socket_option::invert_matching:
+	case socket_option::stream_notify:
 	case socket_option::xpub_manual:
+	case socket_option::xpub_nodrop:
 	case socket_option::xpub_verboser:
+	case socket_option::xpub_welcome_message:
 #endif
-
 		if (value == 0) { set(option, false); }
 		else if (value == 1) { set(option, true); }
 		else { throw exception("attempting to set a boolean option with a non 0 or 1 integer"); }
@@ -477,7 +487,14 @@ void socket::set(socket_option const option, int const value)
 	case socket_option::tcp_keepalive_interval:
 #endif
 #if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
+	case socket_option::connect_timeout:
+	case socket_option::heartbeat_interval:
+	case socket_option::heartbeat_timeout:
+	case socket_option::heartbeat_ttl:
+	case socket_option::multicast_max_tpdu:
+	case socket_option::tpc_max_retransmit:
 	case socket_option::use_fd:
+	case socket_option::vmci_connect_timeout:
 #endif
 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
 		{
@@ -522,8 +539,14 @@ void socket::set(socket_option const option, bool const value)
 	case socket_option::router_handover:
 #endif
 #if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	case socket_option::gssapi_plaintext:
+	case socket_option::gssapi_server:
+	case socket_option::invert_matching:
+	case socket_option::stream_notify:
 	case socket_option::xpub_manual:
+	case socket_option::xpub_nodrop:
 	case socket_option::xpub_verboser:
+	case socket_option::xpub_welcome_message:
 #endif
 	{
 		int ivalue = value ? 1 : 0;
@@ -547,6 +570,11 @@ void socket::set(socket_option const option, uint64_t const value)
 	case socket_option::high_water_mark:
 	case socket_option::send_buffer_size:
 	case socket_option::receive_buffer_size:
+#endif
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	case socket_option::vmci_buffer_size:
+	case socket_option::vmci_buffer_min:
+	case socket_option::vmci_buffer_max:
 #endif
 	case socket_option::affinity:
 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
@@ -600,6 +628,11 @@ void socket::set(socket_option const option, char const* value, size_t const len
 	case socket_option::curve_public_key:
 	case socket_option::curve_secret_key:
 	case socket_option::curve_server_key:
+#endif
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	case socket_option::gssapi_principal:
+	case socket_option::gssapi_service_principal:
+	case socket_option::socks_proxy:
 #endif
 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), value, length))
 		{
@@ -660,13 +693,24 @@ void socket::get(socket_option const option, int& value) const
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	case socket_option::receive_label:
 #endif
-#if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
-	case socket_option::use_fd:
-#endif
 #if (ZMQ_VERSION_MAJOR >= 4)
 	case socket_option::ipv6:
 	case socket_option::plain_server:
 	case socket_option::mechanism:
+#endif
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	case socket_option::connect_timeout:
+	case socket_option::gssapi_plaintext:
+	case socket_option::gssapi_server:
+	case socket_option::invert_matching:
+	case socket_option::multicast_max_tpdu:
+	case socket_option::stream_notify:
+	case socket_option::tpc_max_retransmit:
+	case socket_option::use_fd:
+	case socket_option::vmci_connect_timeout:
+	case socket_option::xpub_manual:
+	case socket_option::xpub_nodrop:
+	case socket_option::xpub_welcome_message:
 #endif
 		if (0 != zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size))
 		{
@@ -714,6 +758,16 @@ void socket::get(socket_option const option, bool& value) const
 	case socket_option::ipv6:
 	case socket_option::plain_server:
 #endif
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	case socket_option::gssapi_plaintext:
+	case socket_option::gssapi_server:
+	case socket_option::invert_matching:
+	case socket_option::stream_notify:
+	case socket_option::xpub_manual:
+	case socket_option::xpub_nodrop:
+	case socket_option::xpub_verboser:
+	case socket_option::xpub_welcome_message:
+#endif
 		if (0 != zmq_getsockopt(_socket, static_cast<int>(option), &int_value, &value_size))
 		{
 			throw zmq_internal_exception();
@@ -736,6 +790,11 @@ void socket::get(socket_option const option, uint64_t& value) const
 	case socket_option::high_water_mark:
 	case socket_option::send_buffer_size:
 	case socket_option::receive_buffer_size:
+#endif
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	case socket_option::vmci_buffer_size:
+	case socket_option::vmci_buffer_min:
+	case socket_option::vmci_buffer_max:
 #endif
 	case socket_option::affinity:
 		if(0 != zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size))
@@ -792,6 +851,11 @@ void socket::get(socket_option const option, std::string& value) const
 	case socket_option::curve_public_key:
 	case socket_option::curve_secret_key:
 	case socket_option::curve_server_key:
+#endif
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	case socket_option::gssapi_principal:
+	case socket_option::gssapi_service_principal:
+	case socket_option::socks_proxy:
 #endif
 		if(0 != zmq_getsockopt(_socket, static_cast<int>(option), buffer.data(), &size))
 		{
