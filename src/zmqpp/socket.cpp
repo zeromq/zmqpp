@@ -443,7 +443,6 @@ void socket::set(socket_option const option, int const value)
 	case socket_option::xpub_manual:
 	case socket_option::xpub_nodrop:
 	case socket_option::xpub_verboser:
-	case socket_option::xpub_welcome_message:
 #endif
 		if (value == 0) { set(option, false); }
 		else if (value == 1) { set(option, true); }
@@ -546,7 +545,6 @@ void socket::set(socket_option const option, bool const value)
 	case socket_option::xpub_manual:
 	case socket_option::xpub_nodrop:
 	case socket_option::xpub_verboser:
-	case socket_option::xpub_welcome_message:
 #endif
 	{
 		int ivalue = value ? 1 : 0;
@@ -633,6 +631,7 @@ void socket::set(socket_option const option, char const* value, size_t const len
 	case socket_option::gssapi_principal:
 	case socket_option::gssapi_service_principal:
 	case socket_option::socks_proxy:
+	case socket_option::xpub_welcome_message:
 #endif
 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), value, length))
 		{
@@ -710,7 +709,6 @@ void socket::get(socket_option const option, int& value) const
 	case socket_option::vmci_connect_timeout:
 	case socket_option::xpub_manual:
 	case socket_option::xpub_nodrop:
-	case socket_option::xpub_welcome_message:
 #endif
 		if (0 != zmq_getsockopt(_socket, static_cast<int>(option), &value, &value_size))
 		{
@@ -766,7 +764,6 @@ void socket::get(socket_option const option, bool& value) const
 	case socket_option::xpub_manual:
 	case socket_option::xpub_nodrop:
 	case socket_option::xpub_verboser:
-	case socket_option::xpub_welcome_message:
 #endif
 		if (0 != zmq_getsockopt(_socket, static_cast<int>(option), &int_value, &value_size))
 		{
