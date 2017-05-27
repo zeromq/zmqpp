@@ -107,10 +107,29 @@ ZMQPP_COMPARABLE_ENUM socket_option {
 	router_handover           = ZMQ_ROUTER_HANDOVER, /*!< Handle duplicate client identities on ROUTER sockets - set only */
  #endif
  #if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
-	xpub_manual               = ZMQ_XPUB_MANUAL,
-	xpub_verboser             = ZMQ_XPUB_VERBOSER,
+	connect_timeout           = ZMQ_CONNECT_TIMEOUT, /*< Connect system call timeout */
+	gssapi_plaintext          = ZMQ_GSSAPI_PLAINTEXT, /*< GSSAPI plaintext (disabled) state */
+	gssapi_principal          = ZMQ_GSSAPI_PRINCIPAL, /*< GSSAPI principal name */
+	gssapi_server             = ZMQ_GSSAPI_SERVER, /*< GSSAPI server state */
+	gssapi_service_principal   = ZMQ_GSSAPI_SERVICE_PRINCIPAL, /*< GSSAPI connected server principal name */
+	heartbeat_interval        = ZMQ_HEARTBEAT_IVL, /*< Heartbeat interval for ZMPT - set only */
+	heartbeat_timeout         = ZMQ_HEARTBEAT_TIMEOUT, /*< ZMPT heartbeat timeout - set only */
+	heartbeat_ttl             = ZMQ_HEARTBEAT_TTL, /*< ZMPT heartbeat interval - set only */
+	invert_matching           = ZMQ_INVERT_MATCHING, /*< ZMPT invert state for PUB/SUB message filters */
+	multicast_max_tpdu        = ZMQ_MULTICAST_MAXTPDU, /*< Max size for multicast messages */
+	socks_proxy               = ZMQ_SOCKS_PROXY, /*< SOCKS5 proxy address for routing tcp connections */
+	stream_notify             = ZMQ_STREAM_NOTIFY, /*< Event state on connect/disconnection of peers */
+	tpc_max_retransmit        = ZMQ_TCP_MAXRT, /*< Maximum retransmit timeout */
 	use_fd                    = ZMQ_USE_FD, /*!< Use a pre-allocated file descriptor instead of allocating a new one */
- #endif
+	vmci_buffer_size          = ZMQ_VMCI_BUFFER_SIZE, /*< VMCI buffer size */
+	vmci_buffer_min           = ZMQ_VMCI_BUFFER_MIN_SIZE, /*< VMCI minimum buffer size */
+	vmci_buffer_max           = ZMQ_VMCI_BUFFER_MAX_SIZE, /*< VMCI maximum buffer size */
+	vmci_connect_timeout      = ZMQ_VMCI_CONNECT_TIMEOUT, /*< VMCI connection attempt timeout */
+	xpub_manual               = ZMQ_XPUB_MANUAL,
+	xpub_nodrop               = ZMQ_XPUB_NODROP,
+	xpub_verboser             = ZMQ_XPUB_VERBOSER, /*!< Pass on existing (un)subscriptions - set only */
+	xpub_welcome_message      = ZMQ_XPUB_WELCOME_MSG,
+  #endif
 #endif // version > 2
 
 #ifdef ZMQ_EXPERIMENTAL_LABELS
