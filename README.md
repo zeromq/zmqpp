@@ -82,8 +82,8 @@ Installation
 ------------
 
 Installation can be done by the standard make && make install. If the boost
-unittest framework is install check and installcheck can be run for sanity
-checking.To use ZMQ4 security feature install libsodium and libzmq --with-libsodium
+unittest framework is installed, check and installcheck can be run for sanity
+checking. To use ZMQ4 security feature install libsodium and libzmq --with-libsodium
 as shown below before ZMQPP.
 
     # Build, check, and install libsodium
