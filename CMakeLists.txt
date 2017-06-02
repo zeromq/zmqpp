@@ -13,7 +13,7 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 enable_testing()
-
+project(zmqpp)
 # prepare C++11
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
@@ -23,6 +23,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
 # Set compiler flags that don't work on Windows
 if(NOT MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
+else()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DNOMINMAX /wd4996")
+	set(CMAKE_DEBUG_POSTFIX d)
 endif()
 
 
@@ -50,14 +53,38 @@ set( ZMQPP_BUILD_TESTS    false   CACHE BOOL "Build the ZMQPP tests" )
 
 # Since the current CMake build of ZMQ does not work for generating a dynamic libzmq,
 # give a chance for users to update which ZMQ library to link to
+find_package(ZeroMQ QUIET)
 
-# zmq-static is the name of the static target in libzmq's CMakeLists.txt
-set( ZMQPP_LIBZMQ_NAME_STATIC  "zmq-static" CACHE STRING "The ZMQ library to link the static ZMQPP. (if built)" )
-set( ZMQPP_LIBZMQ_NAME_SHARED  "zmq"        CACHE STRING "The ZMQ library to link the dynamic ZMQPP. (if built)" )
+if(NOT ZeroMQ_FOUND)
+	# Paths to set to look for zmq
+	set( ZEROMQ_LIB_DIR       ""      CACHE PATH "The library directory for libzmq" )
+	set( ZEROMQ_INCLUDE_DIR   ${ZeroMQ_INCLUDE_DIR}      CACHE PATH "The include directory for ZMQ" )
 
-# Paths to set to look for zmq
-set( ZEROMQ_LIB_DIR       ""      CACHE PATH "The library directory for libzmq" )
-set( ZEROMQ_INCLUDE_DIR   ""      CACHE PATH "The include directory for ZMQ" )
+	# zmq-static is the name of the static target in libzmq's CMakeLists.txt
+	set( ZMQPP_LIBZMQ_NAME_STATIC  "zmq-static" CACHE STRING "The ZMQ library to link the static ZMQPP. (if built)" )
+	set( ZMQPP_LIBZMQ_NAME_SHARED  "zmq"        CACHE STRING "The ZMQ library to link the dynamic ZMQPP. (if built)" )
+
+else()
+	if(ZeroMQ_LIBRARY)
+		get_filename_component(zmq_shared_folder ${ZeroMQ_LIBRARY} DIRECTORY)
+		get_filename_component(zmq_shared_file ${ZeroMQ_LIBRARY} NAME)
+		set( ZEROMQ_LIB_DIR       "${zmq_shared_folder}"      	CACHE PATH "The library directory for libzmq" )
+		set( ZMQPP_LIBZMQ_NAME_SHARED  "${zmq_shared_file}" 	CACHE STRING "The ZMQ library to link the dynamic ZMQPP. (if built)" )
+	endif()
+	if(ZeroMQ_STATIC_LIBRARY)
+		get_filename_component(zmq_static_folder ${ZeroMQ_STATIC_LIBRARY} DIRECTORY)
+		get_filename_component(zmq_static_file ${ZeroMQ_STATIC_LIBRARY} NAME)
+		set( ZEROMQ_LIB_DIR       "${zmq_static_folder}"      	CACHE PATH "The library directory for libzmq" )
+		set( ZMQPP_LIBZMQ_NAME_STATIC  "${zmq_static_file}" 	CACHE STRING "The ZMQ library to link the dynamic ZMQPP. (if built)" )
+	endif()
+	# Paths to set to look for zmq
+	set( ZEROMQ_INCLUDE_DIR   ""      CACHE PATH "The include directory for ZMQ" )
+endif()
+
+get_cmake_property(_variableNames VARIABLES)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
 
 # Build flags
 set( IS_TRAVIS_CI_BUILD   true    CACHE bool "Defines TRAVIS_CI_BUILD - Should the tests avoid running cases where memory is scarce." )
@@ -122,6 +149,10 @@ if (ZMQPP_BUILD_STATIC)
   endif()
   list( APPEND INSTALL_TARGET_LIST zmqpp-static)
   set( LIB_TO_LINK_TO_EXAMPLES zmqpp-static )
+    # We need to link zmqpp to ws2_32 on windows for the implementation of winsock2.h
+  if(WIN32)
+  	target_link_libraries(zmqpp-static ws2_32 wsock32 )
+  endif() # WIN32
 endif() # ZMQPP_BUILD_STATIC
 
 # Shared lib
@@ -137,15 +168,18 @@ if (ZMQPP_BUILD_SHARED)
   endif()
   list( APPEND INSTALL_TARGET_LIST zmqpp)
   set( LIB_TO_LINK_TO_EXAMPLES zmqpp )
+  
+  # We need to link zmqpp to ws2_32 on windows for the implementation of winsock2.h
+  if(WIN32)
+  	target_link_libraries(zmqpp ws2_32 wsock32 )
+  endif() # WIN32
 endif() # ZMQPP_BUILD_SHARED
 
-# We need to link zmqpp to ws2_32 on windows for the implementation of winsock2.h
-if(WIN32)
-	target_link_libraries(zmqpp ws2_32)
-endif() # WIN32
 
 include(GenerateExportHeader)
-generate_export_header(zmqpp)
+if(TARGET zmqpp)
+  generate_export_header(zmqpp)
+endif(TARGET zmqpp)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Examples
@@ -230,9 +264,11 @@ endif()
 # Install
 # -------
 install(TARGETS ${INSTALL_TARGET_LIST}
+		EXPORT zmqppTargets
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib)
+        ARCHIVE DESTINATION lib
+		)
 
 install(DIRECTORY src/zmqpp DESTINATION include/
         FILES_MATCHING PATTERN "*.hpp")
@@ -240,3 +276,30 @@ install(DIRECTORY src/zmqpp DESTINATION include/
 install(FILES
         "${CMAKE_CURRENT_BINARY_DIR}/zmqpp_export.h"
         DESTINATION "include")
+		
+include(CMakePackageConfigHelpers)
+
+export(EXPORT zmqppTargets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}Targets.cmake"
+  NAMESPACE Upstream::
+)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/zmqppConfig.cmake "include(\"\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake\")" )
+
+
+set(ConfigPackageLocation share/cmake/${PROJECT_NAME})
+install(EXPORT zmqppTargets
+  FILE
+    ${PROJECT_NAME}Targets.cmake
+  NAMESPACE
+    Upstream::
+  DESTINATION
+    ${ConfigPackageLocation}
+)
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/zmqppConfig.cmake
+  DESTINATION
+    ${ConfigPackageLocation}
+  COMPONENT
+    Devel
+)
