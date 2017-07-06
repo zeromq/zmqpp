@@ -103,6 +103,8 @@ as shown below before ZMQPP.
     sudo ldconfig
     cd ../
     # Now install ZMQPP
+    git clone git://github.com/zeromq/zmqpp.git
+    cd zmqpp
     make
     make check
     sudo make install
