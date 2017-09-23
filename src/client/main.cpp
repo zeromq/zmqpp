@@ -60,7 +60,7 @@ int main(int argc, char const* argv[])
 	case zmqpp::socket_type::publish:   can_send = true; break;
 	case zmqpp::socket_type::subscribe: can_recv = true; break;
 	case zmqpp::socket_type::request:   can_send = true; toggles = true; break;
-	case zmqpp::socket_type::reply:     can_recv = true, toggles = true; break;
+	case zmqpp::socket_type::reply:     can_recv = true; toggles = true; break;
 	default:
 		std::cerr << "Unsupported socket type" << std::endl;
 		return EXIT_FAILURE;
