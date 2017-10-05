@@ -54,9 +54,9 @@ public:
 	frame copy() const;
 
 private:
-	bool _sent;
 	zmq_msg_t _msg;
-
+	bool _sent;
+	
 	// Disable implicit copy support, code must request a copy to clone
 	frame(frame const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 	frame& operator=(frame const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
