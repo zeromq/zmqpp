@@ -1,7 +1,20 @@
 Development
 ===========
 
+Version 4.2.0
 
+* New add_nocopy and add_ncopy_const functions for messages to allow better raw
+  data handling.
+* Actor execption handling propergation fixed.
+* Support for 0mq 4.1 and 4.2 stable socket options and context options
+* Removed libsodium dependency for test code as it is no longer required for
+  0mq itself.
+* Fixed NUL from permaturely terminating a string value socket option response.
+* Support for removing parts of zmqpp::messages.
+* Better support for msvc and avoiding windows dll issues.
+* Non blocking functions default to bool type rather than integer flags.
+* Cross platform endianness conversion.
+* Code examples.
 
 Version 4.1.2
 =============

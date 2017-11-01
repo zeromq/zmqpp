@@ -39,4 +39,11 @@ void zmq_version(uint8_t& major, uint8_t& minor, uint8_t& patch)
 	patch = ZMQ_VERSION_PATCH;
 }
 
+#if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 1))
+bool has_capability(std::string const& capability)
+{
+	return 1 == zmq_has(capability.c_str());
+}
+#endif
+
 }

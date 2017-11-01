@@ -113,6 +113,38 @@ ZMQPP_EXPORT void version(uint8_t& major, uint8_t& minor, uint8_t& revision);
  */
 ZMQPP_EXPORT void zmq_version(uint8_t& major, uint8_t& minor, uint8_t& patch);
 
+#if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 1))
+/*!
+ * Check for support in the underlaying 0mq library.
+ *
+ * This is a simple wrapper around the zmq_has capbaility check.
+ * Please see the 0mq documentation for a list of valid capabiliy strings.
+ */
+ZMQPP_EXPORT bool has_capability(std::string const& capability);
+
+/**
+ * The following methods are helper functions for the known capabilies
+ * that the underlaying 0mq service supports.
+ */
+
+/* Protcols */
+inline bool has_protocol_ipc() { return has_capability("ipc"); }
+inline bool has_protocol_pgm() { return has_capability("pgm"); }
+inline bool has_protocol_tipc() { return has_capability("tipc"); }
+inline bool has_protocol_norm() { return has_capability("norm"); }
+
+/* Security Mechanisms */
+inline bool has_security_curve() { return has_capability("curve"); }
+inline bool has_security_gssapi() { return has_capability("gssapi"); }
+
+/*!
+ * Check if the underlaying 0mq library was built with the draft api.
+ *
+ * \returns true if it was
+ */
+inline bool is_draft_api() { return has_capability("draft"); }
+#endif
+
 typedef context     context_t;   /*!< \brief context type */
 typedef std::string endpoint_t;  /*!< \brief endpoint type */
 typedef message     message_t;   /*!< \brief message type */
