@@ -1,4 +1,13 @@
 /*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file is part of zmqpp.
+ * Copyright (c) 2011-2015 Contributors as noted in the AUTHORS file.
+ */
+
+/*
  *  Created on: 8 Aug 2011
  *      Author: @benjamg
  */
@@ -23,7 +32,7 @@ BOOST_AUTO_TEST_SUITE( socket_options )
 template<typename CheckType, typename WantedType>
 void try_set(zmqpp::socket& socket, zmqpp::socket_option const& option, CheckType const& value, std::string const& option_name, std::string const& value_type)
 {
-	BOOST_CHECKPOINT("setting option " << option_name << " against set type '" << value_type << "'");
+	BOOST_TEST_CHECKPOINT("setting option " << option_name << " against set type '" << value_type << "'");
 	try
 	{
 		socket.set(option, value);
@@ -42,7 +51,7 @@ void try_set(zmqpp::socket& socket, zmqpp::socket_option const& option, CheckTyp
 template<typename CheckType, typename WantedType>
 void try_get(zmqpp::socket const& socket, zmqpp::socket_option const& option, std::string const& option_name, std::string const& value_type)
 {
-	BOOST_CHECKPOINT("getting option " << option_name << " against set type '" << value_type << "'");
+	BOOST_TEST_CHECKPOINT("getting option " << option_name << " against set type '" << value_type << "'");
 	try
 	{
 		CheckType value;
@@ -99,7 +108,7 @@ void check_set(zmqpp::socket& socket, zmqpp::socket_option const& option, std::s
 	// Unsigned 64bit integer
 	try_set<uint64_t, Type>(socket, option, 1, option_name, "unsigned 64bit integer");
 
-#if (ZMQ_VERSION_MAJOR == 2) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+#if (ZMQ_VERSION_MAJOR == 2) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
 	// 64bit integer
 	try_set<int64_t, Type>(socket, option, 1, option_name, "signed 64bit integer");
 #endif
@@ -158,7 +167,7 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	CHECK_NOSET(socket, file_descriptor);
 	CHECK_NOSET(socket, events);
 	CHECK_NOSET(socket, type);
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	CHECK_NOSET(socket, last_endpoint);
 #endif
 
@@ -173,6 +182,7 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	// For some reason -1 not working here
 	//CHECK_SET(socket, int, reconnect_interval);
 	CHECK_SET_POSITIVE(socket, int, reconnect_interval_max);
+	CHECK_SET_POSITIVE(socket, int, backlog);
 #if (ZMQ_VERSION_MAJOR > 2)
 	CHECK_SET_POSITIVE(socket, int, send_buffer_size);
 	CHECK_SET_POSITIVE(socket, int, receive_buffer_size);
@@ -193,14 +203,16 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	CHECK_SET(socket, uint64_t, high_water_mark);
 #endif
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
 	CHECK_SET(socket, bool, ipv4_only);
 #endif
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 2)
 	CHECK_SET(socket, bool, delay_attach_on_connect);
-	CHECK_SET(socket, bool, router_mandatory);
-	CHECK_SET(socket, bool, xpub_verbose);
+#else
+	CHECK_SET(socket, bool, immediate);
+#endif
 	// CHECK_SET(socket, int, tcp_keepalive);  --- special case of boolean but with -1?
 	CHECK_SET(socket, int, tcp_keepalive_idle);
 	CHECK_SET(socket, int, tcp_keepalive_count);
@@ -208,10 +220,55 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	// CHECK_SET(socket, std::string, tcp_accept_filter); --- special case required to be an address
 #endif
 
+#if (ZMQ_VERSION_MAJOR >= 4)
+	CHECK_SET(socket, bool, ipv6);
+	CHECK_NOSET(socket, mechanism);
+	CHECK_SET(socket, std::string, plain_password);
+	CHECK_SET(socket, bool, plain_server);
+	CHECK_SET(socket, std::string, plain_username);
+	CHECK_SET(socket, std::string, zap_domain);
+	CHECK_SET(socket, bool, conflate);
+#endif
+
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	CHECK_NOSET(socket, receive_label);
 #endif
 }
+
+#if (ZMQ_VERSION_MAJOR >= 4)
+BOOST_AUTO_TEST_CASE( set_socket_options_tcp_only )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::subscribe);
+	socket.bind("tcp://*:54321");
+
+// TODO: reenable once I have curve key generation working to test against
+//	CHECK_SET(socket, std::string, curve_public_key);
+//	CHECK_SET(socket, std::string, curve_secret_key);
+//	CHECK_SET(socket, std::string, curve_server_key);
+//	CHECK_SET(socket, bool, curve_server);
+}
+
+BOOST_AUTO_TEST_CASE( set_socket_options_router_types )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::router);
+	socket.bind("inproc://test");
+
+	CHECK_SET(socket, bool, router_raw);
+	CHECK_SET(socket, bool, probe_router);
+}
+
+BOOST_AUTO_TEST_CASE( set_socket_options_request_types )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::request);
+	socket.bind("inproc://test");
+
+	CHECK_SET(socket, bool, request_correlate);
+	CHECK_SET(socket, bool, request_relaxed);
+}
+#endif
 
 BOOST_AUTO_TEST_CASE( get_socket_options )
 {
@@ -221,7 +278,7 @@ BOOST_AUTO_TEST_CASE( get_socket_options )
 
 	CHECK_NOGET(socket, subscribe);
 	CHECK_NOGET(socket, unsubscribe);
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	CHECK_NOGET(socket, router_mandatory);
 	CHECK_NOGET(socket, xpub_verbose);
 	CHECK_NOGET(socket, tcp_accept_filter);
@@ -260,22 +317,65 @@ BOOST_AUTO_TEST_CASE( get_socket_options )
 	CHECK_GET(socket, uint64_t, high_water_mark);
 #endif
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
 	CHECK_GET(socket, bool, ipv4_only);
 #endif
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
-	CHECK_GET(socket, std::string, last_endpoint);
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 2)
 	CHECK_GET(socket, bool, delay_attach_on_connect);
+#else
+	CHECK_GET(socket, bool, immediate);
+#endif
+	CHECK_GET(socket, std::string, last_endpoint);
 	CHECK_GET(socket, int, tcp_keepalive);
 	CHECK_GET(socket, int, tcp_keepalive_idle);
 	CHECK_GET(socket, int, tcp_keepalive_count);
 	CHECK_GET(socket, int, tcp_keepalive_interval);
 #endif
 
+#if (ZMQ_VERSION_MAJOR >= 4)
+	CHECK_GET(socket, bool, ipv6);
+	CHECK_GET(socket, int, mechanism);
+	CHECK_GET(socket, std::string, plain_password);
+	CHECK_GET(socket, bool, plain_server);
+	CHECK_GET(socket, std::string, plain_username);
+	CHECK_GET(socket, std::string, zap_domain);
+	CHECK_NOGET(socket, conflate);
+	CHECK_NOGET(socket, probe_router);
+	CHECK_NOGET(socket, request_correlate);
+	CHECK_NOGET(socket, request_relaxed);
+	CHECK_NOGET(socket, router_raw);
+#endif
+
 #ifdef ZMQ_EXPERIMENTAL_LABELS
 	CHECK_GET(socket, bool, receive_label);
 #endif
 }
+
+#if (ZMQ_VERSION_MAJOR >= 4)
+BOOST_AUTO_TEST_CASE( get_socket_options_tcp_only )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::subscribe);
+	socket.bind("tcp://*:54322");
+
+// TODO: reenable once I have curve key generation working to test against
+//	CHECK_GET(socket, std::string, curve_public_key);
+//	CHECK_GET(socket, std::string, curve_secret_key);
+//	CHECK_GET(socket, std::string, curve_server_key);
+//  CHECK_NOGET(socket, curve_server);
+}
+#endif
+#if (ZMQ_VERSION_MAJOR > 4) || ((ZMQ_VERSION_MAJOR == 4) && (ZMQ_VERSION_MINOR >= 2))
+BOOST_AUTO_TEST_CASE( use_fd_socket_option )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::push);
+	CHECK_GET(socket, int, use_fd);
+	CHECK_SET(socket, int, use_fd);
+	CHECK_GET(socket, int, use_fd);
+}
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()

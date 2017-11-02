@@ -1,4 +1,13 @@
 /*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file is part of zmqpp.
+ * Copyright (c) 2011-2015 Contributors as noted in the AUTHORS file.
+ */
+
+/*
  * options.cpp
  *
  *  Created on: 6 Nov 2013
@@ -14,6 +23,11 @@
 #include <boost/program_options/variables_map.hpp>
 
 #include "options.hpp"
+
+#ifndef BUILD_CLIENT_NAME
+#define BUILD_CLIENT_NAME "zmqpp"
+#endif
+
 
 boost::program_options::options_description connection_options()
 {

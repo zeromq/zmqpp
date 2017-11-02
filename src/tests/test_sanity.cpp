@@ -1,4 +1,13 @@
 /*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file is part of zmqpp.
+ * Copyright (c) 2011-2015 Contributors as noted in the AUTHORS file.
+ */
+
+/*
  *  Created on: 8 Aug 2011
  *      Author: @benjamg
  */
@@ -15,7 +24,7 @@
 #include <zmq.h>
 #include <zmqpp/zmqpp.hpp>
 
-const int max_poll_timeout = 100;
+const int max_poll_timeout = 1000;
 
 BOOST_AUTO_TEST_SUITE( sanity )
 
@@ -36,11 +45,9 @@ BOOST_AUTO_TEST_CASE( correct_zmqpp_version )
 	uint8_t major, minor, patch;
 	zmqpp::version(major, minor, patch);
 
-	BOOST_CHECK_EQUAL( BUILD_VERSION_MAJOR, major );
-	BOOST_CHECK_EQUAL( BUILD_VERSION_MINOR, minor );
-	BOOST_CHECK_EQUAL( BUILD_VERSION_REVISION, patch );
-
-	BOOST_CHECK_EQUAL( BUILD_VERSION, zmqpp::version() );
+	BOOST_CHECK_EQUAL( ZMQPP_VERSION_MAJOR, major );
+	BOOST_CHECK_EQUAL( ZMQPP_VERSION_MINOR, minor );
+	BOOST_CHECK_EQUAL( ZMQPP_VERSION_REVISION, patch );
 }
 
 BOOST_AUTO_TEST_CASE( same_zmq_version_as_built_against )
@@ -75,8 +82,8 @@ BOOST_AUTO_TEST_CASE( zmq_basic_push_pull )
 	BOOST_CHECK_EQUAL(data.size(), zmq_send(pusher, data.data(), data.size(), 0));
 #endif
 
-	zmq_pollitem_t items[] = { { puller, ZMQ_POLLIN, 0 } };
-	BOOST_CHECK_EQUAL(0, zmq_poll(items, 1, max_poll_timeout));
+	zmq_pollitem_t items[] = { { puller, 0, ZMQ_POLLIN, 0 } };
+	BOOST_CHECK_EQUAL(1, zmq_poll(items, 1, max_poll_timeout));
 
 	zmq_msg_t received_message;
 	zmq_msg_init(&received_message);

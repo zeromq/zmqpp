@@ -1,3 +1,12 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file is part of zmqpp.
+ * Copyright (c) 2011-2015 Contributors as noted in the AUTHORS file.
+ */
+
 /**
  * \file
  *
@@ -16,8 +25,10 @@
 
 #include "compatibility.hpp"
 
+#include "socket_mechanisms.hpp"
 #include "socket_types.hpp"
 #include "socket_options.hpp"
+#include "signal.hpp"
 
 namespace zmqpp
 {
@@ -29,7 +40,25 @@ typedef std::string endpoint_t;
 typedef context     context_t;
 typedef message     message_t;
 
-/*!
+#if (ZMQ_VERSION_MAJOR >= 4)
+namespace event
+{
+	const int connected        = ZMQ_EVENT_CONNECTED;       /*<! connection established */
+	const int connect_delayed  = ZMQ_EVENT_CONNECT_DELAYED; /*<! synchronous connect failed, it's being polled */
+	const int connect_retried  = ZMQ_EVENT_CONNECT_RETRIED; /*<! asynchronous connect / reconnection attempt */
+	const int listening        = ZMQ_EVENT_LISTENING;       /*<! socket bound to an address, ready to accept connections */
+	const int bind_failed      = ZMQ_EVENT_BIND_FAILED;     /*<! socket could not bind to an address */
+	const int accepted         = ZMQ_EVENT_ACCEPTED;        /*<! connection accepted to bound interface */
+	const int accept_failed    = ZMQ_EVENT_ACCEPT_FAILED;   /*<! could not accept client connection */
+	const int closed           = ZMQ_EVENT_CLOSED;          /*<! connection closed */
+	const int close_failed     = ZMQ_EVENT_CLOSE_FAILED;    /*<! connection couldn't be closed */
+	const int disconnected     = ZMQ_EVENT_DISCONNECTED;    /*<! broken session */
+	const int monitor_stopped  = ZMQ_EVENT_MONITOR_STOPPED; /*<! this monitor socket will not receive event anymore */
+	const int all              = ZMQ_EVENT_ALL;             /*<! all event flags */
+}
+#endif
+
+/**
  * The socket class represents the zmq sockets.
  *
  * A socket can be bound and/or connected to as many endpoints as required
@@ -38,38 +67,41 @@ typedef message     message_t;
  * The routing is handled by zmq based on the type set.
  *
  * The bound side of an inproc connection must occur first and inproc can only
- * connect to other inproc sockets of the same context.
+ * connect to other inproc sockets of the same context. This has been solved in
+ * 0mq 4.0 or later and is not a requirement of inproc.
  *
  * This class is c++0x move supporting and cannot be copied.
  */
-class socket
+class ZMQPP_EXPORT socket
 {
 public:
-	static const int normal     = 0;            /*!< /brief default send type, no flags set */
+	enum {
+		normal = 0,                     /*!< /brief default send type, no flags set */
 #if (ZMQ_VERSION_MAJOR == 2)
-	static const int dont_wait  = ZMQ_NOBLOCK;  /*!< /brief don't block if sending is not currently possible  */
+		dont_wait = ZMQ_NOBLOCK,        /*!< /brief don't block if sending is not currently possible  */
 #else
-	static const int dont_wait  = ZMQ_DONTWAIT; /*!< /brief don't block if sending is not currently possible  */
+		dont_wait = ZMQ_DONTWAIT,       /*!< /brief don't block if sending is not currently possible  */
 #endif
-	static const int send_more  = ZMQ_SNDMORE;  /*!< /brief more parts will follow this one */
+		send_more = ZMQ_SNDMORE,        /*!< /brief more parts will follow this one */
 #ifdef ZMQ_EXPERIMENTAL_LABELS
-	static const int send_label = ZMQ_SNDLABEL; /*!< /brief this message part is an internal zmq label */
+		send_label = ZMQ_SNDLABEL       /*!< /brief this message part is an internal zmq label */
 #endif
+	};
 
-	/*!
+	/**
 	 * Create a socket for a given type.
 	 *
 	 * \param context the zmq context under which the socket will live
 	 * \param type a valid ::socket_type for the socket
 	 */
-	socket(context_t const& context, socket_type const& type);
+	socket(context_t const& context, socket_type const type);
 
-	/*!
+	/**
 	 * This will close any socket still open before returning
 	 */
 	~socket();
 
-	/*!
+	/**
 	 * Get the type of the socket, this works on zmqpp types and not the zmq internal types.
 	 * Use the socket::get method if you wish to intergoate the zmq internal ones.
 	 *
@@ -77,21 +109,23 @@ public:
 	 */
 	socket_type type() const { return _type; }
 
-	/*!
+	/**
 	 * Asynchronously binds to an endpoint.
 	 *
 	 * \param endpoint the zmq endpoint to bind to
 	 */
 	void bind(endpoint_t const& endpoint);
 
-	/*!
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+	/**
 	 * Unbinds from a previously bound endpoint.
 	 *
 	 * \param endpoint the zmq endpoint to bind to
 	 */
 	void unbind(endpoint_t const& endpoint);
+#endif
 
-	/*!
+	/**
 	 * Asynchronously connects to an endpoint.
 	 * If the endpoint is not inproc then zmq will happily keep trying
 	 * to connect until there is something there.
@@ -103,7 +137,7 @@ public:
 	 */
 	void connect(endpoint_t const& endpoint);
 
-	/*!
+	/**
 	 * Asynchronously connects to multiple endpoints.
 	 * If the endpoint is not inproc then zmq will happily keep trying
 	 * to connect until there is something there.
@@ -126,14 +160,15 @@ public:
 	}
 
 
-	/*!
+	/**
 	 * Disconnects a previously connected endpoint.
 	 *
 	 * \param endpoint the zmq endpoint to disconnect from
 	 */
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	void disconnect(endpoint_t const& endpoint);
 
-	/*!
+	/**
 	 * Disconnects from multiple previously connected endpoints.
 	 *
 	 * This is a helper function that wraps the single item disconnect in a loop
@@ -149,75 +184,144 @@ public:
 			disconnect(*it);
 		}
 	}
+#endif
 
-	/*!
+	/**
 	 * Closes the internal zmq socket and marks this instance
 	 * as invalid.
 	 */
 	void close();
 
-	/*!
+	/**
 	 * Sends the message over the connection, this may be a multipart message.
 	 *
 	 * If dont_block is true and we are unable to add a new message then this
 	 * function will return false.
 	 *
+	 * If the socket send times out this function will return false.
+	 *
 	 * \param message message to send
 	 * \param dont_block boolean to dictate if we wait while sending.
-	 * \return true if message sent, false if it would have blocked
+	 * \return true if message sent, false if it would have blocked or it timed out.
 	 */
-	bool send(message_t& message, bool const& dont_block = false);
+	bool send(message_t& message, bool const dont_block = false);
 
-	/*!
+	/**
 	 * Gets a message from the connection, this may be a multipart message.
 	 *
 	 * If dont_block is true and we are unable to get a message then this
 	 * function will return false.
 	 *
+	 * If the socket receive times out this function will return false.
+	 *
 	 * \param message reference to fill with received data
 	 * \param dont_block boolean to dictate if we wait for data.
-	 * \return true if message sent, false if it would have blocked
+	 * \return true if message received, false if it would have blocked or it timed out.
 	 */
-	bool receive(message_t& message, bool const& dont_block = false);
+	bool receive(message_t& message, bool const dont_block = false);
 
-	/*!
+	/**
+	 * Sends the byte data held by the string as the next message part.
+	 *
+	 * If dont_block is true and we are unable to add a new message then this
+	 * function will return false.
+	 *
+	 * If the socket send times out this function will return false.
+	 *
+	 * \param string message part to send
+	 * \param dont_block boolean to dictate if we wait while sending.
+	 * \return true if message part sent, false if it would have blocked or it timed out.
+	 */
+	bool send(std::string const& string, bool const dont_block = false);
+
+	/**
+	 * If there is a message ready then get the next part as a string
+	 *
+	 * If dont_block is true and we are unable to get a message then this
+	 * function will return false.
+	 *
+	 * If the socket receive times out this function will return false.
+	 *
+	 * \param string message part to receive into
+	 * \param dont_block boolean to dictate if we wait for data.
+	 * \return true if message part received, false if it would have blocked or it timed out.
+	 */
+	bool receive(std::string& string, bool const dont_block = false);
+
+	/**
+	 * Sends a signal over the socket.
+	 *
+	 * If dont_block is true and we are unable to send the signal then this
+	 * function will return false.
+	 *
+	 * If the socket send times out this function will return false.
+	 *
+	 * \param sig signal to send.
+	 * \param dont_block boolean to dictate if we wait while sending.
+	 * \return true if signal sent, false if it would have blocked or it timed out.
+	 */
+	bool send(signal sig, bool dont_block = false);
+
+        /**
+	 * If there is a message ready then we read a signal from it.
+	 *
+	 * If dont_block is true and we are unable to get the signal then this
+	 * function will return false.
+	 *
+	 * If the socket receive times out this function will return false.
+	 *
+	 * \param sig signal to receive into
+	 * \param dont_block boolean to dictate if we wait while sending.
+	 * \return true if signal received, false if it would have blocked or it timed out.
+	 */
+	bool receive(signal &sig, bool dont_block = false);
+				
+	/**
 	 * Sends the byte data held by the string as the next message part.
 	 *
 	 * If the socket::DONT_WAIT flag and we are unable to add a new message to
 	 * socket then this function will return false.
 	 *
+	 * If the socket send times out this function will return false.
+	 *
 	 * \param string message part to send
-	 * \param flags message send flags
-	 * \return true if message part sent, false if it would have blocked
+	 * \param dont_block boolean to dictate if we wait for data.
+	 * \return true if message part sent, false if it would have blocked or it timed out.
 	 */
-	bool send(std::string const& string, int const& flags = normal);
+	ZMQPP_DEPRECATED("prefer using zmqpp::message for multipart messages")
+	bool send(std::string const& string, int const flags);
 
-	/*!
+	/**
 	 * If there is a message ready then get the next part as a string
 	 *
 	 * If the socket::DONT_WAIT flag and there is no message ready to receive
 	 * then this function will return false.
 	 *
+	 * If the socket receive times out this function will return false.
+	 *
 	 * \param string message part to receive into
 	 * \param flags message receive flags
-	 * \return true if message part received, false if it would have blocked
+	 * \return true if message part received, false if it would have blocked or it timed out.
 	 */
-	bool receive(std::string& string, int const& flags = normal);
+	ZMQPP_DEPRECATED("prefer using zmqpp::message for multipart messages")
+	bool receive(std::string& string, int const flags);
 
-	/*!
+	/**
 	 * Sends the byte data pointed to by buffer as the next part of the message.
 	 *
 	 * If the socket::DONT_WAIT flag and we are unable to add a new message to
 	 * socket then this function will return false.
 	 *
+	 * If the socket send times out this function will return false.
+	 *
 	 * \param buffer byte buffer pointer to start writing from
 	 * \param length max length of the buffer
 	 * \param flags message send flags
-	 * \return true if message part sent, false if it would have blocked
+	 * \return true if message part sent, false if it would have blocked or it timed out.
 	 */
-	bool send_raw(char const* buffer, int const& length, int const& flags = normal);
+	bool send_raw(char const* buffer, size_t const length, int const flags = normal);
 
-	/*!
+	/**
 	 * \warning If the buffer is not large enough for the message part then the
 	 *       data will be truncated. The rest of the part is lost forever.
 	 *
@@ -227,14 +331,16 @@ public:
 	 * If the socket::DONT_WAIT flag and there is no message ready to receive
 	 * then this function will return false.
 	 *
+	 * If the socket receive times out this function will return false.
+	 *
 	 * \param buffer byte buffer pointer to start writing to
 	 * \param length max length of the buffer
 	 * \param flags message receive flags
-	 * \return true if message part received, false if it would have blocked
+	 * \return true if message part received, false if it would have blocked or it timed out.
 	 */
-	bool receive_raw(char* buffer, int& length, int const& flags = normal);
+	bool receive_raw(char* buffer, size_t& length, int const flags = normal);
 
-	/*!
+	/**
 	 *
 	 * Subscribe to a topic
 	 *
@@ -249,7 +355,7 @@ public:
 	 */
 	void subscribe(std::string const& topic);
 
-	/*!
+	/**
 	 * Subscribe to a topic
 	 *
 	 * Helper function that is equivalent of a loop calling
@@ -276,7 +382,7 @@ public:
 		}
 	}
 
-	/*!
+	/**
 	 * Unsubscribe from a topic
 	 *
 	 * Helper function that is equivalent of calling
@@ -290,7 +396,7 @@ public:
 	 */
 	void unsubscribe(std::string const& topic);
 
-	/*!
+	/**
 	 * Unsubscribe from a topic
 	 *
 	 * Helper function that is equivalent of a loop calling
@@ -317,7 +423,7 @@ public:
 		}
 	}
 
-	/*!
+	/**
 	 * If the last receive part call to the socket resulted
 	 * in a label or a non-terminating part of a multipart
 	 * message this will return true.
@@ -326,106 +432,106 @@ public:
 	 */
 	bool has_more_parts() const;
 
-	/*!
+	/**
 	 * Set the value of an option in the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
 	 * \param value to set the option to
 	 */
-	void set(socket_option const& option, int const& value);
+	void set(socket_option const option, int const value);
 
-	/*!
+	/**
 	 * Set the value of an option in the underlaying zmq socket.
 	 *
 	 * \since 2.0.0 (built against 0mq version 3.1.x or later)
 	 *
 	 * \param option a valid ::socket_option
-	 * \param value to set the option to
+	 * \param value to set the optionbool to
 	 */
-	void set(socket_option const& option, bool const& value);
+	void set(socket_option const option, bool const value);
 
-	/*!
+	/**
 	 * Set the value of an option in the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
 	 * \param value to set the option to
 	 */
-	void set(socket_option const& option, uint64_t const& value);
+	void set(socket_option const option, uint64_t const value);
 
-	/*!
+	/**
 	 * Set the value of an option in the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
 	 * \param value to set the option to
 	 */
-	void set(socket_option const& option, int64_t const& value);
+	void set(socket_option const option, int64_t const value);
 
-	/*!
+	/**
 	 * Set the value of an option in the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
 	 * \param pointer to raw byte value to set the option to
 	 * \param length the size of the raw byte value
 	 */
-	void set(socket_option const& option, char const* value, size_t const length);
+	void set(socket_option const option, char const* value, size_t const length);
 
-	/*!
+	/**
 	 * Set the value of an option in the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
 	 * \param pointer to null terminated cstring value to set the option to
 	 */
-	inline void set(socket_option const& option, char const* value) { set(option, value, strlen(value)); }
+	inline void set(socket_option const option, char const* value) { set(option, value, strlen(value)); }
 
-	/*!
+	/**
 	 * Set the value of an option in the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
 	 * \param value to set the option to
 	 */
-	inline void set(socket_option const& option, std::string const& value) { set(option, value.c_str(), value.length()); }
+	inline void set(socket_option const option, std::string const value) { set(option, value.c_str(), value.length()); }
 
-	/*!
+	/**
 	 * Get a socket option from the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
 	 * \param value referenced int to return value in
 	 */
-	void get(socket_option const& option, int& value) const;
+	void get(socket_option const option, int& value) const;
 
-	/*!
+	/**
 	 * Get a socket option from the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
 	 * \param value referenced bool to return value in
 	 */
-	void get(socket_option const& option, bool& value) const;
+	void get(socket_option const option, bool& value) const;
 
-	/*!
+	/**
 	 * Get a socket option from the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
 	 * \param value referenced uint64_t to return value in
 	 */
-	void get(socket_option const& option, uint64_t& value) const;
+	void get(socket_option const option, uint64_t& value) const;
 
-	/*!
+	/**
 	 * Get a socket option from the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
 	 * \param value referenced uint64_t to return value in
 	 */
-	void get(socket_option const& option, int64_t& value) const;
+	void get(socket_option const option, int64_t& value) const;
 
-	/*!
+	/**
 	 * Get a socket option from the underlaying zmq socket.
 	 *
 	 * \param option a valid ::socket_option
 	 * \param value referenced std::string to return value in
 	 */
-	void get(socket_option const& option, std::string& value) const;
+	void get(socket_option const option, std::string& value) const;
 
-	/*!
+	/**
 	 * For those that don't want to get into a referenced value this templated method
 	 * will return the value instead.
 	 *
@@ -433,14 +539,41 @@ public:
 	 * \return socket option value
 	 */
 	template<typename Type>
-	Type get(socket_option const& option) const
+	Type get(socket_option const option) const
 	{
 		Type value = Type();
 		get(option, value);
 		return value;
 	}
 
-	/*!
+#if (ZMQ_VERSION_MAJOR >= 4)
+	/**
+	 * Attach a monitor to this socket that will send events over inproc to the
+	 * specified endpoint. The monitor will bind on the endpoint given and will
+	 * be of type PAIR but not read from the stream.
+	 *
+	 * \param monitor_endpoint the valid inproc endpoint to bind to.
+	 * \param events_required a bit mask of required events.
+	 */
+	void monitor(endpoint_t const monitor_endpoint, int events_required);
+
+	/**
+	 * Detach the monitor from this socket.
+	 *
+	 */
+	void unmonitor();
+#endif
+
+	/**
+	 * Wait on signal, this is useful to coordinate thread.
+	 * Block until a signal is received, and returns the received signal.
+	 *
+	 * Discard everything until something that looks like a signal is received.
+	 * \return the signal.
+	 */
+	signal wait();
+
+	/**
 	 * Move constructor
 	 *
 	 * Moves the internals of source to this object, there is no guarantee
@@ -450,9 +583,9 @@ public:
 	 *
 	 * \param source target socket to steal internals from
 	 */
-	socket(socket&& source) noexcept;
+	socket(socket&& source) NOEXCEPT;
 
-	/*!
+	/**
 	 * Move operator
 	 *
 	 * Moves the internals of source to this object, there is no guarantee
@@ -463,9 +596,9 @@ public:
 	 * \param source target socket to steal internals from
 	 * \return socket reference to this
 	 */
-	socket& operator=(socket&& source) noexcept;
+	socket& operator=(socket&& source) NOEXCEPT;
 
-	/*!
+	/**
 	 * Check the socket is still valid
 	 *
 	 * This tests the internal state of the socket.
@@ -476,7 +609,7 @@ public:
 	 */
 	operator bool() const;
 
-	/*!
+	/**
 	 * Access to the raw 0mq context
 	 *
 	 * \return void pointer to the underlying 0mq socket
@@ -489,10 +622,10 @@ private:
 	zmq_msg_t _recv_buffer;
 
 	// No copy
-	socket(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
-	socket& operator=(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
+	socket(socket const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+	socket& operator=(socket const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 
-	void track_message(message_t const&, uint32_t const&, bool&);
+	void track_message(message_t const&, uint32_t const, bool&);
 };
 
 }

@@ -1,4 +1,13 @@
 /*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file is part of zmqpp.
+ * Copyright (c) 2011-2015 Contributors as noted in the AUTHORS file.
+ */
+
+/*
  *  Created on: 9 Aug 2011
  *      Author: @benjamg
  */
@@ -28,8 +37,8 @@ BOOST_AUTO_TEST_CASE( move_supporting )
 BOOST_AUTO_TEST_CASE( defaults )
 {
 	zmqpp::context context;
-	BOOST_CHECK_EQUAL(context.get(zmqpp::context_option::io_threads), ZMQ_IO_THREADS_DFLT);
-	BOOST_CHECK_EQUAL(context.get(zmqpp::context_option::max_sockets), ZMQ_MAX_SOCKETS_DFLT);
+	BOOST_CHECK_GE(context.get(zmqpp::context_option::io_threads), ZMQ_IO_THREADS_DFLT);
+	BOOST_CHECK_GE(context.get(zmqpp::context_option::max_sockets), ZMQ_MAX_SOCKETS_DFLT);
 }
 
 BOOST_AUTO_TEST_CASE( validaty )
@@ -45,7 +54,7 @@ BOOST_AUTO_TEST_CASE( validaty )
 
 BOOST_AUTO_TEST_CASE( throws_exception )
 {
-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+#if (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
 	BOOST_CHECK_THROW(new zmqpp::context(-1), zmqpp::zmq_internal_exception);
 #else
 	zmqpp::context context;

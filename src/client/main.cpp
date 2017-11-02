@@ -1,8 +1,18 @@
 /*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This file is part of zmqpp.
+ * Copyright (c) 2011-2015 Contributors as noted in the AUTHORS file.
+ */
+
+/*
  *  Created on: 16 Aug 2011
  *      Author: @benjamg
  */
 
+#include <cstdlib>
 #include <array>
 #include <iostream>
 #include <tuple>
@@ -24,7 +34,7 @@ int main(int argc, char const* argv[])
 		uint8_t major, minor, patch;
 		zmqpp::zmq_version(major, minor, patch);
 
-		std::cout << BUILD_CLIENT_NAME << " version " << BUILD_VERSION << std::endl;
+		std::cout << BUILD_CLIENT_NAME << " version " << zmqpp::version() << std::endl;
 		std::cout << "  built against 0mq version " << static_cast<int>(major) << "." << static_cast<int>(minor) << "." << static_cast<int>(patch) << std::endl;
 
 		return EXIT_FAILURE;
@@ -33,7 +43,11 @@ int main(int argc, char const* argv[])
 	if( options.show_usage || options.show_help )
 	{
 		show_usage( std::cout, BUILD_CLIENT_NAME );
-		if( options.show_help ) { std::cout << std::endl << show_help( std::cout ); }
+		if( options.show_help )
+		{
+			std::cout << std::endl;
+			show_help( std::cout );
+		}
 
 		return EXIT_FAILURE;
 	}
@@ -46,7 +60,7 @@ int main(int argc, char const* argv[])
 	case zmqpp::socket_type::publish:   can_send = true; break;
 	case zmqpp::socket_type::subscribe: can_recv = true; break;
 	case zmqpp::socket_type::request:   can_send = true; toggles = true; break;
-	case zmqpp::socket_type::reply:     can_recv = true, toggles = true; break;
+	case zmqpp::socket_type::reply:     can_recv = true; toggles = true; break;
 	default:
 		std::cerr << "Unsupported socket type" << std::endl;
 		return EXIT_FAILURE;
@@ -217,7 +231,7 @@ int main(int argc, char const* argv[])
 				while( result && (length = strlen( buffer.data() ) - 1) > 0 ) // trim newline from gets
 				{
 					buffer[length] = 0;
-					message.add( buffer.data(), length );
+					message.add_raw( buffer.data(), static_cast<uint64_t>(length) );
 
 					if( options.singlepart ) { break; }
 
@@ -240,12 +254,21 @@ int main(int argc, char const* argv[])
 
 					if( !socket.send( message, true ) )
 					{
-						if( options.annotate ) {	std::cerr << "!!: "; }
+						if( options.detailed )
+						{
+							if( options.annotate ) { std::cerr << "**: "; }
+							std::cerr << "Output blocking, waiting to send" << std::endl;
+						}
 
-						std::cerr << "Send failed, socket would have blocked" << std::endl;
+						if( !socket.send( message ) )
+						{
+							if( options.annotate ) {	std::cerr << "!!: "; }
 
-						zmqpp::message tmp;
-						std::swap( tmp, message );
+							std::cerr << "Send failed, socket would have blocked" << std::endl;
+
+							zmqpp::message tmp;
+							std::swap( tmp, message );
+						}
 					}
 
 					if (toggles)
