@@ -38,11 +38,15 @@ BOOST_AUTO_TEST_CASE( push_messages_baseline )
 	boost::timer t;
 
 	void* context = zmq_init(1);
-	void* pusher = zmq_socket(context, ZMQ_PUSH);
-	BOOST_REQUIRE_MESSAGE(0 == zmq_connect(pusher, "tcp://localhost:5555"), "connect: " << zmq_strerror(zmq_errno()));
-
 	void* puller = zmq_socket(context, ZMQ_PULL);
-	BOOST_REQUIRE_MESSAGE(0 == zmq_bind(puller, "tcp://*:5555"), "bind: " << zmq_strerror(zmq_errno()));
+	BOOST_REQUIRE_MESSAGE(0 == zmq_bind(puller, "tcp://*:0"), "bind: " << zmq_strerror(zmq_errno()));
+
+	std::array<char, 512> endpoint;
+	size_t length = endpoint.size();
+	BOOST_REQUIRE_MESSAGE(0 == zmq_getsockopt(puller, ZMQ_LAST_ENDPOINT, endpoint.data(), &length), "getsockopt: " << zmq_strerror(zmq_errno()));
+	
+	void* pusher = zmq_socket(context, ZMQ_PUSH);
+	BOOST_REQUIRE_MESSAGE(0 == zmq_connect(pusher, endpoint.data()), "connect: " << zmq_strerror(zmq_errno()));
 
 	auto pusher_func = [&pusher](void) {
 		auto remaining = messages;
@@ -107,11 +111,12 @@ BOOST_AUTO_TEST_CASE( push_messages )
 	boost::timer t;
 
 	zmqpp::context context;
-	zmqpp::socket pusher(context, zmqpp::socket_type::push);
-	pusher.connect("tcp://localhost:55555");
-
 	zmqpp::socket puller(context, zmqpp::socket_type::pull);
-	puller.bind("tcp://*:55555");
+	puller.bind("tcp://*:0");
+	const std::string endpoint = puller.get<std::string>(zmqpp::socket_option::last_endpoint);
+
+	zmqpp::socket pusher(context, zmqpp::socket_type::push);
+	pusher.connect(endpoint);
 
 	auto pusher_func = [&pusher](void) {
 		auto remaining = messages;
