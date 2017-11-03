@@ -550,7 +550,8 @@ BOOST_AUTO_TEST_CASE( test_simple_monitor )
 {
     zmqpp::context ctx;
     zmqpp::socket server(ctx, zmqpp::socket_type::push);
-    server.bind("tcp://*:55443");
+    server.bind("tcp://*:0");
+    const std::string endpoint = server.get<std::string>(zmqpp::socket_option::last_endpoint);
 
     server.monitor("inproc://test_monitor", zmqpp::event::all);
 
@@ -558,7 +559,7 @@ BOOST_AUTO_TEST_CASE( test_simple_monitor )
     monitor.connect("inproc://test_monitor");
 
     zmqpp::socket client(ctx, zmqpp::socket_type::pull);
-    client.connect("tcp://localhost:55443");
+    client.connect(endpoint);
 
     // Receive event accepted
     {
@@ -571,20 +572,20 @@ BOOST_AUTO_TEST_CASE( test_simple_monitor )
         uint16_t ev = *(reinterpret_cast<const uint16_t *>(ptr));
         // uint32_t value = *(reinterpret_cast<const uint32_t *>(ptr + 2));
         BOOST_CHECK_EQUAL( zmqpp::event::accepted, ev );
-        BOOST_CHECK_EQUAL("tcp://0.0.0.0:55443", message.get(1));
+        BOOST_CHECK_EQUAL("tcp://0.0.0.0:0", message.get(1));
         // value is the underlying file descriptor. we cannot check its value against anything meaningful
 #else
         zmq_event_t const* event = static_cast<zmq_event_t const*>( message.raw_data(0) );
         BOOST_CHECK_EQUAL( zmqpp::event::accepted, event->event );
         BOOST_CHECK_EQUAL( 0, event->value );
-        BOOST_CHECK_EQUAL("tcp://0.0.0.0:55443", message.get(1));
+        BOOST_CHECK_EQUAL("tcp://0.0.0.0:0", message.get(1));
 #endif
     }
 
     server.unmonitor();
 
     zmqpp::socket client2(ctx, zmqpp::socket_type::pull);
-    client2.connect("tcp://localhost:55443");
+    client2.connect(endpoint);
 
     // Receive event monitor_stopped
     {
