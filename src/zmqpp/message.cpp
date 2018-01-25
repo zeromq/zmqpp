@@ -152,11 +152,11 @@ void message::get(int64_t& integer, size_t const part) const
 
 void message::get(signal &sig, size_t const part) const
 {
-    assert(sizeof(signal) == size(part));
-    int64_t v;
-    get(v, part);
-    
-    sig = static_cast<signal>(v);
+	assert(sizeof(signal) == size(part));
+	int64_t v;
+	get(v, part);
+
+	sig = static_cast<signal>(v);
 }
 
 void message::get(uint8_t& unsigned_integer, size_t const part) const
@@ -464,6 +464,14 @@ void message::copy(message const& source)
 	// we don't need a copy of the releasers as we did data copies of the internal data,
 	//_releasers = source._releasers;
 	//_strings = source._strings
+}
+
+void message::append(message const& source, size_t from, size_t to)
+{
+	if(to == 0) to = source.parts();
+	_parts.reserve( _parts.size() + to - from );
+	for(size_t part=from; part<to; ++part)
+		push_back(source.raw_data(part), source.size(part));
 }
 
 // Used for internal tracking
