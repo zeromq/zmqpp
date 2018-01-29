@@ -11,6 +11,8 @@
 #include <thread>
 #include <exception>
 
+#define private public
+
 #include "zmqpp/context.hpp"
 #include "zmqpp/message.hpp"
 #include "zmqpp/loop.hpp"
@@ -69,6 +71,66 @@ BOOST_AUTO_TEST_CASE(socket_removed_in_timer)
     input.send("PING");
 
     BOOST_CHECK_NO_THROW(loop.start());
+    BOOST_CHECK(socket_called == false);
+}
+
+BOOST_AUTO_TEST_CASE(socket_closed_in_timer)
+{
+    zmqpp::context context;
+
+    zmqpp::socket output(context, zmqpp::socket_type::pair);
+    output.bind("inproc://test");
+    zmqpp::socket input(context, zmqpp::socket_type::pair);
+    input.connect("inproc://test");
+
+    zmqpp::loop loop;
+
+    bool socket_called = false;
+
+    loop.add(output, [&socket_called]() -> bool { socket_called = true; return false; });
+    loop.add(std::chrono::milliseconds(0), 1, [&loop, &output]() -> bool {
+        loop.remove(output);
+	output.close();
+        loop.add(std::chrono::milliseconds(10), 1, []() -> bool { return false; });
+        return true;
+    });
+
+    input.send("PING");
+
+    BOOST_CHECK_NO_THROW(loop.start());
+    BOOST_CHECK(loop.items_.size() == 0);
+    BOOST_CHECK(socket_called == false);
+}
+
+BOOST_AUTO_TEST_CASE(socket_closed_after_remove_at_timer)
+{
+    zmqpp::context context;
+
+    zmqpp::socket output(context, zmqpp::socket_type::pair);
+    output.bind("inproc://test");
+    zmqpp::socket input(context, zmqpp::socket_type::pair);
+    input.connect("inproc://test");
+
+    zmqpp::loop loop;
+
+    bool socket_called = false;
+
+    loop.add(output, [&socket_called]() -> bool { socket_called = true; return false; },
+        zmqpp::poller::poll_in, [&output]()
+    {
+        output.close();
+        return true;
+    });
+    loop.add(std::chrono::milliseconds(0), 1, [&loop, &output]() -> bool {
+        loop.remove(output);
+        loop.add(std::chrono::milliseconds(10), 1, []() -> bool { return false; });
+        return true;
+    });
+
+    input.send("PING");
+
+    BOOST_CHECK_NO_THROW(loop.start());
+    BOOST_CHECK(loop.items_.size() == 0);
     BOOST_CHECK(socket_called == false);
 }
 

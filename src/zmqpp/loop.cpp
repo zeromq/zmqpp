@@ -47,10 +47,10 @@ namespace zmqpp
         when += delay;
     }
 
-    void loop::add(socket& socket, Callable callable, short const event /* = POLL_IN */)
+    void loop::add(socket& socket, Callable callable, short const event /* = POLL_IN */, Callable after_remove_cb /* = Callable(nullptr)*/)
     {
         zmq_pollitem_t item{static_cast<void *> (socket), 0, event, 0};
-        add(item, callable);
+        add(item, callable, after_remove_cb);
     }
 
     void loop::add(raw_socket_t const descriptor, Callable callable, short const event /* = POLL_IN */)
@@ -59,11 +59,11 @@ namespace zmqpp
         add(item, callable);
     }
 
-    void loop::add(const zmq_pollitem_t& item, Callable callable)
+    void loop::add(const zmq_pollitem_t& item, Callable callable, Callable after_remove_cb)
     {
         poller_.add(item);
         rebuild_poller_ = true;
-        items_.push_back(std::make_pair(item, callable));
+        items_.push_back(std::make_tuple(item, callable, after_remove_cb));
     }
 
     loop::timer_id_t loop::add(std::chrono::milliseconds delay, size_t times, Callable callable)
@@ -110,16 +110,24 @@ namespace zmqpp
             sockRemoveLater_.push_back(&socket);
             return;
         }
-        items_.erase(std::remove_if(items_.begin(), items_.end(), [&socket](const PollItemCallablePair & pair) -> bool
+
+        std::vector<PollItemCallableTuple> cb_after_remove;
+
+        items_.erase(std::remove_if(items_.begin(), items_.end(),
+            [&socket, &cb_after_remove](const PollItemCallableTuple & tuple) -> bool
         {
-            const zmq_pollitem_t &item = pair.first;
+            const zmq_pollitem_t &item = std::get<0>(tuple);
             if (nullptr != item.socket && item.socket == static_cast<void *> (socket))
             {
+                if(std::get<2>(tuple))
+                    cb_after_remove.push_back(tuple);
                 return true;
             }
             return false;
         }), items_.end());
         poller_.remove(socket);
+        for (const PollItemCallableTuple& item : cb_after_remove)
+            std::get<2>(item)();
     }
 
     void loop::remove(raw_socket_t const descriptor)
@@ -130,9 +138,9 @@ namespace zmqpp
             fdRemoveLater_.push_back(descriptor);
             return;
         }
-        items_.erase(std::remove_if(items_.begin(), items_.end(), [descriptor](const PollItemCallablePair & pair) -> bool
+        items_.erase(std::remove_if(items_.begin(), items_.end(), [descriptor](const PollItemCallableTuple & tuple) -> bool
         {
-            const zmq_pollitem_t &item = pair.first;
+            const zmq_pollitem_t &item = std::get<0>(tuple);
             if (nullptr == item.socket && item.fd == descriptor)
             {
                 return true;
@@ -194,12 +202,12 @@ namespace zmqpp
 
     bool loop::start_handle_poller()
     {
-        for (const PollItemCallablePair &pair : items_)
+        for (const PollItemCallableTuple &tuple : items_)
         {
-            const zmq_pollitem_t &pollitem = pair.first;
+            const zmq_pollitem_t &pollitem = std::get<0>(tuple);
 
             if (poller_.has_input(pollitem) || poller_.has_error(pollitem) || poller_.has_output(pollitem))
-                if(!pair.second())
+                if(!std::get<1>(tuple)())
                     return false;
         }
         return true;

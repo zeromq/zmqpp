@@ -59,8 +59,10 @@ namespace zmqpp
          * \param socket the socket to monitor.
          * \param callable the function that will be called by the loop when a registered event occurs on socket.
          * \param event the event flags to monitor on the socket.
+         * \param after_remove_cb will be called by loop after remove() completion.
+         *        See tests/test_loop.cpp: socket_closed_in_timer and socket_closed_after_remove_at_timer
          */
-        void add(socket_t& socket, Callable callable, short const event = poller::poll_in);
+        void add(socket_t& socket, Callable callable, short const event = poller::poll_in, Callable after_remove_cb = Callable(nullptr));
 
         /*!
          * Add a standard socket to the loop, providing a handler that will be called when the monitored events occur.
@@ -125,18 +127,18 @@ namespace zmqpp
             void update();
         };
 
-        typedef std::pair<zmq_pollitem_t, Callable> PollItemCallablePair;
+        typedef std::tuple<zmq_pollitem_t, Callable, Callable> PollItemCallableTuple;
         typedef std::pair<std::unique_ptr<timer_t>, Callable> TimerItemCallablePair;
         static bool TimerItemCallablePairComp(const TimerItemCallablePair &lhs, const TimerItemCallablePair &rhs);
 
-        std::vector<PollItemCallablePair> items_;
+        std::vector<PollItemCallableTuple> items_;
         std::list<TimerItemCallablePair> timers_;
         std::vector<const socket_t *> sockRemoveLater_;
         std::vector<raw_socket_t> fdRemoveLater_;
         std::vector<timer_id_t> timerRemoveLater_;
 
 
-        void add(const zmq_pollitem_t &item, Callable callable);
+        void add(const zmq_pollitem_t &item, Callable callable, Callable after_remove_cb = Callable(nullptr));
         void add(std::unique_ptr<timer_t>, Callable callable);
 
         bool start_handle_timers();
