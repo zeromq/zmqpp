@@ -858,8 +858,15 @@ void socket::get(socket_option const option, std::string& value) const
 		{
 			throw zmq_internal_exception();
 		}
-
-		value.assign(buffer.data(), size > 0 ? size-1 : 0);
+		// Handle special case : identity is not a null-terminated string
+		if(option == socket_option::identity)
+		{
+			value.assign(buffer.data(), size);
+		}
+		else
+		{
+			value = buffer.data();
+		}
 		break;
 	default:
 		throw exception("attempting to get a non string option with a string value");
