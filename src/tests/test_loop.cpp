@@ -10,6 +10,9 @@
 #include <boost/test/unit_test.hpp>
 #include <thread>
 #include <exception>
+#include <unistd.h>
+
+#define private public
 
 #include "zmqpp/context.hpp"
 #include "zmqpp/message.hpp"
@@ -62,6 +65,7 @@ BOOST_AUTO_TEST_CASE(socket_removed_in_timer)
     loop.add(output, [&socket_called]() -> bool { socket_called = true; return false; });
     loop.add(std::chrono::milliseconds(0), 1, [&loop, &output]() -> bool {
         loop.remove(output);
+	//output.close(); // Simple way fails. See socket_closed_after_remove_at_timer.
         loop.add(std::chrono::milliseconds(10), 1, []() -> bool { return false; });
         return true;
     });
@@ -69,6 +73,40 @@ BOOST_AUTO_TEST_CASE(socket_removed_in_timer)
     input.send("PING");
 
     BOOST_CHECK_NO_THROW(loop.start());
+    BOOST_CHECK(loop.items_.size() == 0);
+    BOOST_CHECK(socket_called == false);
+}
+
+BOOST_AUTO_TEST_CASE(socket_closed_after_remove_at_timer)
+{
+    zmqpp::context context;
+
+    zmqpp::socket output(context, zmqpp::socket_type::pair);
+    output.bind("inproc://test");
+    zmqpp::socket input(context, zmqpp::socket_type::pair);
+    input.connect("inproc://test");
+
+    zmqpp::loop loop;
+
+    bool socket_called = false;
+
+    loop.add(output, [&socket_called]() -> bool { socket_called = true; return false; },
+        zmqpp::poller::poll_in, [&output]()
+    {
+        output.close();
+        return true;
+    });
+    loop.add(std::chrono::milliseconds(0), 1, [&loop, &output]() -> bool {
+        loop.remove(output);
+        //output.close(); moved to loop.add(output,,cb2);
+        loop.add(std::chrono::milliseconds(10), 1, []() -> bool { return false; });
+        return true;
+    });
+
+    input.send("PING");
+
+    BOOST_CHECK_NO_THROW(loop.start());
+    BOOST_CHECK(loop.items_.size() == 0);
     BOOST_CHECK(socket_called == false);
 }
 
@@ -217,6 +255,62 @@ BOOST_AUTO_TEST_CASE(remove_socket_in_handler)
 
     BOOST_CHECK_EQUAL(0, test1);
     BOOST_CHECK_EQUAL(2, test2);
+}
+
+BOOST_AUTO_TEST_CASE(remove_fd_in_handler)
+{
+    zmqpp::context context;
+
+    zmqpp::loop loop;
+    auto end_loop = []() -> bool { return false; };
+
+    int pipefd[2];
+    BOOST_CHECK_EQUAL(0, pipe(pipefd));
+
+    int test1 = 0;
+    loop.add(pipefd[0], [&](){
+        char buffer[10];
+        BOOST_CHECK_EQUAL(4, read(pipefd[0],buffer,10));
+        test1 = 1;
+        loop.remove(pipefd[0]);
+        return true;
+    });
+
+    BOOST_CHECK_EQUAL(4, write(pipefd[1],"haha",4));
+    //BOOST_CHECK_EQUAL(0, close(pipefd[1]));
+
+    loop.add(std::chrono::milliseconds(100), 1, end_loop);
+    BOOST_CHECK_NO_THROW(loop.start());
+
+    BOOST_CHECK_EQUAL(1, test1);
+}
+
+BOOST_AUTO_TEST_CASE(remove_invalid_fd_in_handler)
+{
+    zmqpp::context context;
+
+    zmqpp::loop loop;
+    auto end_loop = []() -> bool { return false; };
+
+    int pipefd[2];
+    BOOST_CHECK_EQUAL(0, pipe(pipefd));
+
+    int test1 = 0;
+    loop.add(pipefd[0], [&](){
+        char buffer[10];
+        BOOST_CHECK_EQUAL(4, read(pipefd[0],buffer,10));
+        test1 = 1;
+        loop.remove(STDIN_FILENO);
+        return true;
+    });
+
+    BOOST_CHECK_EQUAL(4, write(pipefd[1],"haha",4));
+    //BOOST_CHECK_EQUAL(0, close(pipefd[1]));
+
+    loop.add(std::chrono::milliseconds(100), 1, end_loop);
+    BOOST_CHECK_NO_THROW(loop.start());
+
+    BOOST_CHECK_EQUAL(1, test1);
 }
 
 

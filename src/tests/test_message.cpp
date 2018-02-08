@@ -136,6 +136,52 @@ BOOST_AUTO_TEST_CASE( copyable )
 	BOOST_CHECK_EQUAL("string", second.get(0));
 }
 
+BOOST_AUTO_TEST_CASE( append_all )
+{
+	zmqpp::message second;
+	second.add("second");
+	BOOST_CHECK_EQUAL(1, second.parts());
+
+	{
+		zmqpp::message first;
+		first.add("string");
+		first.add("string2");
+		first.add("string3");
+		BOOST_CHECK_EQUAL(3, first.parts());
+
+		second.append(first);
+	}
+
+	BOOST_REQUIRE_EQUAL(4, second.parts());
+	BOOST_CHECK_EQUAL(strlen("second"), second.size(0));
+	BOOST_CHECK_EQUAL("second", second.get(0));
+	BOOST_CHECK_EQUAL("string", second.get(1));
+	BOOST_CHECK_EQUAL("string2", second.get(2));
+	BOOST_CHECK_EQUAL("string3", second.get(3));
+}
+
+BOOST_AUTO_TEST_CASE( append_partial )
+{
+	zmqpp::message second;
+	second.add("second");
+	BOOST_CHECK_EQUAL(1, second.parts());
+
+	{
+		zmqpp::message first;
+		first.add("string");
+		first.add("string2");
+		first.add("string3");
+		BOOST_CHECK_EQUAL(3, first.parts());
+
+		second.append(first,1,2);
+	}
+
+	BOOST_REQUIRE_EQUAL(2, second.parts());
+	BOOST_CHECK_EQUAL(strlen("second"), second.size(0));
+	BOOST_CHECK_EQUAL("second", second.get(0));
+	BOOST_CHECK_EQUAL("string2", second.get(1));
+}
+
 #ifndef ZMQPP_IGNORE_LAMBDA_FUNCTION_TESTS
 BOOST_AUTO_TEST_CASE( move_part )
 {
@@ -363,6 +409,35 @@ BOOST_AUTO_TEST_CASE( stream_copy_input_string )
 	BOOST_REQUIRE_EQUAL(1, message.parts());
 	BOOST_CHECK_EQUAL(strlen("test part"), message.size(0));
 	BOOST_CHECK_EQUAL("test part", message.get(0));
+}
+
+BOOST_AUTO_TEST_CASE( stream_copy_input_message )
+{
+	zmqpp::message message("test msg1", "test msg1.2");
+	zmqpp::message message2("test msg2", "test msg2.1");
+
+	message << message2;
+
+	BOOST_REQUIRE_EQUAL(4, message.parts());
+	BOOST_CHECK_EQUAL(strlen("test msg1"), message.size(0));
+	BOOST_CHECK_EQUAL("test msg1", message.get(0));
+	BOOST_CHECK_EQUAL("test msg1.2", message.get(1));
+	BOOST_CHECK_EQUAL("test msg2", message.get(2));
+	BOOST_CHECK_EQUAL("test msg2.1", message.get(3));
+}
+
+BOOST_AUTO_TEST_CASE( stream_copy_input_frame )
+{
+	zmqpp::message message("test msg1", "test msg1.2");
+	zmqpp::frame aframe("test msg2.1",strlen("test msg2.1"));
+
+	message << aframe;
+
+	BOOST_REQUIRE_EQUAL(3, message.parts());
+	BOOST_CHECK_EQUAL(strlen("test msg1"), message.size(0));
+	BOOST_CHECK_EQUAL("test msg1", message.get(0));
+	BOOST_CHECK_EQUAL("test msg1.2", message.get(1));
+	BOOST_CHECK_EQUAL("test msg2.1", message.get(2));
 }
 
 BOOST_AUTO_TEST_CASE( stream_multiple_parts )

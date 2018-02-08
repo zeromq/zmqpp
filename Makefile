@@ -2,7 +2,7 @@
 # Instance values, command line user specifiable
 #
 
-CONFIG   = max
+CONFIG   = release
 CPPFLAGS =
 CXXFLAGS =
 LDFLAGS  =
@@ -92,7 +92,7 @@ ifeq ($(CONFIG),max)
 	CONFIG_FLAGS = -O3 -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNDEBUG
 endif
 ifneq (,$(findstring $(CONFIG),release loadtest))
-	CONFIG_FLAGS = -O3 -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNO_DEBUG_LOG -DNO_TRACE_LOG -DNDEBUG
+	CONFIG_FLAGS = -g3 -O3 -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNO_DEBUG_LOG -DNO_TRACE_LOG -DNDEBUG
 endif
 
 COMMON_FLAGS = -MMD -std=c++11 -pipe -Wall -fPIC \

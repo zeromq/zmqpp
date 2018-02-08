@@ -36,9 +36,15 @@ poller::~poller()
 	_fdindex.clear();
 }
 
+#if defined _WIN32
+	static const SOCKET invalid_fd = INVALID_SOCKET;
+#else
+	static const int invalid_fd = -1;
+#endif
+
 void poller::add(socket& socket, short const event /* = POLL_IN */)
 {
-	zmq_pollitem_t const item { socket, 0, event, 0 };
+	zmq_pollitem_t const item { socket, invalid_fd, event, 0 };
 
 	add(item);
 }
@@ -96,40 +102,57 @@ void poller::reindex(size_t const index)
 
 void poller::remove(socket_t const& socket)
 {
-	zmq_pollitem_t const item{ socket, 0, 0, 0 };
+	zmq_pollitem_t const item{ socket, invalid_fd, 0, 0 };
 
 	remove(item);
 }
 
 void poller::remove(raw_socket_t const descriptor)
 {
-	zmq_pollitem_t const item{ nullptr, descriptor, 0, 0 };
+	if (descriptor == invalid_fd)
+		return;
 
-	remove(item);
+	auto found = _fdindex.find(descriptor);
+	if (_fdindex.end() == found) { return; }
+
+	if ( _items.size() - 1 == found->second )
+	{
+		_items.pop_back();
+		_fdindex.erase(found);
+		return;
+	}
+
+	std::swap(_items[found->second], _items.back());
+	_items.pop_back();
+
+	auto index = found->second;
+	_fdindex.erase(found);
+
+	reindex( index );
 }
 
 void poller::remove(zmq_pollitem_t const& item)
 {
-    if (nullptr == item.socket)
-      return remove(item.fd);
-    
-    auto found = _index.find(item.socket);
-    if (_index.end() == found) { return; }
-    
-    if ( _items.size() - 1 == found->second )
-      {
+	if (nullptr == item.socket)
+		return remove(item.fd);
+
+	auto found = _index.find(item.socket);
+	if (_index.end() == found) { return; }
+
+	if ( _items.size() - 1 == found->second )
+	{
+		_items.pop_back();
+		_index.erase(found);
+		return;
+	}
+
+	std::swap(_items[found->second], _items.back());
 	_items.pop_back();
+
+	auto index = found->second;
 	_index.erase(found);
-	return;
-      }
-    
-    std::swap(_items[found->second], _items.back());
-    _items.pop_back();
-    
-    auto index = found->second;
-    _index.erase(found);
-    
-    reindex( index );
+
+	reindex( index );
 }
 
 void poller::check_for(socket const& socket, short const event)

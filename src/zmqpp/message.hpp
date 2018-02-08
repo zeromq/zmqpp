@@ -159,6 +159,12 @@ public:
 		_parts.push_back( frame( part, data_size ) );
 	}
 
+	//specialization for common add_raw. Add copy
+	void add_raw(frame const *a_frame)
+	{
+		_parts.push_back( a_frame->copy() );
+	}
+
 	// Use exact data past, neither zmqpp nor 0mq will copy, alter or delete
 	// this data. It must remain as valid for at least the lifetime of the
 	// 0mq message, recommended only with const data.
@@ -266,6 +272,17 @@ public:
 	message& operator<<(char const* c_string);
 	message& operator<<(std::string const& string);
 
+	message& operator<<(frame const& c_frame)
+	{
+		add_raw(c_frame.data(), c_frame.size());
+		return *this;
+	}
+	message& operator<<(message const& c_message)
+	{
+		append(c_message);
+		return *this;
+	}
+
 	// Queue manipulation
 	void push_front(void const* part, size_t const size);
 
@@ -312,6 +329,10 @@ public:
 	// Copy support
 	message copy() const;
 	void copy(message const& source);
+
+	// Append (like copy) frames[from..to-1] of source to self
+	// to == 0 -- append till end
+	void append(message const& source, size_t from = 0, size_t to = 0);
 
 	// Used for internal tracking
 	void sent(size_t const part);
