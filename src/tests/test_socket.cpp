@@ -508,7 +508,7 @@ BOOST_AUTO_TEST_CASE( test_signal_block_noblock )
     BOOST_CHECK_EQUAL(true, p2.receive(sig, true)); //noblock
 }
 
-
+#if (ZMQ_VERSION_MAJOR >= 4)
 BOOST_AUTO_TEST_CASE( simple_stream )
 {
 	zmqpp::context context;
@@ -531,6 +531,7 @@ BOOST_AUTO_TEST_CASE( simple_stream )
 	BOOST_CHECK(response.parts() == 2);
 	BOOST_CHECK(response.get(1) == "Hello world!");
 }
+#endif
 
 #ifndef TRAVIS_CI_BUILD //do not run when building on travis-ci (this cause oom error and kill the test process)
 BOOST_AUTO_TEST_CASE( sending_large_messages_string )
