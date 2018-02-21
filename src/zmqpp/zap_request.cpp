@@ -20,6 +20,7 @@
 #include "z85.hpp"
 #include "byte_ordering.hpp"
 #include <unordered_map>
+#include <iterator>
 
 #ifndef _WIN32
 #include <netinet/in.h>
