@@ -96,32 +96,41 @@ void poller::reindex(size_t const index)
 
 void poller::remove(socket_t const& socket)
 {
-	zmq_pollitem_t const item{ socket, 0, 0, 0 };
-
-	remove(item);
+    remove(static_cast<void*>(socket));
 }
 
 void poller::remove(raw_socket_t const descriptor)
 {
-	zmq_pollitem_t const item{ nullptr, descriptor, 0, 0 };
+    auto found = _fdindex.find(descriptor);
+    if (_fdindex.end() == found) { return; }
 
-	remove(item);
+    if ( _items.size() - 1 == found->second )
+    {
+        _items.pop_back();
+        _fdindex.erase(found);
+        return;
+    }
+
+    std::swap(_items[found->second], _items.back());
+    _items.pop_back();
+
+    auto index = found->second;
+    _fdindex.erase(found);
+
+    reindex( index );
 }
 
-void poller::remove(zmq_pollitem_t const& item)
+void poller::remove(void* zmq_socket)
 {
-    if (nullptr == item.socket)
-      return remove(item.fd);
-    
-    auto found = _index.find(item.socket);
+    auto found = _index.find(zmq_socket);
     if (_index.end() == found) { return; }
     
     if ( _items.size() - 1 == found->second )
-      {
-	_items.pop_back();
-	_index.erase(found);
-	return;
-      }
+    {
+        _items.pop_back();
+        _index.erase(found);
+        return;
+    }
     
     std::swap(_items[found->second], _items.back());
     _items.pop_back();
@@ -130,6 +139,14 @@ void poller::remove(zmq_pollitem_t const& item)
     _index.erase(found);
     
     reindex( index );
+}
+
+void poller::remove(zmq_pollitem_t const& item)
+{
+    if (item.socket)
+        return remove(item.socket);
+    else
+        return remove(item.fd);
 }
 
 void poller::check_for(socket const& socket, short const event)
@@ -156,20 +173,19 @@ void poller::check_for(raw_socket_t const descriptor, short const event)
 
 void poller::check_for(zmq_pollitem_t const& item, short const event)
 {
-
-        if (nullptr == item.socket)
-            check_for(item.fd, event);
-        else
+    if (nullptr == item.socket)
+        check_for(item.fd, event);
+    else
+    {
+        auto found = _index.find(item.socket);
+        if (_index.end() == found)
         {
-            auto found = _index.find(item.socket);
-            if (_index.end() == found)
-            {
-                throw exception("this socket is not represented within this poller");
-            }
-
-            _items[found->second].events = event;
-
+            throw exception("this socket is not represented within this poller");
         }
+
+        _items[found->second].events = event;
+
+    }
 }
 
 bool poller::poll(long timeout /* = WAIT_FOREVER */)
