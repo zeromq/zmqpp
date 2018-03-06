@@ -232,12 +232,20 @@ public:
 	bool has_error(Watched const& watchable) const { return (events(watchable) & poll_error) != 0; }
 
 private:
-	std::vector<zmq_pollitem_t> _items;
-	std::unordered_map<void *, size_t> _index;
-	std::unordered_map<raw_socket_t, size_t> _fdindex;
+    typedef std::unordered_map<void *, size_t> zmq_socket_index_t;
+    typedef std::unordered_map<raw_socket_t, size_t> raw_socket_index_t;
 
-	void reindex(size_t const index);
-	void remove(void* zmq_socket);
+	std::vector<zmq_pollitem_t> _items;
+	zmq_socket_index_t _index;
+	raw_socket_index_t _fdindex;
+
+    void reindex(size_t const items_index, zmq_socket_index_t& index);
+    void reindex(size_t const items_index, raw_socket_index_t& index);
+
+    template<typename Socket, typename Index>
+    void remove_impl(Socket socket, Index& index);
+
+    void remove(void* zmq_socket);
 };
 
 }

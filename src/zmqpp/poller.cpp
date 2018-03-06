@@ -78,20 +78,40 @@ bool poller::has(zmq_pollitem_t const& item)
 	return _fdindex.find(item.fd) != _fdindex.end();
 }
 
-void poller::reindex(size_t const index)
+void poller::reindex(size_t const items_index, zmq_socket_index_t& index)
 {
-	if ( nullptr != _items[index].socket )
-	{
-		auto found = _index.find( _items[index].socket );
-		if (_index.end() == found) { throw exception("unable to reindex socket in poller"); }
-		found->second = index;
-	}
-	else
-	{
-		auto found = _fdindex.find( _items[index].fd );
-		if (_fdindex.end() == found) { throw exception("unable to reindex file descriptor in poller"); }
-		found->second = index;
-	}
+    auto found = index.find( _items[items_index].socket );
+    if (index.end() == found) { throw exception("unable to reindex socket in poller"); }
+    found->second = items_index;
+}
+
+void poller::reindex(size_t const items_index, raw_socket_index_t& index)
+{
+    auto found = index.find( _items[items_index].fd );
+    if (index.end() == found) { throw exception("unable to reindex file descriptor in poller"); }
+    found->second = items_index;
+}
+
+template<typename Socket, typename Index>
+void poller::remove_impl(Socket socket, Index& index)
+{
+    auto found = index.find(socket);
+    if (index.end() == found) { return; }
+
+    if ( _items.size() - 1 == found->second )
+    {
+        _items.pop_back();
+        index.erase(found);
+        return;
+    }
+
+    std::swap(_items[found->second], _items.back());
+    _items.pop_back();
+
+    auto items_index = found->second;
+    index.erase(found);
+
+    reindex(items_index, index);
 }
 
 void poller::remove(socket_t const& socket)
@@ -101,52 +121,20 @@ void poller::remove(socket_t const& socket)
 
 void poller::remove(raw_socket_t const descriptor)
 {
-    auto found = _fdindex.find(descriptor);
-    if (_fdindex.end() == found) { return; }
-
-    if ( _items.size() - 1 == found->second )
-    {
-        _items.pop_back();
-        _fdindex.erase(found);
-        return;
-    }
-
-    std::swap(_items[found->second], _items.back());
-    _items.pop_back();
-
-    auto index = found->second;
-    _fdindex.erase(found);
-
-    reindex( index );
+    remove_impl(descriptor, _fdindex);
 }
 
 void poller::remove(void* zmq_socket)
 {
-    auto found = _index.find(zmq_socket);
-    if (_index.end() == found) { return; }
-    
-    if ( _items.size() - 1 == found->second )
-    {
-        _items.pop_back();
-        _index.erase(found);
-        return;
-    }
-    
-    std::swap(_items[found->second], _items.back());
-    _items.pop_back();
-    
-    auto index = found->second;
-    _index.erase(found);
-    
-    reindex( index );
+    remove_impl(zmq_socket, _index);
 }
 
 void poller::remove(zmq_pollitem_t const& item)
 {
     if (item.socket)
-        return remove(item.socket);
+        remove(item.socket);
     else
-        return remove(item.fd);
+        remove(item.fd);
 }
 
 void poller::check_for(socket const& socket, short const event)
