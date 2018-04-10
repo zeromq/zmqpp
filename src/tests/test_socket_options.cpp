@@ -24,6 +24,7 @@ BOOST_AUTO_TEST_SUITE( socket_options )
 #define CHECK_SET(socket, type, option) check_set<type>(socket, zmqpp::socket_option::option, STRINGIFY(option), false)
 #define CHECK_SET_POSITIVE(socket, type, option) check_set<type>(socket, zmqpp::socket_option::option, STRINGIFY(option), true)
 #define CHECK_GET(socket, type, option) check_get<type>(socket, zmqpp::socket_option::option, STRINGIFY(option))
+#define CHECK_SET_GET(socket, type, option) check_set_get<type>(socket, zmqpp::socket_option::option, STRINGIFY(option), false)
 
 // Note the hacky abuse of the fact we don't have float options
 #define CHECK_NOSET(socket, option) check_set<float>(socket, zmqpp::socket_option::option, STRINGIFY(option), false)
@@ -57,6 +58,27 @@ void try_get(zmqpp::socket const& socket, zmqpp::socket_option const& option, st
 		CheckType value;
 		socket.get(option, value);
 		BOOST_CHECK_MESSAGE(typeid(CheckType) == typeid(WantedType), "expected exception getting option " << option_name << " against type '" << value_type << "'");
+	}
+	catch(zmqpp::zmq_internal_exception const& e)
+	{
+		BOOST_CHECK_MESSAGE(false, "threw internal exception " << e.zmq_error() << " '" << e.what() << "' getting option " << option_name << " against type '" << value_type << "'");
+	}
+	catch(zmqpp::exception const& e)
+	{
+		BOOST_CHECK_MESSAGE(typeid(CheckType) != typeid(WantedType), "threw unexpected exception '" << e.what() << "' getting option " << option_name << " against type '" << value_type << "'");
+	}
+}
+
+template<typename CheckType, typename WantedType>
+void try_set_get(zmqpp::socket& socket, zmqpp::socket_option const& option, CheckType const& value, std::string const& option_name, std::string const& value_type)
+{
+	BOOST_TEST_CHECKPOINT("setting and getting option " << option_name << " against set type '" << value_type << "'");
+	try
+	{
+		socket.set(option, value);
+		CheckType retrieveValue;
+		socket.get(option, retrieveValue);
+		BOOST_CHECK_MESSAGE(value == retrieveValue, "wrong value retrieving option " << option_name << " against type '" << value_type << "'");
 	}
 	catch(zmqpp::zmq_internal_exception const& e)
 	{
@@ -157,7 +179,113 @@ void check_get(zmqpp::socket& socket, zmqpp::socket_option const& option, std::s
 	try_get<std::string, Type>(socket, option, option_name, "string");
 }
 
+template<typename Type>
+void check_set_get(zmqpp::socket& socket, zmqpp::socket_option const& option, std::string const& option_name, bool positive_only)
+{
+	// Integer - Masquerade of unsigned 64bit integer
+	if (typeid(uint64_t) == typeid(Type))
+	{
+		try_set_get<uint64_t, uint64_t>(socket, option, 42, option_name, "unsigned 64 integer");
+	}
+	else if (typeid(int64_t) == typeid(Type))
+	{
+		try_set_get<int64_t, int64_t>(socket, option, -1, option_name, "signed 64 integer");
+	}
+	// Integer - Masquerade of boolean
+	else if (typeid(bool) == typeid(Type))
+	{
+		try_set_get<bool, bool>(socket, option, true, option_name, "boolean");
+	}
+	else if (typeid(std::string) == typeid(Type))
+	{
+		// Strings
+		try_set_get<std::string, std::string>(socket, option, "test", option_name, "string");
+	}
+}
+
 BOOST_AUTO_TEST_CASE( set_socket_options )
+{
+	zmqpp::context context;
+	zmqpp::socket socket(context, zmqpp::socket_type::subscribe);
+	socket.bind("inproc://test");
+
+	CHECK_SET_GET(socket, int, receive_more);
+	CHECK_SET_GET(socket, int, file_descriptor);
+	CHECK_SET_GET(socket, int, events);
+	CHECK_SET_GET(socket, int, type);
+	CHECK_SET_GET(socket, int, linger);
+	CHECK_SET_GET(socket, int, backlog);
+	CHECK_SET_GET(socket, int, receive_timeout);
+	CHECK_SET_GET(socket, int, send_timeout);
+	CHECK_SET_GET(socket, uint64_t, affinity);
+	CHECK_SET_GET(socket, std::string, identity);
+	// For some reason -1 not working here
+	//CHECK_SET(socket, int, reconnect_interval);
+	CHECK_SET_GET(socket, int, reconnect_interval_max);
+	CHECK_SET_GET(socket, int, backlog);
+#if (ZMQ_VERSION_MAJOR > 2)
+	CHECK_SET_GET(socket, int, send_buffer_size);
+	CHECK_SET_GET(socket, int, receive_buffer_size);
+	CHECK_SET_GET(socket, int, rate);
+	CHECK_SET_GET(socket, int, recovery_interval);
+	CHECK_SET_GET(socket, int, send_high_water_mark);
+	CHECK_SET_GET(socket, int, receive_high_water_mark);
+	CHECK_SET_GET(socket, int, multicast_hops);
+#else
+	CHECK_SET_GET(socket, bool, multicast_loopback);
+	CHECK_SET_GET(socket, int64_t, rate);
+	CHECK_SET_GET(socket, int64_t, recovery_interval);
+	CHECK_SET_GET(socket, int64_t, recovery_interval_seconds);
+	CHECK_SET_GET(socket, int64_t, swap_size);
+	CHECK_SET_GET(socket, uint64_t, send_buffer_size);
+	CHECK_SET_GET(socket, uint64_t, receive_buffer_size);
+	CHECK_SET_GET(socket, uint64_t, high_water_mark);
+#endif
+
+
+
+
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
+	CHECK_SET_GET(socket, bool, ipv4_only);
+#endif
+
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 2)
+	CHECK_SET_GET(socket, bool, delay_attach_on_connect);
+#else
+	CHECK_SET_GET(socket, bool, immediate);
+#endif
+	// CHECK_SET_GET(socket, int, tcp_keepalive);  --- special case of boolean but with -1?
+	CHECK_SET_GET(socket, int, tcp_keepalive_idle);
+	CHECK_SET_GET(socket, int, tcp_keepalive_count);
+	CHECK_SET_GET(socket, int, tcp_keepalive_interval);
+	// CHECK_SET_GET(socket, std::string, tcp_accept_filter); --- special case required to be an address
+#endif
+
+#if (ZMQ_VERSION_MAJOR >= 4)
+	CHECK_SET_GET(socket, bool, ipv6);
+	CHECK_SET_GET(socket, int, mechanism);
+	CHECK_SET_GET(socket, std::string, plain_password);
+	CHECK_SET_GET(socket, bool, plain_server);
+	CHECK_SET_GET(socket, std::string, plain_username);
+	CHECK_SET_GET(socket, std::string, zap_domain);
+	//CHECK_SET_GET(socket, std::string, curve_public_key);
+	//CHECK_SET_GET(socket, std::string, curve_secret_key);
+	//CHECK_SET_GET(socket, std::string, curve_server_key);
+#endif
+
+#if (ZMQ_VERSION_MAJOR > 4 || ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 2)
+	//CHECK_SET_GET(socket, std::string, gssapi_principal);
+	//CHECK_SET_GET(socket, std::string, gssapi_service_principal);
+	CHECK_SET_GET(socket, std::string, socks_proxy);
+#endif
+
+#ifdef ZMQ_EXPERIMENTAL_LABELS
+	CHECK_NOSET(socket, receive_label);
+#endif
+}
+
+BOOST_AUTO_TEST_CASE( set_get_socket_options )
 {
 	zmqpp::context context;
 	zmqpp::socket socket(context, zmqpp::socket_type::subscribe);
@@ -234,6 +362,7 @@ BOOST_AUTO_TEST_CASE( set_socket_options )
 	CHECK_NOSET(socket, receive_label);
 #endif
 }
+
 
 #if (ZMQ_VERSION_MAJOR >= 4)
 BOOST_AUTO_TEST_CASE( set_socket_options_tcp_only )

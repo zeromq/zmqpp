@@ -838,6 +838,12 @@ void socket::get(socket_option const option, std::string& value) const
 	switch(option)
 	{
 	case socket_option::identity:
+		if(0 != zmq_getsockopt(_socket, static_cast<int>(option), buffer.data(), &size))
+		{
+			throw zmq_internal_exception();
+		}
+		value.assign(buffer.data(), size);
+		break;
 #if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	case socket_option::last_endpoint:
 #endif
@@ -858,8 +864,7 @@ void socket::get(socket_option const option, std::string& value) const
 		{
 			throw zmq_internal_exception();
 		}
-
-		value.assign(buffer.data(), size > 0 ? size-1 : 0);
+		value = buffer.data();
 		break;
 	default:
 		throw exception("attempting to get a non string option with a string value");
