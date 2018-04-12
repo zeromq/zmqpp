@@ -43,7 +43,7 @@ namespace zmqpp
      * @param string the string to be decoded.
      * @return a vector of uint8_t: the binary block after string decoding.
      */
-	extern ZMQPP_EXPORT std::vector<uint8_t> decode(const std::string &string);
+    extern ZMQPP_EXPORT std::vector<uint8_t> decode(const std::string &string);
   }
 #endif
 
