@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <zmq.h>
+#include "compatibility.hpp"
 
 namespace zmqpp
 {
@@ -26,7 +27,7 @@ namespace zmqpp
      * @return the encoded string.
      * See ZMQ RFC 32;
      */
-    std::string encode(const std::string &raw_data);
+    extern ZMQPP_EXPORT std::string encode(const std::string &raw_data);
 
     /**
      * Encode a binary blob into a string using Z85 representation.
@@ -35,14 +36,14 @@ namespace zmqpp
      * @return the encoded string.
      * See ZMQ RFC 32;
      */
-    std::string encode(const uint8_t *data, size_t size);
+    extern ZMQPP_EXPORT std::string encode(const uint8_t *data, size_t size);
 
     /**
      * Decode a Z85 encoded string into a binary blob represented as a vector.
      * @param string the string to be decoded.
      * @return a vector of uint8_t: the binary block after string decoding.
      */
-    std::vector<uint8_t> decode(const std::string &string);
+    extern ZMQPP_EXPORT std::vector<uint8_t> decode(const std::string &string);
   }
 #endif
 

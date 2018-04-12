@@ -29,7 +29,7 @@ namespace zmqpp
      *
      * It uses zmq::poller as the underlying polling mechanism.
      */
-    class reactor
+    class ZMQPP_EXPORT reactor
     {
     public:
         typedef std::function<void (void) > Callable;

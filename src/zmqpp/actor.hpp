@@ -49,7 +49,7 @@ namespace zmqpp
    *       This response is used to determine if stop() will return true or
    *       false when in blocking mode.
    */
-  class actor
+  class ZMQPP_EXPORT actor
   {
   public:
     /**
