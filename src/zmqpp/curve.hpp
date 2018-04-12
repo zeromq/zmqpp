@@ -37,7 +37,7 @@ struct keypair
 };
 
 #if (ZMQ_VERSION_MAJOR >= 4)
-keypair generate_keypair();
+ZMQPP_EXPORT keypair generate_keypair();
 #endif
 
 } }
