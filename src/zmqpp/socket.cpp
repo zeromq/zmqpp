@@ -341,7 +341,7 @@ bool socket::receive_raw(char* buffer, size_t& length, int const flags /* = NORM
 
 	if(result >= 0)
 	{
-		length = std::min(length, zmq_msg_size(&_recv_buffer));
+		length = (std::min<size_t>)(length, zmq_msg_size(&_recv_buffer));
 		memcpy(buffer, zmq_msg_data(&_recv_buffer), length);
 
 		return true;
