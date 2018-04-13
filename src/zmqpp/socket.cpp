@@ -675,12 +675,10 @@ void socket::get(socket_option const option, int& value) const
 	case socket_option::receive_high_water_mark:
 	case socket_option::multicast_hops:
 #endif
-#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_
-      OR >= 1))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
 	case socket_option::ipv4_only:
 #endif
-#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_
-      OR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 #if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 2)
 	case socket_option::delay_attach_on_connect:
 #else
