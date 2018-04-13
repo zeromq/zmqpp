@@ -237,6 +237,7 @@ private:
 	std::unordered_map<raw_socket_t, size_t> _fdindex;
 
 	void reindex(size_t const index);
+	void remove(void* zmq_socket);
 };
 
 }

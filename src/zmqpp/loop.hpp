@@ -44,14 +44,14 @@ namespace zmqpp
         /**
          * Construct an empty polling model.
          */
-        loop();
+        ZMQPP_EXPORT loop();
 
         /**
          * Cleanup reactor.
          *
          * Any sockets will need to be closed separately.
          */
-        virtual ~loop();
+        ZMQPP_EXPORT virtual ~loop();
 
         /**
          * Add a socket to the loop, providing a handler that will be called when the monitored events occur.
@@ -60,7 +60,7 @@ namespace zmqpp
          * \param callable the function that will be called by the loop when a registered event occurs on socket.
          * \param event the event flags to monitor on the socket.
          */
-        void add(socket_t& socket, Callable callable, short const event = poller::poll_in);
+        ZMQPP_EXPORT void add(socket_t& socket, Callable callable, short const event = poller::poll_in);
 
         /*!
          * Add a standard socket to the loop, providing a handler that will be called when the monitored events occur.
@@ -69,7 +69,7 @@ namespace zmqpp
          * \param callable the function that will be called by the loop when a registered event occurs on fd.
          * \param event the event flags to monitor.
          */
-        void add(raw_socket_t const descriptor, Callable callable, short const event = poller::poll_in | poller::poll_error);
+        ZMQPP_EXPORT void add(raw_socket_t const descriptor, Callable callable, short const event = poller::poll_in | poller::poll_error);
 
         /**
          * Add a timed event to the loop, providing a handler that will be called when timer fires.
@@ -78,40 +78,40 @@ namespace zmqpp
          * \param times how many times should timer be reneved - 0 for infinte ammount.
          * \param callable the function that will be called by the loop after delay.
          */
-        timer_id_t add(std::chrono::milliseconds delay, size_t times, Callable callable);
+        ZMQPP_EXPORT timer_id_t add(std::chrono::milliseconds delay, size_t times, Callable callable);
 
         /**
          * Reset timer in the loop, it will start counting delay time again. Times argument is preserved.
          *
          * \param timer identifier in the loop.
          */
-        void reset(timer_id_t const timer);
+        ZMQPP_EXPORT void reset(timer_id_t const timer);
 
         /**
          * Remove timer event from the loop.
          *
          * \param timer identifier in the loop.
          */
-        void remove(timer_id_t const timer);
+        ZMQPP_EXPORT void remove(timer_id_t const timer);
 
         /**
          * Stop monitoring a socket.
          *
          * \param socket the socket to stop monitoring.
          */
-        void remove(socket_t const& socket);
+        ZMQPP_EXPORT void remove(socket_t const& socket);
 
         /**
          * Stop monitoring a standard socket.
          *
          * \param descriptor the standard socket to stop monitoring.
          */
-        void remove(raw_socket_t const descriptor);
+        ZMQPP_EXPORT void remove(raw_socket_t const descriptor);
 
         /**
          * Starts loop. It will block until one of handlers returns false.
          */
-        void start();
+        ZMQPP_EXPORT void start();
 
     private:
         struct timer_t {

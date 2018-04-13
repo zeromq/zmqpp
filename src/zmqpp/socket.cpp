@@ -341,7 +341,7 @@ bool socket::receive_raw(char* buffer, size_t& length, int const flags /* = NORM
 
 	if(result >= 0)
 	{
-		length = (std::min)(length, zmq_msg_size(&_recv_buffer));
+		length = (std::min<size_t>)(length, zmq_msg_size(&_recv_buffer));
 		memcpy(buffer, zmq_msg_data(&_recv_buffer), length);
 
 		return true;
@@ -675,10 +675,12 @@ void socket::get(socket_option const option, int& value) const
 	case socket_option::receive_high_water_mark:
 	case socket_option::multicast_hops:
 #endif
-#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_
+      OR >= 1))
 	case socket_option::ipv4_only:
 #endif
-#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_
+      OR >= 2))
 #if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 2)
 	case socket_option::delay_attach_on_connect:
 #else
@@ -838,6 +840,12 @@ void socket::get(socket_option const option, std::string& value) const
 	switch(option)
 	{
 	case socket_option::identity:
+		if(0 != zmq_getsockopt(_socket, static_cast<int>(option), buffer.data(), &size))
+		{
+			throw zmq_internal_exception();
+		}
+		value.assign(buffer.data(), size);
+		break;
 #if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	case socket_option::last_endpoint:
 #endif
@@ -858,8 +866,7 @@ void socket::get(socket_option const option, std::string& value) const
 		{
 			throw zmq_internal_exception();
 		}
-
-		value.assign(buffer.data(), size > 0 ? size-1 : 0);
+		value = buffer.data();
 		break;
 	default:
 		throw exception("attempting to get a non string option with a string value");

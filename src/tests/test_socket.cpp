@@ -508,6 +508,31 @@ BOOST_AUTO_TEST_CASE( test_signal_block_noblock )
     BOOST_CHECK_EQUAL(true, p2.receive(sig, true)); //noblock
 }
 
+#if (ZMQ_VERSION_MAJOR >= 4)
+BOOST_AUTO_TEST_CASE( simple_stream )
+{
+	zmqpp::context context;
+
+	zmqpp::socket s1(context, zmqpp::socket_type::stream);
+	zmqpp::socket s2(context, zmqpp::socket_type::stream);
+
+	s1.bind("inproc://test");
+	s2.connect("inproc://test");
+
+	std::string identity;
+	s2.get(zmqpp::socket_option::identity, identity);
+	zmqpp::message request;
+	request << identity;
+	request << "Hello world!";
+	BOOST_CHECK(s2.send(request));
+
+	zmqpp::message response;
+	BOOST_CHECK(s1.receive(response));
+	BOOST_CHECK(response.parts() == 2);
+	BOOST_CHECK(response.get(1) == "Hello world!");
+}
+#endif
+
 #ifndef TRAVIS_CI_BUILD //do not run when building on travis-ci (this cause oom error and kill the test process)
 BOOST_AUTO_TEST_CASE( sending_large_messages_string )
 {

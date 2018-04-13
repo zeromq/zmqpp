@@ -32,7 +32,7 @@ namespace zmqpp
  * Used in auth to simplify working with RFC 27 messages.
  *
  */
-class zap_request {
+class ZMQPP_EXPORT zap_request {
 public:
     /**
      * Receive a ZAP valid request from the handler socket

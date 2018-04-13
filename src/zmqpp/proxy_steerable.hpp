@@ -31,7 +31,7 @@ namespace zmqpp
    *
    * @note This is wrapper around `zmq_proxy_steerable()`.
    */
-  class proxy_steerable
+  class ZMQPP_EXPORT proxy_steerable
   {
   public:
     /**

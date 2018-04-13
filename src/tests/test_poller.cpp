@@ -223,4 +223,12 @@ BOOST_AUTO_TEST_CASE( exceptions_testing_removed_sockets )
 	BOOST_CHECK_THROW(poller.events(pusher), zmqpp::exception);
 }
 
+BOOST_AUTO_TEST_CASE(poller_remove_fd)
+{
+    const int fd = 1;
+    zmqpp::poller poller;
+    poller.add(fd);
+    poller.remove(fd);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

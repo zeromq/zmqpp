@@ -43,7 +43,7 @@ namespace zmqpp
  * and define policies for securing PLAIN, CURVE, and GSSAPI connections.
  *
  */
-class auth 
+class ZMQPP_EXPORT auth
 {
 public:
 	/**
