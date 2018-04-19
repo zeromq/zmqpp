@@ -2,7 +2,7 @@
 # Instance values, command line user specifiable
 #
 
-CONFIG   = release
+CONFIG   ?= release
 CPPFLAGS =
 CXXFLAGS =
 LDFLAGS  =

@@ -47,6 +47,16 @@ namespace zmqpp
         when += delay;
     }
 
+    short loop::events(raw_socket_t const descriptor) const{
+        zmq_pollitem_t item{nullptr, descriptor, 0, 0};
+        return poller_.events(item);
+    }
+
+    short loop::events(socket const& socket) const{
+        zmq_pollitem_t item{static_cast<void *> (socket), 0, 0, 0};
+        return poller_.events(item);
+    }
+
     void loop::add(socket& socket, Callable callable, short const event /* = POLL_IN */, Callable after_remove_cb /* = Callable(nullptr)*/)
     {
         zmq_pollitem_t item{static_cast<void *> (socket), 0, event, 0};
@@ -206,7 +216,7 @@ namespace zmqpp
         {
             const zmq_pollitem_t &pollitem = std::get<0>(tuple);
 
-            if (poller_.has_input(pollitem) || poller_.has_error(pollitem) || poller_.has_output(pollitem))
+            if (poller_.events(pollitem))
                 if(!std::get<1>(tuple)())
                     return false;
         }

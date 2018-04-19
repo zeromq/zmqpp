@@ -115,6 +115,16 @@ namespace zmqpp
          */
         void start();
 
+
+        /**
+         * Get revents on a standard socket after poll().
+         *
+         * \param descriptor the standard socket to stop monitoring.
+         * Attention: it do a second search thru list of FDs
+         */
+        short events(raw_socket_t const descriptor) const;
+        short events(socket const& socket) const;
+
     private:
         struct timer_t {
             size_t times;
