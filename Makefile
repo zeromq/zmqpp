@@ -81,6 +81,9 @@ ifeq ($(UNAME_S),Darwin)
 endif
 
 
+BUILD_SHARED   ?= yes
+BUILD_STATIC   ?= yes
+
 CONFIG_FLAGS =
 ifeq ($(CONFIG),debug)
 	CONFIG_FLAGS = -g -fno-inline -ftemplate-depth-1000
@@ -95,12 +98,21 @@ ifneq (,$(findstring $(CONFIG),release loadtest))
 	CONFIG_FLAGS = -O3 -funroll-loops -ffast-math -finline-functions -fomit-frame-pointer -DNO_DEBUG_LOG -DNO_TRACE_LOG -DNDEBUG
 endif
 
-COMMON_FLAGS = -MMD -std=c++11 -pipe -Wall -fPIC \
+COMMON_FLAGS = -MMD -std=c++11 -pipe -Wall \
 	-DBUILD_ENV=$(CONFIG) \
 	-DBUILD_DATESTAMP='$(APP_DATESTAMP)' \
 	-DBUILD_LIBRARY_NAME='"$(LIBRARY_NAME)"' \
 	-DBUILD_CLIENT_NAME='"$(CLIENT_TARGET)"' \
 	-I$(SRC_PATH) $(CUSTOM_INCLUDE_PATH)
+
+ifeq ($(BUILD_SHARED),yes)
+COMMON_FLAGS += -fPIC
+LIBRARY_TARGETS += $(LIBRARY_SHARED)
+endif
+
+ifeq ($(BUILD_STATIC),yes)
+LIBRARY_TARGETS += $(LIBRARY_ARCHIVE)
+endif
 
 COMMON_LIBS = -lzmq
 
@@ -150,11 +162,15 @@ install:
 	mkdir -p $(LIBDIR)
 	mkdir -p $(PKGCONFIGDIR)
 	install -m 644 $(ALL_LIBRARY_INCLUDES) $(INCLUDEDIR)/$(LIBRARY_DIR)
-	install -m 755 $(BUILD_PATH)/$(LIBRARY_VERSION_SHARED) $(LIBDIR)/$(LIBRARY_FULL_VERSION_SHARED)
-	install -m 755 $(BUILD_PATH)/$(LIBRARY_ARCHIVE) $(LIBDIR)/$(LIBRARY_ARCHIVE)
 	install -m 755 $(BUILD_PATH)/$(PKGCONFIG_FILE) $(PKGCONFIGDIR)/$(PKGCONFIG_FILE)
+ifeq ($(BUILD_SHARED),yes)
+	install -m 755 $(BUILD_PATH)/$(LIBRARY_VERSION_SHARED) $(LIBDIR)/$(LIBRARY_FULL_VERSION_SHARED)
 	ln -sf $(LIBRARY_FULL_VERSION_SHARED) $(LIBDIR)/$(LIBRARY_VERSION_SHARED)
 	ln -sf $(LIBRARY_FULL_VERSION_SHARED) $(LIBDIR)/$(LIBRARY_SHARED)
+endif
+ifeq ($(BUILD_STATIC),yes)
+	install -m 755 $(BUILD_PATH)/$(LIBRARY_ARCHIVE) $(LIBDIR)/$(LIBRARY_ARCHIVE)
+endif
 	if [ -f $(BUILD_PATH)/$(CLIENT_TARGET) ]; then install -m 755 $(BUILD_PATH)/$(CLIENT_TARGET) $(BINDIR); fi
 	$(LDCONFIG)
 	@echo "use make installcheck to test the install"
@@ -176,7 +192,7 @@ clean:
 
 client: $(CLIENT_TARGET)
 
-library: $(LIBRARY_SHARED) $(LIBRARY_ARCHIVE)
+library: $(LIBRARY_TARGETS)
 
 #
 # BUILD Targets
