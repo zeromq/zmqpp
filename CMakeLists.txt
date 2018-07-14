@@ -140,12 +140,16 @@ if (ZMQPP_BUILD_SHARED)
 endif() # ZMQPP_BUILD_SHARED
 
 # We need to link zmqpp to ws2_32 on windows for the implementation of winsock2.h
-if(WIN32)
-	target_link_libraries(zmqpp ws2_32)
+if(WIN32 AND ZMQPP_BUILD_SHARED)
+    target_link_libraries(zmqpp ws2_32)
 endif() # WIN32
 
 include(GenerateExportHeader)
-generate_export_header(zmqpp)
+if(ZMQPP_BUILD_SHARED)
+  generate_export_header(zmqpp)
+elseif(ZMQPP_BUILD_STATIC)
+  generate_export_header(zmqpp-static BASE_NAME zmqpp)
+endif()
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Examples
