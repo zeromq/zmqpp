@@ -156,6 +156,16 @@ ZMQPP_COMPARABLE_ENUM socket_type {
 	xreq       = ZMQ_XREQ,   /*!< version of ::xrequest to match zmq name convention */
 	xrep       = ZMQ_XREP,   /*!< version of ::xreply to match zmq name convention */
 
+#ifdef ZMQ_BUILD_DRAFT_API	
+	server     = ZMQ_SERVER,  /*!< client-server pattern is intended for service-oriented architectures of various kinds. It provides an asynchronous two-way message flow. see http://rfc.zeromq.org/spec:41 */
+	client     = ZMQ_CLIENT,  /*!< client-server pattern is intended for service-oriented architectures of various kinds. It provides an asynchronous two-way message flow. see http://rfc.zeromq.org/spec:41 */
+	radio      = ZMQ_RADIO,   /*!< meant to eventually deprecate the use of ZMQ_PUB to build pub-sub architectures, also supports udp */
+	dish       = ZMQ_DISH,    /*!< meant to eventually deprecate the use of ZMQ_SUB to build pub-sub architectures, also supports udp */
+	gather     = ZMQ_GATHER,  /*!< intention is to extend the API to allow scatter/gather of multi-part data. as client-server does not support ZMQ_SNDMORE/ZMQ_RCVMORE */
+	scatter    = ZMQ_SCATTER, /*!< intention is to extend the API to allow scatter/gather of multi-part data. as client-server does not support ZMQ_SNDMORE/ZMQ_RCVMORE */
+	dgram      = ZMQ_DGRAM,   /*!< unknown, as documentation is somewhat lacking. supports udp? */
+#endif
+
 	// For completion
 	router     = ZMQ_ROUTER, /*!< \deprecated Matches zmq 2.x xrep functionality. */
 	dealer     = ZMQ_DEALER  /*!< \deprecated Matches zmq 2.x xreq functionality. */
