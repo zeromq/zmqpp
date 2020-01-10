@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include <zmq_utils.h>
+#include <zmq.h>
 
 #include "compatibility.hpp"
 
