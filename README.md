@@ -1,8 +1,6 @@
-Introduction
-============
+# Introduction
 
-Library / Bindings
-------------------
+## Library / Bindings
 
 This C++ binding for 0mq/zmq is a 'high-level' library that hides most of the
 c-style interface core 0mq provides. It consists of a number of header and
@@ -16,14 +14,12 @@ both shared and static libraries.
 There are a number of unit tests covering the code but in no way should the
 tests be considered complete.
 
-Command-Line Client
--------------------
+## Command-Line Client
 
 There is also a command line client that can be used to test or even bridge
 zmq connections. The client is built on top of the libzmqpp bindings.
 
-Feature Requests
-================
+# Feature Requests
 
 If there is any missing features from the current versions of ZeroMQ that you
 wish to use please raise an issue against this project, or even a pull request.
@@ -31,8 +27,7 @@ wish to use please raise an issue against this project, or even a pull request.
 Generally I've only added things as I need them but I'm always happy to improve
 the feature set as people require.
 
-Contributing
-============
+# Contributing
 
 Contribution to this binding is welcome and it is suggested using pull requests
 in github that will then be reviewed and merged or commented on. The full
@@ -41,8 +36,7 @@ contribution is outlined on the zmq site (http://zeromq.org/docs:contributing)
 Please feel free to add yourself to the AUTHORS file in an alphanumerically
 sorted way before you raise the pull request.
 
-Documentation
-=============
+# Documentation
 
 Most of the code is now commented with doxygen style tags, and a basic
 configuration file to generate them is in the root directory.
@@ -55,8 +49,7 @@ And the resulting html or latex docs will be in the docs/html or docs/latex
 directories.
 
 
-libzmqpp
-========
+# libzmqpp
 
 There is a Makefile provided which will build, test and install the binding on
 a GNU Linux system. I have not tested it on anything other than Ubuntu since
@@ -69,8 +62,7 @@ The tests for the binding (make check) require the boost unittest framework to
 have been installed however these do not need to be built or run to install
 the library itself.
 
-Requirements
-------------
+## Requirements
 
 ZeroMQ 2.2.x or later. We recommend to use ZeroMQ >= 3.
 C++11 compliant compiler. (g++ >= 4.7)
@@ -78,8 +70,7 @@ C++11 compliant compiler. (g++ >= 4.7)
 The command line client and the tests also require libboost.
 
 
-Installation
-------------
+## Installation
 
 Installation can be done by the standard make && make install. If the boost
 unittest framework is installed, check and installcheck can be run for sanity
@@ -115,8 +106,7 @@ used, and PREFIX to change install location. The CXX prefix should be used on
 all targets as the compiler version is used in the build path. PREFIX is only
 relevant for the install target.
 
-Debugging
----------
+## Debugging
 
 The makefile defaults to a production ready build, however a debug version can
 be build by passing CONFIG=debug to the make command. In debug mode there is
@@ -125,8 +115,7 @@ not using the installed library the sanity check effect is governed by the
 defining of NDEBUG.
 
 
-zmqpp
-=====
+# zmqpp
 
 The make file can also build and install a client tool called zmqpp. To build
 this tool add the step;
@@ -136,8 +125,7 @@ this tool add the step;
 Before the install stage. The install target will install the client to the
 binaries directory if it has been built.
 
-Usage
------
+## Usage
 
 The client is a command line tool that can be used to listen or send to 0mq
 sockets. Its very basic so don't expect anything clever. zmqpp --help will list
@@ -174,8 +162,7 @@ on the input stream.
 The default flags will allow you to pipe data from one instance of zmqpp to
 another and so bridge between zmq sockets.
 
-Licensing
-=========
+# Licensing
 
 Both the library and the associated command line client are released under the
 MPLv2 license.

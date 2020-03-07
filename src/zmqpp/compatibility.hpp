@@ -129,11 +129,17 @@
 namespace zmqpp
 {
 #ifdef _WIN32
-	typedef SOCKET raw_socket_t;
+#if defined _WIN64
+	typedef unsigned __int64 raw_socket_t;
+#else
+	typedef unsigned int raw_socket_t;
+#endif
 #else
 	typedef int raw_socket_t;
 #endif
 }
+
+
 
 #endif /* ZMQPP_COMPATIBILITY_HPP_ */
 

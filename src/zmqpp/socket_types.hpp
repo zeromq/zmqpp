@@ -156,7 +156,7 @@ ZMQPP_COMPARABLE_ENUM socket_type {
 	xreq       = ZMQ_XREQ,   /*!< version of ::xrequest to match zmq name convention */
 	xrep       = ZMQ_XREP,   /*!< version of ::xreply to match zmq name convention */
 
-#ifdef ZMQ_BUILD_DRAFT_API
+#ifdef ZMQ_BUILD_DRAFT_API	
 	server     = ZMQ_SERVER,  /*!< client-server pattern is intended for service-oriented architectures of various kinds. It provides an asynchronous two-way message flow. see http://rfc.zeromq.org/spec:41 */
 	client     = ZMQ_CLIENT,  /*!< client-server pattern is intended for service-oriented architectures of various kinds. It provides an asynchronous two-way message flow. see http://rfc.zeromq.org/spec:41 */
 	radio      = ZMQ_RADIO,   /*!< meant to eventually deprecate the use of ZMQ_PUB to build pub-sub architectures, also supports udp */
