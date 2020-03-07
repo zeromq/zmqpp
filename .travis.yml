@@ -22,7 +22,7 @@ install:
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -q -y g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
   # Requirements
-  - sudo apt-get install -q -y libtool pkg-config libboost-all-dev
+  - sudo apt-get install -q -y libtool-bin libboost-all-dev
 
 script:
   - ./travis.sh
