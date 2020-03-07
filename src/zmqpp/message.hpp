@@ -72,7 +72,7 @@ public:
 	void get(int8_t& integer, size_t const part) const;
 	void get(int16_t& integer, size_t const part) const;
 	void get(int32_t& integer, size_t const part) const;
-	void get(int64_t& integer, size_t const part) const;	
+	void get(int64_t& integer, size_t const part) const;
 	void get(signal& sig, size_t const part) const;
 
 	void get(uint8_t& unsigned_integer, size_t const part) const;
@@ -237,6 +237,16 @@ public:
 				   data_size, ffn, hint);
 	}
 
+#if (ZMQ_VERSION_MAJOR >= 4) && ((ZMQ_VERSION_MAJOR >= 2) && ZMQ_BUILD_DRAFT_API)
+	/**
+	 * Specify a group for the message to be sent via radio
+	 *
+	 * \param group the group that the message belongs to
+	 * \return true if group was set successfully, false if there are no parts or not set successfully
+	 */
+	bool set_group(const std::string& group);
+#endif
+
 	// Stream reader style
 	void reset_read_cursor();
 
@@ -321,7 +331,7 @@ public:
 	zmq_msg_t& raw_msg(size_t const part = 0);
 	zmq_msg_t& raw_new_msg();
 	zmq_msg_t& raw_new_msg(size_t const reserve_data_size);
-	
+
 	/**
 	 * Check if the message is a signal.
 	 * If the message has 1 part, has the correct size and if the 7 first bytes match

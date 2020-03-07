@@ -371,6 +371,17 @@ bool socket::has_more_parts() const
 	return get<bool>(socket_option::receive_more);
 }
 
+// Dish socket join
+#if (ZMQ_VERSION_MAJOR >= 4) && ((ZMQ_VERSION_MAJOR >= 2) && ZMQ_BUILD_DRAFT_API)
+bool socket::join(const std::string& group)
+{
+	assert(_type == socket_type::dish);
+
+	const auto result = zmq_join(_socket, group.c_str());
+	return result >= 0;
+}
+#endif
+
 
 // Set socket options for different types of option
 void socket::set(socket_option const option, int const value)

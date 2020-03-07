@@ -155,7 +155,7 @@ void message::get(signal &sig, size_t const part) const
     assert(sizeof(signal) == size(part));
     int64_t v;
     get(v, part);
-    
+
     sig = static_cast<signal>(v);
 }
 
@@ -519,6 +519,24 @@ bool message::get_property(const std::string &property, std::string &out)
 	}
 
 	out = std::string(property_value);
+	return true;
+}
+#endif
+
+#if (ZMQ_VERSION_MAJOR >= 4) && ((ZMQ_VERSION_MAJOR >= 2) && ZMQ_BUILD_DRAFT_API)
+bool message::set_group(const std::string& group)
+{
+	// Nothing was set
+	if (_parts.empty())
+		return false;
+
+	// Use a loop to set, although in theory this message should not be multipart
+	for (size_t i = 0; i < _parts.size(); i++)
+	{
+		if (zmq_msg_set_group(&raw_msg(i), group.c_str()) < 0)
+			return false;
+	}
+
 	return true;
 }
 #endif
