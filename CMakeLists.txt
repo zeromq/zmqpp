@@ -12,6 +12,7 @@
 
 
 cmake_minimum_required(VERSION 2.8.12)
+project(zmqpp)
 enable_testing()
 
 # prepare C++11
@@ -60,7 +61,7 @@ set( ZEROMQ_LIB_DIR       ""      CACHE PATH "The library directory for libzmq" 
 set( ZEROMQ_INCLUDE_DIR   ""      CACHE PATH "The include directory for ZMQ" )
 
 # Build flags
-set( IS_TRAVIS_CI_BUILD   true    CACHE bool "Defines TRAVIS_CI_BUILD - Should the tests avoid running cases where memory is scarce." )
+set( IS_TRAVIS_CI_BUILD   true    CACHE BOOL "Defines TRAVIS_CI_BUILD - Should the tests avoid running cases where memory is scarce." )
 
 # Find zmq.h and add its dir to the includes
 find_path(ZEROMQ_INCLUDE zmq.h PATHS ${ZEROMQ_INCLUDE_DIR})
