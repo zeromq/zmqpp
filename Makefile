@@ -171,7 +171,7 @@ endif
 ifeq ($(BUILD_STATIC),yes)
 	install -m 755 $(BUILD_PATH)/$(LIBRARY_ARCHIVE) $(LIBDIR)/$(LIBRARY_ARCHIVE)
 endif
-	if [ -f $(BUILD_PATH)/$(CLIENT_TARGET) ]; then install -m 755 $(BUILD_PATH)/$(CLIENT_TARGET) $(BINDIR); fi
+	if [ -f $(BUILD_PATH)/$(CLIENT_TARGET) ]; then mkdir -p $(BINDIR); install -m 755 $(BUILD_PATH)/$(CLIENT_TARGET) $(BINDIR); fi
 	$(LDCONFIG)
 	@echo "use make installcheck to test the install"
 
