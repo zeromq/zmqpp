@@ -231,6 +231,9 @@ if( ZMQPP_BUILD_TESTS )
   add_test( zmqpp-test zmqpp-test-runner --log-level=test-suite )
 endif()
 
+# Configure pkg-config file
+# -------------------------
+configure_file(src/libzmqpp.pc ${CMAKE_BINARY_DIR}/libzmqpp.pc)
 
 # Install
 # -------
@@ -245,3 +248,7 @@ install(DIRECTORY src/zmqpp DESTINATION include/
 install(FILES
         "${CMAKE_CURRENT_BINARY_DIR}/zmqpp_export.h"
         DESTINATION "include")
+
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/libzmqpp.pc"
+        DESTINATION "lib/pkgconfig")
