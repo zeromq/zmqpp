@@ -1,7 +1,7 @@
 prefix=@CMAKE_INSTALL_PREFIX@
-exec_prefix=${prefix}
-libdir=${prefix}/lib
-includedir=${prefix}/include
+exec_prefix=@CMAKE_INSTALL_PREFIX@
+libdir=@CMAKE_INSTALL_PREFIX@/lib
+includedir=@CMAKE_INSTALL_PREFIX@/include
 
 Name: libzmqpp
 Description: The high-level C++ binding for 0MQ
@@ -9,5 +9,5 @@ Version:
 
 Requires: libzmq
 
-Libs: -L${libdir} -lzmqpp
-Cflags: -I${includedir}
+Libs: -L@CMAKE_INSTALL_PREFIX@/lib -lzmqpp
+Cflags: -I@CMAKE_INSTALL_PREFIX@/include
