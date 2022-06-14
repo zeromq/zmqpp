@@ -78,7 +78,7 @@ checking. To use ZMQ4 security feature install libsodium and libzmq --with-libso
 as shown below before ZMQPP.
 
     # Build, check, and install libsodium
-    git clone git://github.com/jedisct1/libsodium.git
+    git clone https://github.com/jedisct1/libsodium.git
     cd libsodium
     ./autogen.sh 
     ./configure && make check 
@@ -86,7 +86,7 @@ as shown below before ZMQPP.
     sudo ldconfig
     cd ../
     # Build, check, and install the latest version of ZeroMQ
-    git clone git://github.com/zeromq/libzmq.git
+    git clone https://github.com/zeromq/libzmq.git
     cd libzmq
     ./autogen.sh 
     ./configure --with-libsodium && make
@@ -94,7 +94,7 @@ as shown below before ZMQPP.
     sudo ldconfig
     cd ../
     # Now install ZMQPP
-    git clone git://github.com/zeromq/zmqpp.git
+    git clone https://github.com/zeromq/zmqpp.git
     cd zmqpp
     make
     make check
