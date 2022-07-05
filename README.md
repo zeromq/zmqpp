@@ -78,10 +78,9 @@ checking. To use ZMQ4 security feature install libsodium and libzmq --with-libso
 as shown below before ZMQPP.
 
     # Build, check, and install libsodium
-    git clone git://github.com/jedisct1/libsodium.git
+    git clone git://github.com/jedisct1/libsodium.git --branch stable
     cd libsodium
-    ./autogen.sh 
-    ./configure && make check 
+    ./configure && make && make check 
     sudo make install 
     sudo ldconfig
     cd ../
@@ -94,7 +93,7 @@ as shown below before ZMQPP.
     sudo ldconfig
     cd ../
     # Now install ZMQPP
-    git clone git://github.com/zeromq/zmqpp.git
+    git clone git://github.com/zeromq/zmqpp.git --branch master
     cd zmqpp
     make
     make check
